@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>血液型占い | ちょっとヒマ</title>
+  <meta name="description" content="血液型で性格・今日の運勢・相性をチェック！A型・B型・O型・AB型それぞれの特徴と今日のラッキーポイントを紹介。">
+  <meta name="keywords" content="血液型占い,血液型,相性,性格,A型,B型,O型,AB型">
+  <meta property="og:title" content="血液型占い | ちょっとヒマ">
+  <meta property="og:url" content="https://13yh820.github.io/chotto-hima/uranai/blood.html">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/uranai/blood.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .blood-tabs {
+      display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:24px;
+    }
+    .blood-btn {
+      width:72px; height:72px; border-radius:50%;
+      border:3px solid var(--border); background:var(--card-bg);
+      font-size:1.1rem; font-weight:900; cursor:pointer;
+      font-family:inherit; color:var(--text); transition:all .2s;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:2px; box-shadow:var(--shadow);
+    }
+    .blood-btn .btype { font-size:1.3rem; }
+    .blood-btn:hover { transform:scale(1.08); }
+    .blood-btn.active { border-color:var(--accent); background:var(--accent); color:#fff; transform:scale(1.08); box-shadow:0 0 20px rgba(255,101,132,.4); }
+
+    .result-card {
+      background:var(--card-bg); border-radius:var(--radius); border:1px solid var(--border);
+      padding:28px 20px; box-shadow:var(--shadow); margin-bottom:16px;
+    }
+    .result-header {
+      display:flex; align-items:center; gap:16px; margin-bottom:20px;
+    }
+    .blood-badge {
+      width:70px; height:70px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.6rem; font-weight:900; color:#fff; flex-shrink:0;
+      box-shadow:0 4px 16px rgba(0,0,0,.3);
+    }
+    .blood-name { font-size:1.3rem; font-weight:800; margin-bottom:4px; }
+    .blood-catch { font-size:.85rem; color:var(--text-muted); }
+
+    .traits {
+      display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;
+    }
+    .trait-tag {
+      background:rgba(139,92,246,.12); border:1px solid rgba(139,92,246,.3);
+      border-radius:99px; padding:4px 12px; font-size:.78rem; font-weight:700; color:var(--primary);
+    }
+
+    .section-label {
+      font-size:.75rem; font-weight:800; letter-spacing:.1em; color:var(--text-muted);
+      text-transform:uppercase; margin-bottom:8px; margin-top:16px;
+    }
+
+    .fortune-grid {
+      display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;
+    }
+    .fortune-box {
+      background:var(--bg); border-radius:var(--radius-sm); padding:12px;
+      border:1px solid var(--border); text-align:center;
+    }
+    .fortune-box .fb-icon { font-size:1.4rem; margin-bottom:4px; }
+    .fortune-box .fb-label { font-size:.7rem; color:var(--text-muted); margin-bottom:4px; }
+    .fortune-box .fb-val { font-size:.85rem; font-weight:700; color:var(--text); }
+
+    .stars { color:#fbbf24; font-size:1rem; letter-spacing:2px; }
+
+    /* 相性セクション */
+    .compat-section { margin-top:16px; }
+    .compat-grid {
+      display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+    }
+    .compat-box {
+      background:var(--bg); border-radius:10px; padding:10px 8px;
+      border:1px solid var(--border); text-align:center;
+    }
+    .compat-box .cb-type { font-size:1.1rem; font-weight:900; margin-bottom:4px; }
+    .compat-box .cb-heart { font-size:1rem; }
+    .compat-box .cb-label { font-size:.65rem; color:var(--text-muted); margin-top:2px; }
+    .compat-box.best { border-color:#e53e3e; background:rgba(229,62,62,.08); }
+    .compat-box.good { border-color:#f59e0b; background:rgba(245,158,11,.08); }
+    .compat-box.bad  { border-color:#6b7280; }
+
+    .today-msg {
+      background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(255,101,132,.1));
+      border:1px solid rgba(139,92,246,.25); border-radius:var(--radius-sm);
+      padding:14px 16px; font-size:.9rem; line-height:1.7; color:var(--text);
+    }
+
+    .select-prompt {
+      text-align:center; padding:40px 20px; color:var(--text-muted);
+    }
+    .select-prompt .sp-icon { font-size:3rem; margin-bottom:12px; }
+    .select-prompt p { font-size:.9rem; }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+    <nav>
+      <a href="horoscope.html">星座</a>
+      <a href="tarot.html">タロット</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="page-header">
+    <div class="icon">🩸</div>
+    <h1>血液型占い</h1>
+    <p>あなたの血液型を選んで今日の運勢と相性をチェック！</p>
+  </div>
+
+  <div class="game-area" style="max-width:520px">
+    <div class="ad-box">広告スペース</div>
+
+    <div class="blood-tabs">
+      <button class="blood-btn" data-type="A" onclick="showResult('A',this)">
+        <span class="btype">🅰️</span><span>A型</span>
+      </button>
+      <button class="blood-btn" data-type="B" onclick="showResult('B',this)">
+        <span class="btype">🅱️</span><span>B型</span>
+      </button>
+      <button class="blood-btn" data-type="O" onclick="showResult('O',this)">
+        <span class="btype">🅾️</span><span>O型</span>
+      </button>
+      <button class="blood-btn" data-type="AB" onclick="showResult('AB',this)">
+        <span class="btype">🆎</span><span>AB型</span>
+      </button>
+    </div>
+
+    <div id="selectPrompt" class="select-prompt">
+      <div class="sp-icon">👆</div>
+      <p>上のボタンから<br>あなたの血液型を選んでね</p>
+    </div>
+
+    <div id="resultArea" style="display:none"></div>
+
+    <div class="ad-box" style="margin-top:20px">広告スペース</div>
+  </div>
+</main>
+<footer>
+  <p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
+</footer>
+<script>
+const DATA = {
+  A: {
+    color: '#e53e3e',
+    emoji: '🅰️',
+    name: 'A型',
+    catch: '真面目で几帳面な完璧主義者',
+    desc: 'A型のあなたは、責任感が強く、物事をきちんとこなすことが得意です。計画を立てて行動するタイプで、周囲からの信頼も厚い。繊細な一面もあり、傷つきやすいことも。',
+    traits: ['几帳面','責任感','完璧主義','気配り上手','心配性','慎重派'],
+    lucky: { color:'ホワイト', item:'手帳', place:'図書館', food:'和食' },
+    today: [
+      '今日は細かい作業に集中すると良い結果が出ます。計画通りに進めることで、周囲から高い評価を得られるでしょう。',
+      '人間関係で気を遣いすぎているかも。今日は自分の意見をしっかり伝える練習をしてみましょう。',
+      '几帳面なあなたが輝く日！整理整頓や片づけをすると、気持ちもスッキリして運気が上がります。',
+      '少し完璧を求めすぎているかも。「80点でOK」と思うと心が楽になり、チャンスが広がります。',
+      '今日は直感を信じてみて。いつもの慎重さに直感をプラスすると、思わぬ良い展開が待っています。',
+    ],
+    fortune: { love:4, work:5, money:3, health:4 },
+    compat: {
+      best: ['A','AB'],
+      good: ['O'],
+      hard: ['B'],
+    }
+  },
+  B: {
+    color: '#f59e0b',
+    emoji: '🅱️',
+    name: 'B型',
+    catch: '自由奔放なマイペース天才肌',
+    desc: 'B型のあなたは、独自のセンスと強い個性の持ち主。自分の世界観を大切にし、好奇心旺盛で新しいことへの挑戦が大好き。マイペースな反面、ひとつのことに没頭すると驚くほどの集中力を発揮します。',
+    traits: ['マイペース','好奇心旺盛','天才肌','直感的','個性的','自由人'],
+    lucky: { color:'オレンジ', item:'スケッチブック', place:'アウトドア', food:'エスニック料理' },
+    today: [
+      '今日はインスピレーションが冴えわたる日！湧き上がるアイデアをメモしておくと後で役立ちます。',
+      'マイペースが功を奏す日。周りに流されずに自分の判断を信じると良い結果になります。',
+      '好奇心のままに行動してみましょう。普段行かない場所や食べたことのないものに挑戦すると運気UP！',
+      '少し集中力が散漫になりがち。ひとつのことに絞って取り組むと驚くほど成果が出ます。',
+      '個性が輝く日。あなたらしいアイデアや提案が周囲に喜ばれます。遠慮せずに発信しましょう。',
+    ],
+    fortune: { love:3, work:4, money:3, health:5 },
+    compat: {
+      best: ['O','B'],
+      good: ['AB'],
+      hard: ['A'],
+    }
+  },
+  O: {
+    color: '#8b5cf6',
+    emoji: '🅾️',
+    name: 'O型',
+    catch: '頼りがいのある天性のリーダー',
+    desc: 'O型のあなたは、面倒見が良くリーダーシップがあります。おおらかで細かいことを気にしない大胆な性格で、多くの人に好かれます。目標に向かってまっすぐ突き進む情熱も持ち合わせています。',
+    traits: ['リーダー気質','おおらか','行動力','情熱的','面倒見いい','大雑把'],
+    lucky: { color:'グリーン', item:'スポーツ用品', place:'公園', food:'焼肉' },
+    today: [
+      '今日はリーダーシップを発揮するチャンス！誰かをサポートしたり引っ張ったりすると運気が上昇します。',
+      'おおらかな性格が周囲を救う日。細かいことは気にせず、大局を見て動くと物事がうまく回ります。',
+      '行動力が鍵！迷ったらまず動いてみましょう。最初の一歩が新しい扉を開いてくれます。',
+      '仲間との絆が深まる日。グループでの活動や食事が特に運気アップのポイントです。',
+      '大胆な決断が吉！今日は思い切った行動が良い結果をもたらします。直感を大切にして。',
+    ],
+    fortune: { love:5, work:4, money:4, health:3 },
+    compat: {
+      best: ['O','A'],
+      good: ['B'],
+      hard: ['AB'],
+    }
+  },
+  AB: {
+    color: '#3b82f6',
+    emoji: '🆎',
+    name: 'AB型',
+    catch: '二面性を持つ謎めいた合理主義者',
+    desc: 'AB型のあなたは、A型とB型の両方の特性を持つ複雑な人物。冷静な分析力と豊かな感性を兼ね備えており、状況に応じて柔軟に対応できます。ユニークな発想力で周囲を驚かせることも多いでしょう。',
+    traits: ['二面性','分析力高い','ユニーク','柔軟','合理主義','天才型'],
+    lucky: { color:'パープル', item:'本', place:'カフェ', food:'創作料理' },
+    today: [
+      '今日は分析力が冴える日！複雑な問題や難しい判断も、冷静に考えれば必ず答えが見つかります。',
+      '二面性を活かして！場の雰囲気に合わせて自分を変えられるあなたの強みが輝く日です。',
+      'ユニークなアイデアが評価される日。「変わってる」と思っていたことが、実は大きな強みになります。',
+      '今日は感性を信じて。いつもの合理的思考に加えて直感も大切にすると、素晴らしい発見があります。',
+      '少し孤独を感じるかも。信頼できる人に気持ちを打ち明けると気持ちが楽になり運気も上向きます。',
+    ],
+    fortune: { love:3, work:5, money:5, health:3 },
+    compat: {
+      best: ['AB','A'],
+      good: ['B'],
+      hard: ['O'],
+    }
+  }
+};
+
+const COMPAT_LABELS = {
+  best: { hearts:'❤️❤️❤️', label:'最高相性' },
+  good: { hearts:'💛💛',   label:'良好' },
+  hard: { hearts:'🩶',     label:'要努力' },
+};
+
+const FORTUNE_LABELS = ['love','work','money','health'];
+const FORTUNE_ICONS  = { love:'💕', work:'💼', money:'💰', health:'💪' };
+const FORTUNE_NAMES  = { love:'恋愛運', work:'仕事運', money:'金運', health:'健康運' };
+
+function starStr(n) { return '★'.repeat(n) + '☆'.repeat(5-n); }
+
+function showResult(type, btn) {
+  document.querySelectorAll('.blood-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('selectPrompt').style.display = 'none';
+
+  const d = DATA[type];
+  const todayMsg = d.today[Math.floor(Math.random() * d.today.length)];
+  const all = ['A','B','O','AB'];
+
+  // 相性マップ
+  const compatMap = {};
+  all.forEach(t => {
+    if (d.compat.best.includes(t)) compatMap[t] = 'best';
+    else if (d.compat.good.includes(t)) compatMap[t] = 'good';
+    else compatMap[t] = 'hard';
+  });
+
+  const compatHTML = all.map(t => {
+    const level = compatMap[t];
+    const info = COMPAT_LABELS[level];
+    return `<div class="compat-box ${level}">
+      <div class="cb-type">${t}型</div>
+      <div class="cb-heart">${info.hearts}</div>
+      <div class="cb-label">${info.label}</div>
+    </div>`;
+  }).join('');
+
+  const fortuneHTML = FORTUNE_LABELS.map(key => `
+    <div class="fortune-box">
+      <div class="fb-icon">${FORTUNE_ICONS[key]}</div>
+      <div class="fb-label">${FORTUNE_NAMES[key]}</div>
+      <div class="stars">${starStr(d.fortune[key])}</div>
+    </div>
+  `).join('');
+
+  const traitsHTML = d.traits.map(t => `<span class="trait-tag">${t}</span>`).join('');
+
+  const html = `
+    <div class="result-card">
+      <div class="result-header">
+        <div class="blood-badge" style="background:${d.color}">${d.emoji}</div>
+        <div>
+          <div class="blood-name">${d.name}の人</div>
+          <div class="blood-catch">${d.catch}</div>
+        </div>
+      </div>
+
+      <p style="font-size:.9rem;line-height:1.8;color:var(--text);margin-bottom:12px">${d.desc}</p>
+
+      <div class="section-label">キーワード</div>
+      <div class="traits">${traitsHTML}</div>
+
+      <div class="section-label">今日の運勢</div>
+      <div class="fortune-grid">${fortuneHTML}</div>
+
+      <div class="section-label">今日のメッセージ</div>
+      <div class="today-msg">${todayMsg}</div>
+
+      <div class="section-label">ラッキーアイテム</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="fortune-box"><div class="fb-icon">🎨</div><div class="fb-label">ラッキーカラー</div><div class="fb-val">${d.lucky.color}</div></div>
+        <div class="fortune-box"><div class="fb-icon">✨</div><div class="fb-label">ラッキーアイテム</div><div class="fb-val">${d.lucky.item}</div></div>
+        <div class="fortune-box"><div class="fb-icon">📍</div><div class="fb-label">ラッキープレイス</div><div class="fb-val">${d.lucky.place}</div></div>
+        <div class="fortune-box"><div class="fb-icon">🍽️</div><div class="fb-label">ラッキーフード</div><div class="fb-val">${d.lucky.food}</div></div>
+      </div>
+
+      <div class="section-label">他の血液型との相性</div>
+      <div class="compat-grid">${compatHTML}</div>
+    </div>
+  `;
+
+  const area = document.getElementById('resultArea');
+  area.style.display = 'block';
+  area.innerHTML = html;
+  area.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+</script>
+</body>
+</html>
