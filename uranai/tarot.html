@@ -3,114 +3,200 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>タロット占い 無料1枚引き | ちょっとヒマ</title>
-  <meta name="description" content="無料のタロット占い。大アルカナ22枚の中から1枚引いて、今日のメッセージを受け取りましょう。正位置・逆位置の意味も解説。">
-  <meta name="keywords" content="タロット占い,無料,1枚引き,大アルカナ,正位置,逆位置,今日の運勢">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="タロット占い 無料1枚引き | ちょっとヒマ">
-  <meta property="og:description" content="大アルカナから1枚引いて今日のメッセージを受け取ろう。">
-  <meta property="og:url" content="https://chotto-hima.com/uranai/tarot.html">
-  <meta property="og:site_name" content="ちょっとヒマ">
-  <meta name="twitter:card" content="summary">
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "name": "タロット占い 無料1枚引き",
-    "description": "大アルカナ22枚の中から1枚引いて今日のメッセージを受け取ろう",
-    "url": "https://chotto-hima.com/uranai/tarot.html",
-    "isPartOf": { "@type": "WebSite", "name": "ちょっとヒマ", "url": "https://chotto-hima.com/" }
-  }
-  </script>
-  <link rel="canonical" href="https://chotto-hima.com/uranai/tarot.html">
+  <title>タロット占い 5枚引き | ちょっとヒマ</title>
+  <meta name="description" content="無料の本格タロット占い。占いたいことを入力して大アルカナ5枚を選ぶと、過去・現在・課題・アドバイス・結果を詳しく解説します。">
+  <meta name="keywords" content="タロット占い,無料,5枚引き,本格,大アルカナ,ケルト十字,恋愛,仕事,悩み">
+  <meta property="og:title" content="タロット占い 5枚引き | ちょっとヒマ">
+  <meta property="og:description" content="占いたいことを入力して5枚のカードを選ぼう。本格タロット占い無料。">
+  <meta property="og:url" content="https://13yh820.github.io/chotto-hima/uranai/tarot.html">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/uranai/tarot.html">
   <link rel="stylesheet" href="../css/style.css">
   <style>
-    .tarot-stage {
-      margin: 32px auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 24px;
-    }
-    .tarot-deck {
-      width: 120px;
-      height: 200px;
-      perspective: 600px;
-      cursor: pointer;
-    }
-    .tarot-card-wrap {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform 0.6s cubic-bezier(.4,0,.2,1);
-    }
-    .tarot-card-wrap.flipped { transform: rotateY(180deg); }
-    .tarot-face, .tarot-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      border-radius: 12px;
+    /* ステップ表示 */
+    .step-indicator {
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.9rem;
-      font-weight: 700;
+      gap: 0;
+      margin-bottom: 28px;
     }
-    .tarot-back {
-      background: linear-gradient(135deg, var(--primary) 0%, #a78bfa 100%);
-      color: #fff;
-      font-size: 2rem;
-      flex-direction: column;
-      gap: 8px;
-      box-shadow: 0 8px 32px rgba(108,99,255,0.4);
+    .step-dot {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--border);
+      color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.82rem; font-weight: 700;
+      transition: all 0.3s;
     }
-    .tarot-face {
-      background: linear-gradient(135deg, #fff9e6 0%, #fff3cc 100%);
-      transform: rotateY(180deg);
-      flex-direction: column;
-      gap: 6px;
-      border: 2px solid #e8d88a;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-      padding: 12px;
-      text-align: center;
-    }
-    .tarot-face .card-num { font-size: 0.72rem; color: #b8a050; font-weight: 600; }
-    .tarot-face .card-icon { font-size: 2.8rem; }
-    .tarot-face .card-name { font-size: 0.9rem; font-weight: 800; color: #7a5f00; }
-    .tarot-face .card-rev { font-size: 0.7rem; color: #c0392b; font-weight: 600; }
-    .shuffle-hint { color: var(--text-muted); font-size: 0.88rem; }
-    .tarot-result {
+    .step-dot.active { background: var(--primary); color: #fff; }
+    .step-dot.done { background: #00c853; color: #fff; }
+    .step-line { flex: 1; height: 2px; background: var(--border); max-width: 60px; }
+
+    /* 質問入力 */
+    .question-box {
       background: var(--card-bg);
       border-radius: var(--radius);
       padding: 28px;
       box-shadow: var(--shadow);
       border: 1px solid var(--border);
-      text-align: left;
-      display: none;
-      max-width: 520px;
+      margin-bottom: 20px;
+    }
+    .question-box h2 { font-size: 1.1rem; margin-bottom: 12px; }
+    .question-box p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px; }
+    .question-input {
       width: 100%;
+      padding: 14px 16px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--bg);
+      transition: border-color 0.2s;
+      resize: none;
+      box-sizing: border-box;
     }
-    .tarot-result.show { display: block; }
-    .tarot-result h2 { font-size: 1.2rem; margin-bottom: 4px; }
-    .tarot-result .pos-label {
-      display: inline-block;
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 2px 10px;
+    .question-input:focus { outline: none; border-color: var(--primary); }
+    .quick-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .quick-btn {
+      padding: 6px 14px;
       border-radius: 99px;
-      margin-bottom: 14px;
+      border: 1.5px solid var(--border);
+      background: var(--card-bg);
+      font-size: 0.78rem;
+      cursor: pointer;
+      font-family: inherit;
+      color: var(--text);
+      transition: all 0.18s;
     }
-    .tarot-result .pos-label.upright { background: #e8f5e9; color: #2e7d32; }
-    .tarot-result .pos-label.reversed { background: #fce4ec; color: #c62828; }
-    .tarot-result p { font-size: 0.95rem; line-height: 1.85; color: var(--text); }
-    .keyword-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0; }
-    .keyword { background: var(--bg); border-radius: 99px; padding: 4px 12px; font-size: 0.78rem; color: var(--primary); font-weight: 600; }
+    .quick-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* カード選択 */
+    .pick-info {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .pick-info .q-display {
+      background: linear-gradient(135deg, var(--primary), #a78bfa);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .pick-count { color: var(--text-muted); font-size: 0.88rem; }
+    .pick-count span { color: var(--primary); font-weight: 700; }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    @media(max-width:600px){ .cards-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; } }
+
+    .pick-card {
+      aspect-ratio: 2/3;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #6c63ff, #a78bfa);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      transition: all 0.2s;
+      position: relative;
+      color: #fff;
+    }
+    .pick-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(108,99,255,0.35); }
+    .pick-card.selected {
+      background: linear-gradient(135deg, #00c853, #69f0ae);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0,200,83,0.35);
+    }
+    .pick-card.selected::after {
+      content: attr(data-order);
+      position: absolute;
+      top: -8px; right: -8px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 50%;
+      width: 20px; height: 20px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* 結果 */
+    .result-header {
+      background: linear-gradient(135deg, #2d2d3a, #1a1a2e);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .result-header .q-text { font-size: 0.88rem; opacity: 0.75; margin-bottom: 8px; }
+    .result-header h2 { font-size: 1.2rem; font-weight: 800; }
+
+    .spread-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    @media(max-width:500px){ .spread-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    .spread-card {
+      background: linear-gradient(135deg, #fff9e6, #fff3cc);
+      border: 2px solid #e8d88a;
+      border-radius: 10px;
+      padding: 10px 6px;
+      text-align: center;
+    }
+    .spread-card .pos-label { font-size: 0.65rem; color: #b8a050; font-weight: 700; margin-bottom: 4px; }
+    .spread-card .card-emoji { font-size: 1.6rem; }
+    .spread-card .card-name { font-size: 0.7rem; font-weight: 800; color: #7a5f00; margin-top: 4px; }
+    .spread-card .card-rev { font-size: 0.6rem; color: #c0392b; }
+    .spread-card.reversed { background: linear-gradient(135deg, #fff0f0, #ffe0e0); border-color: #e8a0a0; }
+
+    .card-details { display: flex; flex-direction: column; gap: 16px; }
+    .card-detail-item {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .card-detail-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .card-detail-emoji { font-size: 2rem; }
+    .card-detail-pos { font-size: 0.72rem; font-weight: 700; color: var(--primary); background: var(--bg); padding: 3px 10px; border-radius: 99px; }
+    .card-detail-name { font-size: 1rem; font-weight: 800; }
+    .card-detail-rev { font-size: 0.72rem; color: #e53e3e; font-weight: 600; }
+    .card-keywords { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .card-keyword { background: var(--bg); border-radius: 99px; padding: 3px 10px; font-size: 0.75rem; color: var(--primary); font-weight: 600; }
+    .card-msg { font-size: 0.9rem; line-height: 1.85; color: var(--text); }
+
+    .overall-msg {
+      background: linear-gradient(135deg, var(--primary), #a78bfa);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-top: 8px;
+    }
+    .overall-msg h3 { font-size: 1rem; margin-bottom: 10px; opacity: 0.85; }
+    .overall-msg p { font-size: 0.95rem; line-height: 1.85; }
   </style>
 </head>
 <body>
-
 <header>
   <div class="header-inner">
     <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
@@ -120,216 +206,352 @@
     </nav>
   </div>
 </header>
-
 <main>
   <div class="page-header">
     <div class="icon">🃏</div>
     <h1>タロット占い</h1>
-    <p>カードに意識を集中して、タップしてください</p>
+    <p>占いたいことを入力して、5枚のカードを選ぼう</p>
   </div>
-
-  <div class="game-area" style="max-width:600px">
+  <div class="game-area" style="max-width:640px">
     <div class="ad-box">広告スペース</div>
 
-    <div class="tarot-stage">
-      <p class="shuffle-hint" id="hint">✨ カードをタップして1枚引く</p>
+    <!-- ステップインジケーター -->
+    <div class="step-indicator">
+      <div class="step-dot active" id="step1dot">1</div>
+      <div class="step-line"></div>
+      <div class="step-dot" id="step2dot">2</div>
+      <div class="step-line"></div>
+      <div class="step-dot" id="step3dot">3</div>
+    </div>
 
-      <div class="tarot-deck" id="deck" onclick="drawCard()">
-        <div class="tarot-card-wrap" id="cardWrap">
-          <div class="tarot-back">
-            <span>🌙</span>
-            <span style="font-size:0.85rem;font-weight:800;">タップして引く</span>
-          </div>
-          <div class="tarot-face" id="cardFace">
-            <div class="card-num" id="cNum"></div>
-            <div class="card-icon" id="cIcon"></div>
-            <div class="card-name" id="cName"></div>
-            <div class="card-rev" id="cRev"></div>
-          </div>
+    <!-- STEP 1: 質問入力 -->
+    <div id="step1">
+      <div class="question-box">
+        <h2>🔮 何について占いますか？</h2>
+        <p>心の中で質問を思い浮かべながら入力してください。より具体的な方が精度が上がります。</p>
+        <textarea class="question-input" id="questionInput" rows="3" placeholder="例：彼との恋愛はうまくいきますか？　仕事の転職について知りたい　など"></textarea>
+        <div class="quick-btns">
+          <button class="quick-btn" onclick="setQuestion('恋愛について')">💕 恋愛</button>
+          <button class="quick-btn" onclick="setQuestion('仕事・転職について')">💼 仕事</button>
+          <button class="quick-btn" onclick="setQuestion('人間関係について')">🤝 人間関係</button>
+          <button class="quick-btn" onclick="setQuestion('お金・金運について')">💰 金運</button>
+          <button class="quick-btn" onclick="setQuestion('今後の運勢について')">🌟 全体運</button>
         </div>
       </div>
-
-      <div class="tarot-result" id="result">
-        <h2 id="rTitle"></h2>
-        <span class="pos-label" id="rLabel"></span>
-        <div class="keyword-row" id="rKeywords"></div>
-        <p id="rMessage"></p>
-        <br>
-        <button class="btn btn-outline" style="width:100%" onclick="resetDeck()">もう一度引く</button>
+      <div style="text-align:center">
+        <button class="btn btn-primary" onclick="goStep2()">カードを選ぶ →</button>
       </div>
     </div>
 
-    <div class="ad-box">広告スペース</div>
+    <!-- STEP 2: カード選択 -->
+    <div id="step2" style="display:none">
+      <div class="pick-info">
+        <div class="q-display" id="qDisplay"></div>
+        <div class="pick-count">カードを <span id="pickCount">0</span> / 5 枚選んでください</div>
+      </div>
+      <div class="cards-grid" id="cardsGrid"></div>
+      <div style="text-align:center">
+        <button class="btn btn-primary" id="revealBtn" onclick="goStep3()" disabled style="opacity:0.5">結果を見る ✨</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: 結果 -->
+    <div id="step3" style="display:none">
+      <div class="result-header">
+        <div class="q-text">占い内容</div>
+        <h2 id="resultQ"></h2>
+      </div>
+      <div class="spread-grid" id="spreadGrid"></div>
+      <div class="card-details" id="cardDetails"></div>
+      <div class="overall-msg" id="overallMsg" style="margin-top:20px">
+        <h3>🌙 総合メッセージ</h3>
+        <p id="overallText"></p>
+      </div>
+      <br>
+      <button class="btn btn-outline" style="width:100%" onclick="resetAll()">もう一度占う</button>
+    </div>
+
+    <div class="ad-box" style="margin-top:24px">広告スペース</div>
   </div>
 </main>
-
 <footer>
   <p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
 </footer>
-
 <script src="../js/common.js"></script>
 <script>
-const CARDS = [
-  { num:'0', name:'愚者', icon:'🃏',
-    upright: { keywords:['自由','新しい始まり','冒険','無邪気'],
-      msg:'新しい一歩を踏み出すときが来ています。失敗を恐れず、心の声に従って動いてみましょう。予期せぬ出会いや発見があなたを待っています。' },
-    reversed: { keywords:['無謀','不注意','先行き不透明'],
-      msg:'今は少し立ち止まって考えるとき。勢いだけで進むと思わぬ失敗につながりやすい日です。計画を見直してから動き出しましょう。' } },
-  { num:'Ⅰ', name:'魔術師', icon:'🔮',
-    upright: { keywords:['意志力','集中','スキル','創造'],
-      msg:'あなたには今、必要な力がすべて揃っています。自分の能力を信じて行動を起こせば、思い描いた未来を実現できます。' },
-    reversed: { keywords:['力の浪費','詐欺','集中力不足'],
-      msg:'エネルギーが分散している状態。やりたいことを絞り込み、1つに集中することで道が開けます。焦りは禁物です。' } },
-  { num:'Ⅱ', name:'女教皇', icon:'📖',
-    upright: { keywords:['直感','内なる知恵','神秘','静寂'],
-      msg:'答えはすでにあなたの中にあります。静かな場所でひとりになり、直感に耳を傾けてみましょう。今日は内省の日です。' },
-    reversed: { keywords:['秘密','感情の抑圧','情報不足'],
-      msg:'大切な情報が隠れているかもしれません。表面だけで判断せず、物事の裏側をよく見てみましょう。' } },
-  { num:'Ⅲ', name:'女帝', icon:'🌸',
-    upright: { keywords:['豊かさ','母性','創造性','自然'],
-      msg:'豊かさと愛に満ちた時期です。創造的な活動や人を育てること、自然との関わりが運気を高めてくれます。美しいものに触れて。' },
-    reversed: { keywords:['過保護','停滞','依存'],
-      msg:'誰かに頼りすぎていないか、または頼らせすぎていないか見直しましょう。自立することで新しいエネルギーが生まれます。' } },
-  { num:'Ⅳ', name:'皇帝', icon:'👑',
-    upright: { keywords:['権威','安定','構造','リーダーシップ'],
-      msg:'今日は主導権を持って動く日。計画を立て、責任をもって実行することで大きな成果が生まれます。リーダーシップを発揮しましょう。' },
-    reversed: { keywords:['独裁','硬直','コントロール'],
-      msg:'頑固になりすぎていませんか？柔軟に人の意見を取り入れることで、より良い結果に近づけます。' } },
-  { num:'Ⅴ', name:'教皇', icon:'⛪',
-    upright: { keywords:['伝統','指導','学び','信仰'],
-      msg:'信頼できる人の教えやアドバイスを素直に聞くとき。伝統や規則の中に大切な知恵が隠れています。' },
-    reversed: { keywords:['反抗','非従来型','型破り'],
-      msg:'慣習にとらわれず、自分のやり方を試してみましょう。ただし周囲への配慮も忘れずに。' } },
-  { num:'Ⅵ', name:'恋人', icon:'💕',
-    upright: { keywords:['愛','選択','調和','コミュニケーション'],
-      msg:'人間関係がテーマの日。大切な人との絆が深まるとき。迷っている選択があるなら、心に正直に選びましょう。' },
-    reversed: { keywords:['不調和','悪い選択','コミュニケーション不足'],
-      msg:'誰かとのすれ違いが起きやすいとき。誤解を解くために、しっかりと話し合いの場を持ちましょう。' } },
-  { num:'Ⅶ', name:'戦車', icon:'🚀',
-    upright: { keywords:['勝利','意志力','前進','コントロール'],
-      msg:'力強く前に進む日！困難があっても意志の力で乗り越えられます。目標に向かってまっすぐ突き進んでください。' },
-    reversed: { keywords:['方向性の欠如','暴走','敗北'],
-      msg:'力はあるけれど方向が定まっていない状態。まず目的地を明確にしてから行動を始めましょう。' } },
-  { num:'Ⅷ', name:'力', icon:'🦁',
-    upright: { keywords:['内なる強さ','勇気','忍耐','優しさ'],
-      msg:'真の強さとは優しさの中にあります。感情をうまくコントロールしながら、穏やかに、しかし強くいてください。' },
-    reversed: { keywords:['弱さ','自信喪失','感情的'],
-      msg:'今は自信が揺らいでいるかも。無理せず休息を取りながら、自分を信じる気持ちを少しずつ取り戻していきましょう。' } },
-  { num:'Ⅸ', name:'隠者', icon:'🕯️',
-    upright: { keywords:['孤独','内省','知恵','探求'],
-      msg:'一人の時間を大切にしましょう。静かな場所で自分と向き合うことで、大切な気づきを得られます。孤独は成長の種。' },
-    reversed: { keywords:['孤立','引きこもり','頑固'],
-      msg:'孤立しすぎていませんか？人との交流があなたに新しいエネルギーをもたらします。誰かに声をかけてみて。' } },
-  { num:'Ⅹ', name:'運命の輪', icon:'☸️',
-    upright: { keywords:['転機','幸運','サイクル','チャンス'],
-      msg:'運命の歯車が動き始めるとき！思いがけないチャンスや転機が訪れそう。変化を恐れず流れに乗って。' },
-    reversed: { keywords:['不運','停滞','悪循環'],
-      msg:'今は流れが滞っている時期。焦らず嵐が過ぎ去るのを待ちましょう。その間に準備を整えておくことが大切。' } },
-  { num:'Ⅺ', name:'正義', icon:'⚖️',
-    upright: { keywords:['公平','真実','バランス','決断'],
-      msg:'正直に、フェアに行動することが今日のテーマ。物事を客観的に見て、正しい判断を下しましょう。真実はあなたの味方。' },
-    reversed: { keywords:['不公平','不誠実','偏見'],
-      msg:'自分に都合のよい解釈をしていないか振り返って。偏りのない視点で物事を見直すと答えが見えてきます。' } },
-  { num:'Ⅻ', name:'吊られた男', icon:'🙃',
-    upright: { keywords:['停止','待機','視点の転換','犠牲'],
-      msg:'今は動かず待つとき。焦る必要はありません。別の角度から物事を見ることで、新しい解決策が浮かんできます。' },
-    reversed: { keywords:['無意味な犠牲','解放','前進'],
-      msg:'停滞していたことからそろそろ解放されます。新しい視点を手に入れたあなたは、次のステップへ進む準備ができています。' } },
-  { num:'ⅩⅢ', name:'死神', icon:'🌑',
-    upright: { keywords:['終わり','変容','手放す','再生'],
-      msg:'何かが終わりを迎え、新しいものが始まるとき。手放すことへの恐れを手放して。終わりは常に始まりの前触れです。' },
-    reversed: { keywords:['変化への抵抗','停滞','執着'],
-      msg:'変化を恐れて古いものにしがみついていませんか？手放すことで新しい幸せが流れ込んできます。' } },
-  { num:'ⅩⅣ', name:'節制', icon:'🌈',
-    upright: { keywords:['バランス','節度','忍耐','調和'],
-      msg:'急がば回れ。バランスよく、着実に。過剰にならず不足にならず、ちょうどよいペースで進むことが成功のカギです。' },
-    reversed: { keywords:['過剰','不均衡','不節制'],
-      msg:'どこかで行き過ぎてしまっているかも。生活リズムや食事、人間関係のバランスを見直しましょう。' } },
-  { num:'ⅩⅤ', name:'悪魔', icon:'😈',
-    upright: { keywords:['束縛','欲望','執着','依存'],
-      msg:'何かに縛られていませんか？お金・欲・習慣…鎖は意外と自分で外せます。まず気づくことが解放への第一歩。' },
-    reversed: { keywords:['解放','束縛からの自由','自立'],
-      msg:'縛っていたものからそろそろ自由になれます。変化を恐れずに一歩踏み出しましょう。新しい世界が待っています。' } },
-  { num:'ⅩⅥ', name:'塔', icon:'⚡',
-    upright: { keywords:['崩壊','混乱','啓示','急変'],
-      msg:'突然の変化が起きるかもしれませんが、それは必要な崩壊です。古い構造が壊れることで、より強固な土台が生まれます。' },
-    reversed: { keywords:['内なる崩壊','危機の回避','変化への抵抗'],
-      msg:'外からの変化は少ないけれど、内側で何かが変わりつつあります。その変化を受け入れてみて。' } },
-  { num:'ⅩⅦ', name:'星', icon:'⭐',
-    upright: { keywords:['希望','再生','インスピレーション','癒し'],
-      msg:'希望の光が差し込む日。夢を信じて、自分を信じて。穏やかなエネルギーがあなたを包み、癒しと再生をもたらします。' },
-    reversed: { keywords:['希望の喪失','幻滅','失望'],
-      msg:'少し気持ちが落ちているかも。でも暗闇のあとには必ず光があります。今は休息して英気を養いましょう。' } },
-  { num:'ⅩⅧ', name:'月', icon:'🌙',
-    upright: { keywords:['幻想','恐れ','無意識','混乱'],
-      msg:'見えないものへの不安があるかも。でも多くの恐れは幻想です。直感を信じながらも、慎重に事実を確認しましょう。' },
-    reversed: { keywords:['混乱の解消','真実','恐れからの解放'],
-      msg:'霧が晴れてきます。漠然とした不安の正体が見えてくるとき。真実を知ることで心が楽になります。' } },
-  { num:'ⅩⅨ', name:'太陽', icon:'☀️',
-    upright: { keywords:['喜び','成功','活力','明るさ'],
-      msg:'最高に輝かしい一日！自信を持って行動すれば、すべてがうまくいきます。周りにも明るいエネルギーを分けてあげましょう。' },
-    reversed: { keywords:['過信','悲観','元気不足'],
-      msg:'少し曇り空かも。でも太陽はそこにあります。小さな喜びを意識的に探してみると、だんだん明るくなってきます。' } },
-  { num:'ⅩⅩ', name:'審判', icon:'📯',
-    upright: { keywords:['復活','覚醒','決断','判断'],
-      msg:'覚醒のとき。過去を振り返り、新しい自分へと生まれ変わるチャンスです。大きな決断をするのに最良の日。' },
-    reversed: { keywords:['自己批判','先延ばし','後悔'],
-      msg:'過去にとらわれすぎているかも。失敗は成長の糧。自分を許して前を向くことで、新しい扉が開きます。' } },
-  { num:'ⅩⅪ', name:'世界', icon:'🌍',
-    upright: { keywords:['完成','達成','統合','旅の終わり'],
-      msg:'おめでとう！大きなサイクルが完成を迎えます。努力が実を結び、充実感と達成感に満ちた日。次の旅への準備をして。' },
-    reversed: { keywords:['未完成','遅れ','停滞'],
-      msg:'もう少しで完成というところで立ち止まっているかも。最後の一歩を踏み出す勇気を持って。ゴールはすぐそこです。' } },
+const POSITIONS = [
+  { label:'過去の影響', icon:'⏪' },
+  { label:'現在の状況', icon:'🎯' },
+  { label:'課題・障害', icon:'⚡' },
+  { label:'アドバイス', icon:'💡' },
+  { label:'最終的な結果', icon:'🌟' },
 ];
 
-let drawn = false;
+const CARDS = [
+  { num:'0', name:'愚者', emoji:'🃏',
+    upright:{ keywords:['自由','冒険','新しい始まり','無邪気'],
+      msgs:['新しい一歩を踏み出すときです。失敗を恐れず、心の声に従いましょう。','予期せぬ出来事があなたを新しい方向へ導きます。直感を信じて。','今は計画より行動。思い切って飛び込んでみることで道が開けます。'] },
+    reversed:{ keywords:['無謀','不注意','先走り','リスク'],
+      msgs:['焦りは禁物。今一度立ち止まって状況を整理しましょう。','衝動的な行動が後悔につながりやすい時期。慎重に進んで。','方向性を見失っているかも。信頼できる人に相談してみて。'] } },
+  { num:'Ⅰ', name:'魔術師', emoji:'🔮',
+    upright:{ keywords:['意志力','スキル','集中','創造力'],
+      msgs:['あなたには今、必要な力がすべて揃っています。自信を持って行動を。','才能を最大限に発揮できるタイミング。チャンスを逃さないで。','集中して取り組めば、思い通りの結果が得られます。'] },
+    reversed:{ keywords:['力の浪費','集中力不足','詐欺に注意'],
+      msgs:['エネルギーが分散しています。優先順位を決めて一つに絞って。','誰かに騙されないよう注意。情報を慎重に確認しましょう。','才能を活かせていない状態。得意なことに集中する時間を作って。'] } },
+  { num:'Ⅱ', name:'女教皇', emoji:'📖',
+    upright:{ keywords:['直感','内なる知恵','神秘','静寂'],
+      msgs:['答えはすでにあなたの中にあります。静かに内省する時間を持って。','直感に従うことが、今の最善の選択につながります。','表面だけでなく、物事の本質を深く見つめることが大切な時期。'] },
+    reversed:{ keywords:['秘密','感情の抑圧','情報不足'],
+      msgs:['大切な情報が隠されているかもしれません。慎重に確認を。','感情を抑えすぎていませんか？素直な気持ちを表現しましょう。','もっと情報を集めてから決断した方が良い時期です。'] } },
+  { num:'Ⅲ', name:'女帝', emoji:'🌸',
+    upright:{ keywords:['豊かさ','母性','創造性','自然'],
+      msgs:['豊かさと愛に満ちた良い時期。創造的な活動が運気を高めます。','人を育てること、愛することに力を注ぐと良い結果が生まれます。','物質的・精神的な豊かさが訪れる兆し。感謝の気持ちを大切に。'] },
+    reversed:{ keywords:['過保護','停滞','依存心'],
+      msgs:['誰かに頼りすぎていませんか？自立する力を育てましょう。','創造性が止まっている状態。新鮮な刺激を取り入れてみて。','過剰な心配が前進を妨げています。信頼して手を放す勇気を。'] } },
+  { num:'Ⅳ', name:'皇帝', emoji:'👑',
+    upright:{ keywords:['権威','安定','構造','リーダーシップ'],
+      msgs:['主導権を持って行動する時。計画を立て責任を持って実行を。','強いリーダーシップが周囲を良い方向に導きます。自信を持って。','安定した基盤を作ることが、長期的な成功につながります。'] },
+    reversed:{ keywords:['独裁','頑固','コントロール'],
+      msgs:['人の意見に耳を傾けて。独断は良い結果を生みません。','柔軟性を持つことで、より良い解決策が見えてきます。','コントロールしようとしすぎていませんか？力を抜いてみて。'] } },
+  { num:'Ⅴ', name:'教皇', emoji:'⛪',
+    upright:{ keywords:['伝統','指導','学び','信頼'],
+      msgs:['信頼できる人の知恵やアドバイスを素直に受け入れましょう。','伝統や規則の中に大切なヒントが隠れています。','学ぶことで新しい扉が開きます。謙虚な姿勢を大切に。'] },
+    reversed:{ keywords:['反抗','型破り','柔軟な考え'],
+      msgs:['慣習にとらわれず、自分のやり方を試す時かもしれません。','古い価値観を見直すことで、新しい可能性が見えてきます。','権威に頼らず、自分の判断を信じることも必要です。'] } },
+  { num:'Ⅵ', name:'恋人', emoji:'💕',
+    upright:{ keywords:['愛','選択','調和','絆'],
+      msgs:['大切な選択の時期。心に正直に、本当に望むものを選んで。','愛と調和に満ちた関係が深まるとき。素直な気持ちを伝えて。','人とのつながりを大切にすることが、幸せへの近道です。'] },
+    reversed:{ keywords:['不調和','悪い選択','すれ違い'],
+      msgs:['誰かとのすれ違いが起きやすい時期。丁寧なコミュニケーションを。','自分本位な選択は後悔につながるかも。相手の気持ちも考えて。','関係に問題があるなら、今が見直すタイミングかもしれません。'] } },
+  { num:'Ⅶ', name:'戦車', emoji:'🚀',
+    upright:{ keywords:['勝利','前進','意志力','コントロール'],
+      msgs:['力強く前進する時！困難があっても意志の力で乗り越えられます。','目標に向かってまっすぐ突き進んでください。勝利は近いです。','自分をコントロールし、集中することで大きな成果が生まれます。'] },
+    reversed:{ keywords:['方向迷子','暴走','敗北感'],
+      msgs:['力はあるのに方向が定まっていない状態。まず目的を明確に。','焦って突き進むと失敗しやすい時期。一歩引いて冷静に考えて。','エネルギーを正しい方向に向けることが今の課題です。'] } },
+  { num:'Ⅷ', name:'力', emoji:'🦁',
+    upright:{ keywords:['内なる強さ','勇気','忍耐','優しさ'],
+      msgs:['真の強さとは優しさの中にあります。穏やかに、しかし強くいて。','あなたには困難を乗り越える力があります。自分を信じて。','忍耐と愛情が、今の課題を解決する鍵です。'] },
+    reversed:{ keywords:['自信喪失','感情的','弱さ'],
+      msgs:['今は自信が揺らいでいるかも。休息を取りながら自分を取り戻して。','感情に振り回されないよう、少し距離を置いて見てみましょう。','小さな成功体験を積み重ねることで自信が戻ってきます。'] } },
+  { num:'Ⅸ', name:'隠者', emoji:'🕯️',
+    upright:{ keywords:['内省','孤独','知恵','探求'],
+      msgs:['一人の時間を大切に。静かに自分と向き合うことで大切な気づきを。','今は外の世界より内側を見つめる時期。答えは自分の中にあります。','焦らず、じっくりと物事を深く考えることが大切な局面です。'] },
+    reversed:{ keywords:['孤立','引きこもり','頑固'],
+      msgs:['一人で抱え込みすぎていませんか？信頼できる人に話してみて。','孤立しすぎると視野が狭くなります。人との交流を大切に。','固定観念を手放すことで、新しい解決策が見えてきます。'] } },
+  { num:'Ⅹ', name:'運命の輪', emoji:'☸️',
+    upright:{ keywords:['転機','幸運','変化','チャンス'],
+      msgs:['運命の歯車が動き出すとき！思いがけないチャンスが訪れそう。','変化を恐れず流れに乗って。この転機があなたを次の段階へ導きます。','今のタイミングを逃さないで。行動することで運が開けます。'] },
+    reversed:{ keywords:['不運','停滞','悪循環'],
+      msgs:['今は流れが滞っている時期。焦らず嵐が過ぎるのを待ちましょう。','繰り返すパターンに気づき、変えることが前進への鍵です。','この停滞期を準備の時間として活かしましょう。'] } },
+  { num:'Ⅺ', name:'正義', emoji:'⚖️',
+    upright:{ keywords:['公平','真実','バランス','決断'],
+      msgs:['正直に、フェアに行動することが今日のテーマ。真実はあなたの味方。','客観的に物事を見て、正しい判断を下す時が来ています。','過去の行動の結果が現れる時期。誠実さが報われます。'] },
+    reversed:{ keywords:['不公平','偏見','不誠実'],
+      msgs:['自分に都合のよい解釈をしていないか振り返って。','偏りのない視点で物事を見直すと答えが見えてきます。','誠実さを大切にすることが、今の状況を改善する鍵です。'] } },
+  { num:'Ⅻ', name:'吊られた男', emoji:'🙃',
+    upright:{ keywords:['停止','待機','視点の転換','手放す'],
+      msgs:['今は動かず待つとき。別の角度から見ることで新しい解決策が浮かぶ。','手放すことへの恐れを手放して。それが突破口になります。','焦らないことが、今最もあなたに必要なことです。'] },
+    reversed:{ keywords:['解放','前進','視野が広がる'],
+      msgs:['停滞していたことから解放される時期が来ています。','新しい視点を手に入れたあなたは、次の一歩を踏み出せます。','長い待機期間が終わり、動き出す準備が整ってきました。'] } },
+  { num:'ⅩⅢ', name:'死神', emoji:'🌑',
+    upright:{ keywords:['終わり','変容','手放す','再生'],
+      msgs:['何かが終わり、新しいものが始まるとき。手放すことを恐れないで。','終わりは常に始まりの前触れ。この変化があなたを成長させます。','古い習慣やものの見方を手放すことで、新しい可能性が開きます。'] },
+    reversed:{ keywords:['変化への抵抗','執着','停滞'],
+      msgs:['変化を恐れて古いものにしがみついていませんか？','手放すことで新しい幸せが流れ込んできます。勇気を持って。','変化のサインを無視し続けると、停滞が長引きます。'] } },
+  { num:'ⅩⅣ', name:'節制', emoji:'🌈',
+    upright:{ keywords:['バランス','節度','忍耐','調和'],
+      msgs:['急がば回れ。バランスよく、着実に進むことが成功のカギです。','極端に走らず、ちょうどよいペースで進みましょう。','忍耐強く取り組むことで、理想的な結果が生まれます。'] },
+    reversed:{ keywords:['過剰','不均衡','不節制'],
+      msgs:['どこかで行き過ぎてしまっているかも。バランスを見直して。','生活リズムや人間関係のバランスを整えることが先決です。','「ほどほど」を意識することで、物事がうまく回り始めます。'] } },
+  { num:'ⅩⅤ', name:'悪魔', emoji:'😈',
+    upright:{ keywords:['束縛','欲望','執着','依存'],
+      msgs:['何かに縛られていませんか？鎖は意外と自分で外せます。','まず縛られていることに気づくことが解放への第一歩。','欲や恐れに引っ張られていないか、冷静に見直しましょう。'] },
+    reversed:{ keywords:['解放','自立','束縛からの自由'],
+      msgs:['縛っていたものから自由になれます。新しい世界が待っています。','依存していたものから離れる力が湧いてきています。','変化を恐れずに一歩踏み出しましょう。解放は近いです。'] } },
+  { num:'ⅩⅥ', name:'塔', emoji:'⚡',
+    upright:{ keywords:['崩壊','急変','啓示','解放'],
+      msgs:['突然の変化が起きるかもしれませんが、必要な崩壊です。恐れないで。','古い構造が壊れることで、より強固な土台が生まれます。','衝撃的な出来事も、長い目で見れば成長につながります。'] },
+    reversed:{ keywords:['内なる変化','危機の回避','準備'],
+      msgs:['外からの大きな変化は少ないですが、内側で大切な変革が起きています。','危機を回避できそうですが、そこから学ぶことを忘れずに。','準備を整えておくことで、どんな変化にも対応できます。'] } },
+  { num:'ⅩⅦ', name:'星', emoji:'⭐',
+    upright:{ keywords:['希望','癒し','インスピレーション','再生'],
+      msgs:['希望の光が差し込む時。夢を信じて、自分を信じて進みましょう。','穏やかなエネルギーがあなたを包み、癒しと再生をもたらします。','長い試練の後に訪れる希望の時。明るい未来が待っています。'] },
+    reversed:{ keywords:['失望','希望の喪失','方向迷子'],
+      msgs:['少し気持ちが落ちているかも。でも暗闇の後には必ず光があります。','自分への期待が高すぎて疲れていませんか？休息も大切です。','今は希望が見えにくくても、状況は必ず変わります。'] } },
+  { num:'ⅩⅧ', name:'月', emoji:'🌙',
+    upright:{ keywords:['幻想','無意識','不安','混乱'],
+      msgs:['見えないものへの不安があるかも。多くの恐れは幻想かもしれません。','直感を信じながらも、慎重に事実を確認することが大切な時期。','潜在意識からのメッセージに耳を傾けてみましょう。'] },
+    reversed:{ keywords:['混乱の解消','真実','恐れからの解放'],
+      msgs:['霧が晴れてきます。漠然とした不安の正体が見えてくる時期。','真実を知ることで心が楽になります。情報をしっかり集めて。','恐れていたことが、実は大したことではないと気づくでしょう。'] } },
+  { num:'ⅩⅨ', name:'太陽', emoji:'☀️',
+    upright:{ keywords:['喜び','成功','活力','明るさ'],
+      msgs:['最高に輝かしい時！自信を持って行動すればすべてがうまくいきます。','喜びと成功のエネルギーに満ちた素晴らしい時期。全力で進んで。','周りにも明るいエネルギーを分けてあげられる輝かしい状態です。'] },
+    reversed:{ keywords:['過信','元気不足','曇り空'],
+      msgs:['少し曇り空かも。小さな喜びを意識的に探してみると明るくなります。','自信過剰になっていませんか？謙虚さも大切です。','太陽はそこにあります。自分のペースで輝き方を取り戻して。'] } },
+  { num:'ⅩⅩ', name:'審判', emoji:'📯',
+    upright:{ keywords:['覚醒','決断','解放','復活'],
+      msgs:['覚醒のとき。過去を振り返り、新しい自分へと生まれ変わるチャンス。','大きな決断をするのに最良の時期。自分の本音に正直に選んで。','長い間保留にしていたことに、今こそ決着をつけましょう。'] },
+    reversed:{ keywords:['後悔','自己批判','先延ばし'],
+      msgs:['過去にとらわれすぎていませんか？自分を許して前を向いて。','失敗は成長の糧。自己批判をやめて次のステップへ進みましょう。','決断を先延ばしにし続けると、チャンスを逃してしまいます。'] } },
+  { num:'ⅩⅪ', name:'世界', emoji:'🌍',
+    upright:{ keywords:['完成','達成','統合','次へ'],
+      msgs:['おめでとう！大きなサイクルが完成。努力が実を結ぶ素晴らしい時期。','充実感と達成感に満ちた状態。次の旅への準備も整っています。','一つの区切りを迎え、新しいステージへと進む時が来ています。'] },
+    reversed:{ keywords:['未完成','遅れ','停滞'],
+      msgs:['もう少しで完成というところ。最後の一歩を踏み出す勇気を持って。','ゴールは見えています。あと少しで達成できます。諦めないで。','何かが未完のまま残っていませんか？仕上げることが大切です。'] } },
+];
 
-function drawCard() {
-  if (drawn) return;
-  drawn = true;
+const OVERALL_MSGS = {
+  positive: [
+    '全体的に前向きなエネルギーが流れています。今の方向性は正しいです。自分を信じて進んでください。あなたが選んだ道に、確かな光があります。',
+    'カードはあなたの可能性を肯定しています。少し不安があっても大丈夫。今あなたに必要なのは、自分自身への信頼です。一歩一歩、着実に進みましょう。',
+    'このテーマには希望の光が宿っています。過去の経験を活かしながら、今の自分にできることに集中してください。未来は明るいです。',
+  ],
+  neutral: [
+    '課題はあるものの、それを乗り越える力もあなたの中に存在しています。焦らず、一つひとつ丁寧に向き合うことが大切です。',
+    '今は試練の時期かもしれませんが、これは成長のためのプロセスです。困難の中に必ずヒントが隠れています。諦めずに前を向いて。',
+    'バランスを取ることが今のキーワードです。どこかで無理をしていないか振り返り、自分のペースを大切にしながら進みましょう。',
+  ],
+  negative: [
+    '今は変化の時期にいます。手放すべきものを手放し、新しい流れに乗ることで状況は必ず好転します。勇気を持って一歩踏み出してください。',
+    '困難に見えても、これはあなたを強くするための経験です。今の状況から何を学べるかを考えることが、次のステージへの鍵になります。',
+    '今すぐの解決は難しくても、方向性は必ずあります。信頼できる人に相談したり、少し休んで英気を養うことも選択肢の一つです。',
+  ]
+};
 
-  // ランダムにカードと正逆位置を選ぶ
-  const card = CARDS[Math.floor(Math.random() * CARDS.length)];
-  const isReversed = Math.random() < 0.4;
-  const pos = isReversed ? card.reversed : card.upright;
+let selectedCards = [];
+let currentQuestion = '';
+let shuffledDeck = [];
 
-  // カードをめくる
-  document.getElementById('cardWrap').classList.add('flipped');
-  document.getElementById('hint').textContent = '✨ カードが引かれました';
-
-  // カードの表面を設定
-  document.getElementById('cNum').textContent = card.num;
-  document.getElementById('cIcon').textContent = card.icon;
-  document.getElementById('cName').textContent = card.name;
-  document.getElementById('cRev').textContent = isReversed ? '逆位置' : '';
-  if (isReversed) {
-    document.getElementById('cardFace').style.transform = 'rotateY(180deg) rotate(180deg)';
-  }
-
-  // 結果を設定
-  setTimeout(() => {
-    const label = document.getElementById('rLabel');
-    document.getElementById('rTitle').textContent = `${card.icon} ${card.name}（${isReversed ? '逆位置' : '正位置'}）`;
-    label.textContent = isReversed ? '逆位置' : '正位置';
-    label.className = 'pos-label ' + (isReversed ? 'reversed' : 'upright');
-
-    const kRow = document.getElementById('rKeywords');
-    kRow.innerHTML = pos.keywords.map(k => `<span class="keyword">${k}</span>`).join('');
-
-    document.getElementById('rMessage').textContent = pos.msg;
-
-    const result = document.getElementById('result');
-    result.classList.add('show');
-    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, 700);
+function setQuestion(q) {
+  document.getElementById('questionInput').value = q;
 }
 
-function resetDeck() {
-  drawn = false;
-  document.getElementById('cardWrap').classList.remove('flipped');
-  document.getElementById('cardFace').style.transform = 'rotateY(180deg)';
-  document.getElementById('result').classList.remove('show');
-  document.getElementById('hint').textContent = '✨ カードをタップして1枚引く';
+function goStep2() {
+  const q = document.getElementById('questionInput').value.trim();
+  if (!q) { alert('占いたいことを入力してください！'); return; }
+  currentQuestion = q;
+  document.getElementById('qDisplay').textContent = '「' + q + '」';
+  document.getElementById('step1dot').className = 'step-dot done';
+  document.getElementById('step2dot').className = 'step-dot active';
+  document.getElementById('step1').style.display = 'none';
+  document.getElementById('step2').style.display = 'block';
+
+  // カードをシャッフル
+  shuffledDeck = CARDS.map((c, i) => ({ ...c, originalIdx: i, reversed: Math.random() < 0.35 }));
+  for (let i = shuffledDeck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledDeck[i], shuffledDeck[j]] = [shuffledDeck[j], shuffledDeck[i]];
+  }
+  selectedCards = [];
+
+  const grid = document.getElementById('cardsGrid');
+  grid.innerHTML = '';
+  shuffledDeck.forEach((card, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'pick-card';
+    btn.innerHTML = '🌙';
+    btn.dataset.idx = i;
+    btn.onclick = () => pickCard(btn, i);
+    grid.appendChild(btn);
+  });
+}
+
+function pickCard(btn, idx) {
+  if (btn.classList.contains('selected')) {
+    btn.classList.remove('selected');
+    selectedCards = selectedCards.filter(i => i !== idx);
+  } else {
+    if (selectedCards.length >= 5) return;
+    selectedCards.push(idx);
+    btn.classList.add('selected');
+    btn.dataset.order = selectedCards.length;
+    btn.innerHTML = CARDS.find(c => c.name === shuffledDeck[idx].name)?.emoji || '🃏';
+  }
+  document.getElementById('pickCount').textContent = selectedCards.length;
+  const revealBtn = document.getElementById('revealBtn');
+  if (selectedCards.length === 5) {
+    revealBtn.disabled = false;
+    revealBtn.style.opacity = '1';
+  } else {
+    revealBtn.disabled = true;
+    revealBtn.style.opacity = '0.5';
+  }
+}
+
+function goStep3() {
+  document.getElementById('step2dot').className = 'step-dot done';
+  document.getElementById('step3dot').className = 'step-dot active';
+  document.getElementById('step2').style.display = 'none';
+  document.getElementById('step3').style.display = 'block';
+
+  document.getElementById('resultQ').textContent = '「' + currentQuestion + '」';
+
+  const pickedCards = selectedCards.map(idx => shuffledDeck[idx]);
+
+  // スプレッドグリッド
+  const spreadGrid = document.getElementById('spreadGrid');
+  spreadGrid.innerHTML = '';
+  pickedCards.forEach((card, i) => {
+    const pos = POSITIONS[i];
+    const div = document.createElement('div');
+    div.className = 'spread-card' + (card.reversed ? ' reversed' : '');
+    div.innerHTML = `
+      <div class="pos-label">${pos.icon} ${pos.label}</div>
+      <div class="card-emoji" style="${card.reversed ? 'transform:rotate(180deg);display:inline-block' : ''}">${card.emoji}</div>
+      <div class="card-name">${card.name}</div>
+      ${card.reversed ? '<div class="card-rev">逆位置</div>' : ''}`;
+    spreadGrid.appendChild(div);
+  });
+
+  // カード詳細
+  const details = document.getElementById('cardDetails');
+  details.innerHTML = '';
+  let positiveCount = 0;
+  pickedCards.forEach((card, i) => {
+    const pos = POSITIONS[i];
+    const data = card.reversed ? card.reversed_data || card : card;
+    const isRev = card.reversed;
+    const posData = isRev ? card.reversed : card.upright;
+    const msg = posData.msgs[Math.floor(Math.random() * posData.msgs.length)];
+    if (!isRev) positiveCount++;
+
+    const div = document.createElement('div');
+    div.className = 'card-detail-item';
+    div.innerHTML = `
+      <div class="card-detail-header">
+        <div class="card-detail-emoji">${card.emoji}</div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="card-detail-name">${card.name}</span>
+            ${isRev ? '<span class="card-detail-rev">逆位置</span>' : ''}
+          </div>
+          <div class="card-detail-pos">${pos.icon} ${pos.label}</div>
+        </div>
+      </div>
+      <div class="card-keywords">${posData.keywords.map(k => `<span class="card-keyword">${k}</span>`).join('')}</div>
+      <p class="card-msg">${msg}</p>`;
+    details.appendChild(div);
+  });
+
+  // 総合メッセージ
+  const ratio = positiveCount / 5;
+  const msgs = ratio >= 0.6 ? OVERALL_MSGS.positive : ratio >= 0.4 ? OVERALL_MSGS.neutral : OVERALL_MSGS.negative;
+  document.getElementById('overallText').textContent = msgs[Math.floor(Math.random() * msgs.length)];
+
+  document.getElementById('step3').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetAll() {
+  selectedCards = [];
+  currentQuestion = '';
+  document.getElementById('questionInput').value = '';
+  document.getElementById('step1dot').className = 'step-dot active';
+  document.getElementById('step2dot').className = 'step-dot';
+  document.getElementById('step3dot').className = 'step-dot';
+  document.getElementById('step3').style.display = 'none';
+  document.getElementById('step2').style.display = 'none';
+  document.getElementById('step1').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 </script>
 </body>

@@ -3,33 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>今日の運勢・星座占い | ちょっとヒマ</title>
-  <meta name="description" content="無料の今日の運勢占い。12星座（おひつじ座〜うお座）の今日の運勢・ラッキーカラー・ラッキーアイテムをすぐチェック！">
-  <meta name="keywords" content="今日の運勢,星座占い,無料,12星座,ラッキーカラー,おひつじ座,おうし座,ふたご座,かに座,しし座,おとめ座,てんびん座,さそり座,いて座,やぎ座,みずがめ座,うお座">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="今日の運勢・星座占い | ちょっとヒマ">
-  <meta property="og:description" content="12星座の今日の運勢を無料でチェック！">
-  <meta property="og:url" content="https://chotto-hima.com/uranai/horoscope.html">
-  <meta property="og:site_name" content="ちょっとヒマ">
-  <meta name="twitter:card" content="summary">
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "name": "今日の運勢・星座占い",
-    "description": "12星座の今日の運勢を無料でチェック！",
-    "url": "https://chotto-hima.com/uranai/horoscope.html",
-    "isPartOf": { "@type": "WebSite", "name": "ちょっとヒマ", "url": "https://chotto-hima.com/" }
-  }
-  </script>
-  <link rel="canonical" href="https://chotto-hima.com/uranai/horoscope.html">
+  <title>今日の運勢・星座占い・相性診断 | ちょっとヒマ</title>
+  <meta name="description" content="無料の今日の運勢＆星座相性診断。12星座の運勢チェックと、気になる星座との相性を恋愛・友情・仕事で診断！全星座ランキングも。">
+  <meta name="keywords" content="今日の運勢,星座占い,相性診断,無料,12星座,ラッキーカラー,星座相性,恋愛相性">
+  <meta property="og:title" content="今日の運勢・星座占い・相性診断 | ちょっとヒマ">
+  <meta property="og:description" content="12星座の運勢と相性を無料でチェック！">
+  <meta property="og:url" content="https://13yh820.github.io/chotto-hima/uranai/horoscope.html">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/uranai/horoscope.html">
   <link rel="stylesheet" href="../css/style.css">
   <style>
+    .tab-row {
+      display: flex;
+      gap: 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 2px solid var(--primary);
+      margin-bottom: 28px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      background: #fff;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.18s;
+      font-family: inherit;
+    }
+    .tab-btn.active { background: var(--primary); color: #fff; }
+
+    /* 運勢タブ */
     .sign-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-      gap: 10px;
-      margin-bottom: 28px;
+      grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+      gap: 8px;
+      margin-bottom: 24px;
     }
     .sign-btn {
       background: var(--card-bg);
@@ -38,62 +48,90 @@
       padding: 10px 4px;
       cursor: pointer;
       text-align: center;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       transition: all 0.18s;
       color: var(--text);
+      font-family: inherit;
     }
     .sign-btn:hover, .sign-btn.active {
       border-color: var(--primary);
       background: var(--primary);
       color: #fff;
     }
-    .sign-btn .sign-emoji { font-size: 1.5rem; display: block; margin-bottom: 4px; }
+    .sign-btn .se { font-size: 1.4rem; display: block; margin-bottom: 3px; }
     .fortune-card {
       background: var(--card-bg);
       border-radius: var(--radius);
-      padding: 28px;
+      padding: 24px;
       box-shadow: var(--shadow);
       border: 1px solid var(--border);
-      margin-top: 20px;
       display: none;
-      text-align: left;
     }
     .fortune-card.show { display: block; }
-    .fortune-header {
+    .fortune-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .fortune-emoji { font-size: 2.6rem; }
+    .stars { font-size: 1.3rem; margin-bottom: 12px; letter-spacing: 2px; }
+    .fortune-text { font-size: 0.95rem; line-height: 1.85; margin-bottom: 18px; }
+    .lucky-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .lucky-item { background: var(--bg); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 0.8rem; }
+    .lucky-item strong { color: var(--primary); display: block; font-size: 0.7rem; margin-bottom: 2px; }
+
+    /* 相性タブ */
+    .ai-section { margin-bottom: 20px; }
+    .ai-label { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; }
+    .ai-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+      gap: 8px;
+    }
+    .ai-result {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      display: none;
+    }
+    .ai-result.show { display: block; }
+    .ai-header { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px; font-size: 2rem; }
+    .ai-header .vs { font-size: 1rem; font-weight: 800; color: var(--text-muted); }
+    .ai-bars { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+    .ai-bar-row { display: flex; flex-direction: column; gap: 6px; }
+    .ai-bar-label { font-size: 0.82rem; font-weight: 700; display: flex; justify-content: space-between; }
+    .ai-bar-track { background: var(--border); border-radius: 99px; height: 10px; overflow: hidden; }
+    .ai-bar-fill { height: 100%; border-radius: 99px; transition: width 0.6s ease; }
+    .ai-bar-fill.love { background: linear-gradient(90deg, #ff6584, #ff9eb5); }
+    .ai-bar-fill.friend { background: linear-gradient(90deg, #6c63ff, #a78bfa); }
+    .ai-bar-fill.work { background: linear-gradient(90deg, #00c853, #69f0ae); }
+    .ai-total { text-align: center; margin-bottom: 16px; }
+    .ai-total .score { font-size: 2.4rem; font-weight: 800; color: var(--primary); }
+    .ai-total .score-label { font-size: 0.82rem; color: var(--text-muted); }
+    .ai-comment { font-size: 0.95rem; line-height: 1.85; color: var(--text); }
+
+    /* ランキングタブ */
+    .rank-list { display: flex; flex-direction: column; gap: 10px; }
+    .rank-item {
+      background: var(--card-bg);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
       display: flex;
       align-items: center;
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-    .fortune-emoji { font-size: 2.8rem; }
-    .fortune-header h2 { font-size: 1.3rem; font-weight: 800; }
-    .fortune-header .sign-period { color: var(--text-muted); font-size: 0.82rem; }
-    .stars {
-      font-size: 1.4rem;
-      margin-bottom: 16px;
-      letter-spacing: 2px;
-    }
-    .fortune-text {
-      font-size: 0.97rem;
-      line-height: 1.8;
-      margin-bottom: 20px;
-    }
-    .lucky-row {
-      display: flex;
       gap: 12px;
-      flex-wrap: wrap;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
     }
-    .lucky-item {
-      background: var(--bg);
-      border-radius: var(--radius-sm);
-      padding: 8px 14px;
-      font-size: 0.82rem;
-    }
-    .lucky-item strong { color: var(--primary); display: block; font-size: 0.72rem; margin-bottom: 2px; }
+    .rank-num { font-size: 1.2rem; font-weight: 800; color: var(--text-muted); min-width: 28px; text-align: center; }
+    .rank-num.gold { color: #f59e0b; }
+    .rank-num.silver { color: #94a3b8; }
+    .rank-num.bronze { color: #b45309; }
+    .rank-sign-info { flex: 1; }
+    .rank-sign-name { font-weight: 700; font-size: 0.95rem; }
+    .rank-sign-desc { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+    .rank-stars { font-size: 0.9rem; color: #f59e0b; }
+    .rank-my-sign { background: var(--bg); }
   </style>
 </head>
 <body>
-
 <header>
   <div class="header-inner">
     <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
@@ -103,77 +141,165 @@
     </nav>
   </div>
 </header>
-
 <main>
   <div class="page-header">
     <div class="icon">⭐</div>
-    <h1>今日の運勢</h1>
-    <p>あなたの星座を選んでください</p>
+    <h1>星座占い</h1>
+    <p>今日の運勢・相性診断・ランキング</p>
   </div>
-
   <div class="game-area" style="max-width:700px">
-    <!-- 広告 -->
     <div class="ad-box">広告スペース</div>
 
-    <!-- 星座選択 -->
-    <div class="sign-grid" id="signGrid"></div>
-
-    <!-- 結果 -->
-    <div class="fortune-card" id="fortuneCard">
-      <div class="fortune-header">
-        <div class="fortune-emoji" id="fEmoji"></div>
-        <div>
-          <h2 id="fName"></h2>
-          <div class="sign-period" id="fPeriod"></div>
-        </div>
-      </div>
-      <div class="stars" id="fStars"></div>
-      <p class="fortune-text" id="fText"></p>
-      <div class="lucky-row" id="fLucky"></div>
-      <br>
-      <button class="btn btn-outline" onclick="document.getElementById('fortuneCard').classList.remove('show')">
-        ← 星座を選び直す
-      </button>
+    <!-- タブ -->
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="showTab('fortune',this)">⭐ 今日の運勢</button>
+      <button class="tab-btn" onclick="showTab('ai',this)">💕 相性診断</button>
+      <button class="tab-btn" onclick="showTab('rank',this)">🏆 ランキング</button>
     </div>
 
-    <!-- 広告 -->
-    <div class="ad-box" style="margin-top:28px">広告スペース</div>
+    <!-- ① 今日の運勢 -->
+    <div id="tab-fortune">
+      <div class="sign-grid" id="fortuneGrid"></div>
+      <div class="fortune-card" id="fortuneCard">
+        <div class="fortune-header">
+          <div class="fortune-emoji" id="fEmoji"></div>
+          <div>
+            <h2 id="fName" style="font-size:1.2rem;font-weight:800"></h2>
+            <div id="fPeriod" style="color:var(--text-muted);font-size:0.8rem"></div>
+          </div>
+        </div>
+        <div class="stars" id="fStars"></div>
+        <p class="fortune-text" id="fText"></p>
+        <div class="lucky-row" id="fLucky"></div>
+        <br>
+        <button class="btn btn-outline" onclick="document.getElementById('fortuneCard').classList.remove('show')">← 選び直す</button>
+      </div>
+    </div>
+
+    <!-- ② 相性診断 -->
+    <div id="tab-ai" style="display:none">
+      <div class="ai-section">
+        <div class="ai-label">🌟 あなたの星座</div>
+        <div class="ai-grid" id="aiMeGrid"></div>
+      </div>
+      <div class="ai-section">
+        <div class="ai-label">💫 相手の星座</div>
+        <div class="ai-grid" id="aiYouGrid"></div>
+      </div>
+      <div style="text-align:center;margin-bottom:20px">
+        <button class="btn btn-primary" onclick="calcAI()">相性を診断する 💕</button>
+      </div>
+      <div class="ai-result" id="aiResult">
+        <div class="ai-header">
+          <span id="aiMeEmoji"></span>
+          <span class="vs">VS</span>
+          <span id="aiYouEmoji"></span>
+        </div>
+        <div class="ai-total">
+          <div class="score" id="aiScore"></div>
+          <div class="score-label">総合相性スコア</div>
+        </div>
+        <div class="ai-bars">
+          <div class="ai-bar-row">
+            <div class="ai-bar-label"><span>❤️ 恋愛</span><span id="loveScore"></span></div>
+            <div class="ai-bar-track"><div class="ai-bar-fill love" id="loveBar"></div></div>
+          </div>
+          <div class="ai-bar-row">
+            <div class="ai-bar-label"><span>🤝 友情</span><span id="friendScore"></span></div>
+            <div class="ai-bar-track"><div class="ai-bar-fill friend" id="friendBar"></div></div>
+          </div>
+          <div class="ai-bar-row">
+            <div class="ai-bar-label"><span>💼 仕事</span><span id="workScore"></span></div>
+            <div class="ai-bar-track"><div class="ai-bar-fill work" id="workBar"></div></div>
+          </div>
+        </div>
+        <p class="ai-comment" id="aiComment"></p>
+        <br>
+        <button class="btn btn-outline" style="width:100%" onclick="resetAI()">もう一度診断する</button>
+      </div>
+    </div>
+
+    <!-- ③ ランキング -->
+    <div id="tab-rank" style="display:none">
+      <div class="ai-section">
+        <div class="ai-label">🌟 あなたの星座を選ぶ</div>
+        <div class="ai-grid" id="rankMeGrid"></div>
+      </div>
+      <div class="rank-list" id="rankList"></div>
+    </div>
+
+    <div class="ad-box" style="margin-top:24px">広告スペース</div>
   </div>
 </main>
-
 <footer>
   <p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
 </footer>
-
 <script src="../js/common.js"></script>
 <script>
 const SIGNS = [
-  { name:'おひつじ座', emoji:'♈', period:'3/21〜4/19',
-    colors:['赤','オレンジ'], items:['鍵','コーヒー','手帳'] },
-  { name:'おうし座', emoji:'♉', period:'4/20〜5/20',
-    colors:['グリーン','ピンク'], items:['花','チョコレート','アクセサリー'] },
-  { name:'ふたご座', emoji:'♊', period:'5/21〜6/21',
-    colors:['黄色','水色'], items:['本','ペン','スマホ'] },
-  { name:'かに座', emoji:'♋', period:'6/22〜7/22',
-    colors:['白','シルバー'], items:['水','お菓子','写真'] },
-  { name:'しし座', emoji:'♌', period:'7/23〜8/22',
-    colors:['ゴールド','オレンジ'], items:['鏡','アクセサリー','太陽グッズ'] },
-  { name:'おとめ座', emoji:'♍', period:'8/23〜9/22',
-    colors:['ネイビー','ベージュ'], items:['手帳','お茶','観葉植物'] },
-  { name:'てんびん座', emoji:'♎', period:'9/23〜10/23',
-    colors:['ピンク','水色'], items:['マカロン','香水','ルームスプレー'] },
-  { name:'さそり座', emoji:'♏', period:'10/24〜11/22',
-    colors:['ダークレッド','ブラック'], items:['水晶','カード','香水'] },
-  { name:'いて座', emoji:'♐', period:'11/23〜12/21',
-    colors:['パープル','ターコイズ'], items:['旅行グッズ','本','スポーツ用品'] },
-  { name:'やぎ座', emoji:'♑', period:'12/22〜1/19',
-    colors:['チャコール','ブラウン'], items:['腕時計','手帳','コーヒー'] },
-  { name:'みずがめ座', emoji:'♒', period:'1/20〜2/18',
-    colors:['電気ブルー','シルバー'], items:['ガジェット','ミントグッズ','本'] },
-  { name:'うお座', emoji:'♓', period:'2/19〜3/20',
-    colors:['シーグリーン','ラベンダー'], items:['アロマ','音楽','写真'] },
+  { name:'おひつじ座', emoji:'♈', period:'3/21〜4/19', elem:'火', colors:['赤','オレンジ'], items:['鍵','コーヒー','手帳'] },
+  { name:'おうし座',   emoji:'♉', period:'4/20〜5/20', elem:'土', colors:['グリーン','ピンク'], items:['花','チョコレート','アクセサリー'] },
+  { name:'ふたご座',   emoji:'♊', period:'5/21〜6/21', elem:'風', colors:['黄色','水色'], items:['本','ペン','スマホ'] },
+  { name:'かに座',     emoji:'♋', period:'6/22〜7/22', elem:'水', colors:['白','シルバー'], items:['水','お菓子','写真'] },
+  { name:'しし座',     emoji:'♌', period:'7/23〜8/22', elem:'火', colors:['ゴールド','オレンジ'], items:['鏡','アクセサリー','太陽グッズ'] },
+  { name:'おとめ座',   emoji:'♍', period:'8/23〜9/22', elem:'土', colors:['ネイビー','ベージュ'], items:['手帳','お茶','観葉植物'] },
+  { name:'てんびん座', emoji:'♎', period:'9/23〜10/23',elem:'風', colors:['ピンク','水色'], items:['マカロン','香水','ルームスプレー'] },
+  { name:'さそり座',   emoji:'♏', period:'10/24〜11/22',elem:'水', colors:['ダークレッド','ブラック'], items:['水晶','カード','香水'] },
+  { name:'いて座',     emoji:'♐', period:'11/23〜12/21',elem:'火', colors:['パープル','ターコイズ'], items:['旅行グッズ','本','スポーツ用品'] },
+  { name:'やぎ座',     emoji:'♑', period:'12/22〜1/19', elem:'土', colors:['チャコール','ブラウン'], items:['腕時計','手帳','コーヒー'] },
+  { name:'みずがめ座', emoji:'♒', period:'1/20〜2/18',  elem:'風', colors:['電気ブルー','シルバー'], items:['ガジェット','ミントグッズ','本'] },
+  { name:'うお座',     emoji:'♓', period:'2/19〜3/20',  elem:'水', colors:['シーグリーン','ラベンダー'], items:['アロマ','音楽','写真'] },
 ];
 
+// 相性マトリクス [0-100] (インデックスa,bの相性)
+const AI_MATRIX = [
+//  牡羊 牡牛 双子 蟹  獅子 乙女 天秤 蠍  射手 山羊 水瓶 魚
+  [  70,  45,  80,  40,  95,  50,  75,  55,  90,  60,  80,  50 ], // 牡羊
+  [  45,  75,  55,  85,  60,  90,  65,  80,  50,  95,  45,  85 ], // 牡牛
+  [  80,  55,  70,  50,  75,  60,  90,  45,  85,  55,  95,  55 ], // 双子
+  [  40,  85,  50,  80,  55,  75,  60,  95,  45,  80,  55,  90 ], // 蟹
+  [  95,  60,  75,  55,  75,  55,  80,  65,  95,  60,  75,  55 ], // 獅子
+  [  50,  90,  60,  75,  55,  70,  65,  80,  55,  95,  60,  80 ], // 乙女
+  [  75,  65,  90,  60,  80,  65,  75,  55,  80,  65,  90,  60 ], // 天秤
+  [  55,  80,  45,  95,  65,  80,  55,  80,  60,  85,  50,  90 ], // 蠍
+  [  90,  50,  85,  45,  95,  55,  80,  60,  75,  55,  85,  50 ], // 射手
+  [  60,  95,  55,  80,  60,  95,  65,  85,  55,  75,  60,  75 ], // 山羊
+  [  80,  45,  95,  55,  75,  60,  90,  50,  85,  60,  70,  60 ], // 水瓶
+  [  50,  85,  55,  90,  55,  80,  60,  90,  50,  75,  60,  75 ], // 魚
+];
+
+const AI_COMMENTS = {
+  high: [
+    '最高の組み合わせ！お互いの長所を引き出し、一緒にいるとどんどんエネルギーが高まります。',
+    '運命的なつながりを感じるペア。価値観が自然と一致し、一緒にいるだけで安心できます。',
+    '理想的な相性！お互いに刺激し合い、2人でいると何でも乗り越えられそうな力が湧いてきます。',
+  ],
+  mid: [
+    '少し個性が異なりますが、それがかえって良い刺激に。理解し合う努力が素敵な関係を生みます。',
+    'お互いを補い合えるペア。最初は違いを感じても、深く知るほど相性の良さに気づくはず。',
+    '共通点と違いが半々。相手の考え方を尊重することで、長く良い関係を築けます。',
+  ],
+  low: [
+    'テンポや価値観が違うかも。でも正反対だからこそ、新しい発見があることも。焦らず距離を縮めて。',
+    '最初は理解し合うのに時間がかかりそう。でも諦めずにコミュニケーションを取ることが大切です。',
+    'タイプは違いますが、だからこそ互いに学び成長できる関係。根気よく向き合ってみて。',
+  ]
+};
+
+function seededRandom(seed) {
+  let s = seed;
+  return () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 4294967296; };
+}
+
+// ===== タブ切り替え =====
+function showTab(name, btn) {
+  ['fortune','ai','rank'].forEach(t => document.getElementById('tab-'+t).style.display = 'none');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+name).style.display = 'block';
+  btn.classList.add('active');
+}
+
+// ===== 運勢タブ =====
 const FORTUNES = [
   { stars:5, text:'今日はとても運気が高い日！積極的に行動することで、思わぬ幸運が舞い込んできそう。新しいことに挑戦するのにも最適な日です。大切な人への連絡も吉。' },
   { stars:4, text:'全体的に好調な一日。コツコツと積み重ねてきたことが実を結ぶ予感。午後は特に集中力が高まりそうなので、大事な作業は後半に回して。' },
@@ -183,59 +309,145 @@ const FORTUNES = [
   { stars:2, text:'今日は少し慎重に行動を。衝動的な判断は後悔につながりやすい日です。じっくり考えてから動くことで、余計なトラブルを防げます。' },
 ];
 
-// 日付＋星座のシードで毎日変わるが、同じ日は同じ結果になるように
-function seededRandom(seed) {
-  let s = seed;
-  return function() {
-    s = (s * 1664525 + 1013904223) & 0xffffffff;
-    return (s >>> 0) / 4294967296;
-  };
-}
-
-function getTodayFortune(signIdx) {
+function getTodayFortune(idx) {
   const d = new Date();
-  const seed = (d.getFullYear() * 10000 + (d.getMonth()+1) * 100 + d.getDate()) * 100 + signIdx;
+  const seed = (d.getFullYear() * 10000 + (d.getMonth()+1) * 100 + d.getDate()) * 100 + idx;
   const rng = seededRandom(seed);
   const fi = Math.floor(rng() * FORTUNES.length);
   const f = FORTUNES[fi];
-  const sign = SIGNS[signIdx];
-  const colorIdx = Math.floor(rng() * sign.colors.length);
-  const itemIdx = Math.floor(rng() * sign.items.length);
+  const sign = SIGNS[idx];
+  const color = sign.colors[Math.floor(rng() * sign.colors.length)];
+  const item = sign.items[Math.floor(rng() * sign.items.length)];
   const num = Math.floor(rng() * 9) + 1;
-  return { ...f, color: sign.colors[colorIdx], item: sign.items[itemIdx], num };
+  return { ...f, color, item, num };
 }
 
-// 星座ボタン生成
-const grid = document.getElementById('signGrid');
+const fortuneGrid = document.getElementById('fortuneGrid');
 SIGNS.forEach((s, i) => {
   const btn = document.createElement('button');
   btn.className = 'sign-btn';
-  btn.innerHTML = `<span class="sign-emoji">${s.emoji}</span>${s.name}`;
-  btn.onclick = () => showFortune(i, btn);
-  grid.appendChild(btn);
+  btn.innerHTML = `<span class="se">${s.emoji}</span>${s.name}`;
+  btn.onclick = () => {
+    document.querySelectorAll('#fortuneGrid .sign-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = getTodayFortune(i);
+    document.getElementById('fEmoji').textContent = s.emoji;
+    document.getElementById('fName').textContent = s.name;
+    document.getElementById('fPeriod').textContent = s.period;
+    document.getElementById('fStars').textContent = '★'.repeat(f.stars) + '☆'.repeat(5-f.stars);
+    document.getElementById('fText').textContent = f.text;
+    document.getElementById('fLucky').innerHTML = `
+      <div class="lucky-item"><strong>ラッキーカラー</strong>${f.color}</div>
+      <div class="lucky-item"><strong>ラッキーアイテム</strong>${f.item}</div>
+      <div class="lucky-item"><strong>ラッキーナンバー</strong>${f.num}</div>`;
+    const card = document.getElementById('fortuneCard');
+    card.classList.add('show');
+    card.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  };
+  fortuneGrid.appendChild(btn);
 });
 
-function showFortune(idx, btn) {
-  document.querySelectorAll('.sign-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+// ===== 相性タブ =====
+let aiMe = -1, aiYou = -1;
 
-  const sign = SIGNS[idx];
-  const f = getTodayFortune(idx);
+function buildAiGrid(gridId, setter) {
+  const grid = document.getElementById(gridId);
+  SIGNS.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'sign-btn';
+    btn.id = gridId + '-btn-' + i;
+    btn.innerHTML = `<span class="se">${s.emoji}</span>${s.name}`;
+    btn.onclick = () => {
+      document.querySelectorAll('#'+gridId+' .sign-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      setter(i);
+    };
+    grid.appendChild(btn);
+  });
+}
+buildAiGrid('aiMeGrid', i => { aiMe = i; });
+buildAiGrid('aiYouGrid', i => { aiYou = i; });
 
-  document.getElementById('fEmoji').textContent = sign.emoji;
-  document.getElementById('fName').textContent = sign.name;
-  document.getElementById('fPeriod').textContent = sign.period;
-  document.getElementById('fStars').textContent = '★'.repeat(f.stars) + '☆'.repeat(5 - f.stars);
-  document.getElementById('fText').textContent = f.text;
-  document.getElementById('fLucky').innerHTML = `
-    <div class="lucky-item"><strong>ラッキーカラー</strong>${f.color}</div>
-    <div class="lucky-item"><strong>ラッキーアイテム</strong>${f.item}</div>
-    <div class="lucky-item"><strong>ラッキーナンバー</strong>${f.num}</div>
-  `;
+function calcAI() {
+  if (aiMe < 0 || aiYou < 0) { alert('両方の星座を選んでください！'); return; }
+  if (aiMe === aiYou) { alert('同じ星座を選んでいます。別の星座を選んでみてください！'); return; }
 
-  const card = document.getElementById('fortuneCard');
-  card.classList.add('show');
-  card.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  const base = AI_MATRIX[aiMe][aiYou];
+  const rng = seededRandom(aiMe * 100 + aiYou);
+  const love   = Math.min(100, Math.max(10, base + Math.floor((rng()-0.5)*20)));
+  const friend = Math.min(100, Math.max(10, base + Math.floor((rng()-0.5)*20)));
+  const work   = Math.min(100, Math.max(10, base + Math.floor((rng()-0.5)*20)));
+  const total  = Math.round((love + friend + work) / 3);
+
+  document.getElementById('aiMeEmoji').textContent = SIGNS[aiMe].emoji;
+  document.getElementById('aiYouEmoji').textContent = SIGNS[aiYou].emoji;
+  document.getElementById('aiScore').textContent = total + '%';
+  document.getElementById('loveScore').textContent = love + '%';
+  document.getElementById('friendScore').textContent = friend + '%';
+  document.getElementById('workScore').textContent = work + '%';
+  setTimeout(() => {
+    document.getElementById('loveBar').style.width = love + '%';
+    document.getElementById('friendBar').style.width = friend + '%';
+    document.getElementById('workBar').style.width = work + '%';
+  }, 100);
+
+  const comments = total >= 75 ? AI_COMMENTS.high : total >= 50 ? AI_COMMENTS.mid : AI_COMMENTS.low;
+  document.getElementById('aiComment').textContent = comments[Math.floor(rng() * comments.length)];
+
+  const result = document.getElementById('aiResult');
+  result.classList.add('show');
+  result.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function resetAI() {
+  aiMe = -1; aiYou = -1;
+  document.querySelectorAll('#aiMeGrid .sign-btn, #aiYouGrid .sign-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('aiResult').classList.remove('show');
+  document.getElementById('loveBar').style.width = '0';
+  document.getElementById('friendBar').style.width = '0';
+  document.getElementById('workBar').style.width = '0';
+}
+
+// ===== ランキングタブ =====
+let rankMe = -1;
+buildAiGrid('rankMeGrid', i => { rankMe = i; buildRanking(i); });
+
+function buildRanking(meIdx) {
+  const list = document.getElementById('rankList');
+  list.innerHTML = '';
+
+  const scores = SIGNS.map((s, i) => {
+    if (i === meIdx) return null;
+    const base = AI_MATRIX[meIdx][i];
+    const rng = seededRandom(meIdx * 100 + i + 999);
+    const score = Math.min(100, Math.max(10, base + Math.floor((rng()-0.5)*15)));
+    return { idx: i, score };
+  }).filter(Boolean).sort((a,b) => b.score - a.score);
+
+  scores.forEach((item, rank) => {
+    const s = SIGNS[item.idx];
+    const div = document.createElement('div');
+    div.className = 'rank-item';
+    let numClass = '';
+    if (rank === 0) numClass = 'gold';
+    else if (rank === 1) numClass = 'silver';
+    else if (rank === 2) numClass = 'bronze';
+    const stars = item.score >= 80 ? '★★★' : item.score >= 60 ? '★★☆' : '★☆☆';
+    const desc = item.score >= 80 ? '相性抜群！' : item.score >= 60 ? '良い相性' : '少し努力が必要';
+    div.innerHTML = `
+      <div class="rank-num ${numClass}">${rank+1}</div>
+      <div style="font-size:1.6rem">${s.emoji}</div>
+      <div class="rank-sign-info">
+        <div class="rank-sign-name">${s.name}</div>
+        <div class="rank-sign-desc">${desc}</div>
+      </div>
+      <div>
+        <div class="rank-stars">${stars}</div>
+        <div style="font-size:0.8rem;font-weight:700;color:var(--primary);text-align:right">${item.score}%</div>
+      </div>`;
+    list.appendChild(div);
+  });
+  list.scrollIntoView({ behavior:'smooth', block:'nearest' });
 }
 </script>
 </body>
