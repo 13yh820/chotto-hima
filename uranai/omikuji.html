@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>おみくじ | ちょっとヒマ</title>
+  <meta name="description" content="今日の運勢をおみくじで占おう！大吉・中吉・小吉・吉・末吉・凶が登場。願い事・恋愛・仕事・金運など詳細な運勢も確認できます。">
+  <meta name="keywords" content="おみくじ,運勢,大吉,凶,占い,無料">
+  <meta property="og:title" content="おみくじ | ちょっとヒマ">
+  <meta property="og:url" content="https://13yh820.github.io/chotto-hima/uranai/omikuji.html">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/uranai/omikuji.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    /* 筒とおみくじ */
+    .shrine-area {
+      text-align:center; padding:20px 0 10px;
+    }
+    .tube-wrap {
+      display:inline-block; position:relative; cursor:pointer;
+      margin-bottom:20px;
+    }
+    .tube {
+      width:80px; height:140px; border-radius:40px 40px 12px 12px;
+      background:linear-gradient(160deg,#8b1a1a,#5c0e0e);
+      margin:0 auto; position:relative;
+      box-shadow:4px 8px 24px rgba(0,0,0,.5), inset 2px 0 8px rgba(255,255,255,.12);
+      transition:transform .15s;
+    }
+    .tube::after {
+      content:''; position:absolute; top:8px; left:50%; transform:translateX(-50%);
+      width:50px; height:120px; border-radius:25px 25px 8px 8px;
+      background:linear-gradient(180deg,rgba(255,255,255,.18) 0%,transparent 60%);
+    }
+    .tube:active { transform:scale(.95) rotate(-3deg); }
+    .tube-label {
+      font-size:.8rem; font-weight:800; color:rgba(255,255,255,.6);
+      margin-top:8px; letter-spacing:.1em;
+    }
+
+    /* おみくじ棒 */
+    .stick {
+      position:absolute; left:50%; transform:translateX(-50%);
+      width:10px; border-radius:5px;
+      background:linear-gradient(180deg,#f5e6c8,#d4a855);
+      transition:all .6s cubic-bezier(.2,1.4,.4,1);
+      z-index:2; bottom:20px; height:0;
+    }
+    .stick.out {
+      height:110px; bottom:110px;
+    }
+
+    /* 振るアニメ */
+    .tube-wrap.shaking .tube {
+      animation:shake .5s ease;
+    }
+    @keyframes shake {
+      0%,100%{transform:rotate(0deg)}
+      15%{transform:rotate(-12deg)}
+      30%{transform:rotate(12deg)}
+      45%{transform:rotate(-10deg)}
+      60%{transform:rotate(10deg)}
+      75%{transform:rotate(-5deg)}
+      90%{transform:rotate(5deg)}
+    }
+
+    .draw-hint {
+      font-size:.9rem; color:var(--text-muted); margin-bottom:8px;
+      animation:pulse 2s ease infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:1} }
+
+    /* 結果 */
+    .result-wrap {
+      display:none; animation:revealIn .6s ease;
+    }
+    @keyframes revealIn {
+      from{opacity:0;transform:translateY(30px) scale(.95)}
+      to{opacity:1;transform:translateY(0) scale(1)}
+    }
+
+    .omikuji-paper {
+      background:linear-gradient(180deg,#fefce8,#fef9c3);
+      border-radius:4px 4px 8px 8px;
+      border:2px solid #d4a855;
+      box-shadow:0 8px 32px rgba(0,0,0,.25), 2px 0 0 #d4a855;
+      padding:28px 20px 32px;
+      text-align:center;
+      max-width:340px; margin:0 auto 20px;
+      position:relative;
+      color:#3d2800;
+    }
+    .omikuji-paper::before {
+      content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+      width:4px; height:40px; background:#d4a855; border-radius:0 0 4px 4px;
+    }
+
+    .paper-title {
+      font-size:.75rem; letter-spacing:.3em; color:#8b6914;
+      font-weight:800; margin-bottom:8px; margin-top:12px;
+    }
+    .kekka-big {
+      font-size:3.2rem; font-weight:900; letter-spacing:.1em;
+      line-height:1; margin-bottom:8px;
+      text-shadow:2px 2px 0 rgba(0,0,0,.1);
+    }
+    .kekka-yomi {
+      font-size:.78rem; color:#8b6914; letter-spacing:.2em; margin-bottom:16px;
+    }
+
+    .divider { border:none; border-top:1px solid #d4a855; margin:12px 0; }
+
+    .fortune-rows { text-align:left; }
+    .fortune-row {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:6px 0; border-bottom:1px solid rgba(212,168,85,.3); font-size:.82rem;
+    }
+    .fortune-row:last-child { border-bottom:none; }
+    .fr-label { color:#6b4c11; font-weight:700; }
+    .fr-val   { font-weight:800; color:#3d2800; }
+
+    .omikuji-msg {
+      font-size:.82rem; line-height:1.8; color:#4a3200;
+      margin-top:14px; padding:12px; background:rgba(212,168,85,.12);
+      border-radius:6px; border-left:3px solid #d4a855; text-align:left;
+    }
+
+    .result-grade-chip {
+      display:inline-block; padding:6px 20px; border-radius:99px;
+      font-size:.82rem; font-weight:800; margin-bottom:16px;
+    }
+
+    /* もう一度ボタン */
+    .retry-area { text-align:center; margin-top:8px; }
+
+    /* お神輿アイコン */
+    .shrine-icon { font-size:3rem; margin-bottom:8px; display:block; }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+    <nav>
+      <a href="horoscope.html">星座</a>
+      <a href="tarot.html">タロット</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="page-header">
+    <div class="icon">🎋</div>
+    <h1>おみくじ</h1>
+    <p>筒をタップして今日の運勢を占おう</p>
+  </div>
+
+  <div class="game-area" style="max-width:440px">
+    <div class="ad-box">広告スペース</div>
+
+    <!-- 引く前 -->
+    <div id="drawArea">
+      <div class="shrine-area">
+        <span class="shrine-icon">⛩️</span>
+        <p class="draw-hint">筒をタップして振ってください</p>
+        <div class="tube-wrap" id="tubeWrap" onclick="drawOmikuji()">
+          <div class="tube">
+            <div class="stick" id="stick"></div>
+          </div>
+          <div class="tube-label">おみくじ</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 結果 -->
+    <div class="result-wrap" id="resultWrap">
+      <div class="omikuji-paper" id="omikujiPaper"></div>
+      <div class="retry-area">
+        <button class="btn btn-outline" onclick="reset()">もう一度引く 🎋</button>
+      </div>
+    </div>
+
+    <div class="ad-box" style="margin-top:20px">広告スペース</div>
+  </div>
+</main>
+<footer>
+  <p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
+</footer>
+<script>
+const OMIKUJI = [
+  {
+    result:'大吉', yomi:'だいきち', color:'#e53e3e', bg:'#fef2f2',
+    weight:8,
+    overall:'最高の運勢！何事も全力で挑戦しよう',
+    rows:[
+      {label:'願い事',val:'必ず叶う'},
+      {label:'恋　愛',val:'急展開あり'},
+      {label:'仕　事',val:'大きな成果'},
+      {label:'金　運',val:'臨時収入の予感'},
+      {label:'健　康',val:'絶好調'},
+      {label:'学　業',val:'実力発揮できる'},
+    ],
+    msg:'今日はあなたのエネルギーが最高潮！積極的に行動すれば、すべてが順調に進みます。躊躇わず前に進みましょう。思い切った決断が吉と出ます。',
+  },
+  {
+    result:'中吉', yomi:'ちゅうきち', color:'#f97316', bg:'#fff7ed',
+    weight:16,
+    overall:'全体的に好調。積極的に動こう',
+    rows:[
+      {label:'願い事',val:'叶いやすい'},
+      {label:'恋　愛',val:'進展あり'},
+      {label:'仕　事',val:'順調に進む'},
+      {label:'金　運',val:'やや上向き'},
+      {label:'健　康',val:'良好'},
+      {label:'学　業',val:'努力が実る'},
+    ],
+    msg:'今日は全体的に運気が高め。少し勇気を出して行動することで、良い結果が生まれます。周囲との協力も大切にしましょう。',
+  },
+  {
+    result:'小吉', yomi:'しょうきち', color:'#22c55e', bg:'#f0fdf4',
+    weight:16,
+    overall:'小さな幸運が舞い込む穏やかな一日',
+    rows:[
+      {label:'願い事',val:'焦らず待つと吉'},
+      {label:'恋　愛',val:'距離が縮まる'},
+      {label:'仕　事',val:'コツコツが大切'},
+      {label:'金　運',val:'ほどほど'},
+      {label:'健　康',val:'ほぼ良好'},
+      {label:'学　業',val:'地道に取り組もう'},
+    ],
+    msg:'大きなことはなくても、日常の小さな喜びを大切にする一日。丁寧に過ごすことで、じわじわと運気が上がってきます。',
+  },
+  {
+    result:'吉', yomi:'きち', color:'#3b82f6', bg:'#eff6ff',
+    weight:20,
+    overall:'安定した運勢。穏やかに過ごせる',
+    rows:[
+      {label:'願い事',val:'時間がかかる'},
+      {label:'恋　愛',val:'現状維持'},
+      {label:'仕　事',val:'着実に前進'},
+      {label:'金　運',val:'普通'},
+      {label:'健　康',val:'平穏'},
+      {label:'学　業',val:'コツコツ続けよう'},
+    ],
+    msg:'特別なことはないけれど、平和で安定した一日になりそう。焦らず自分のペースで進めることが大切です。感謝の気持ちを忘れずに。',
+  },
+  {
+    result:'末吉', yomi:'すえきち', color:'#8b5cf6', bg:'#faf5ff',
+    weight:13,
+    overall:'今は準備の時。後に良いことが来る',
+    rows:[
+      {label:'願い事',val:'もう少し先に'},
+      {label:'恋　愛',val:'じっくり育てよう'},
+      {label:'仕　事',val:'準備が重要'},
+      {label:'金　運',val:'節約が吉'},
+      {label:'健　康',val:'休養も大切'},
+      {label:'学　業',val:'基礎を固めよう'},
+    ],
+    msg:'今すぐ結果は出ないかもしれませんが、種を蒔く大切な時期。今の努力が後に大きな実を結びます。焦らずコツコツと続けましょう。',
+  },
+  {
+    result:'末小吉', yomi:'すえしょうきち', color:'#14b8a6', bg:'#f0fdfa',
+    weight:9,
+    overall:'今は平凡だが、末に小さな幸運が来る',
+    rows:[
+      {label:'願い事',val:'時間をかければ吉'},
+      {label:'恋　愛',val:'ゆっくり進もう'},
+      {label:'仕　事',val:'地味な努力が大事'},
+      {label:'金　運',val:'ムダ遣いに注意'},
+      {label:'健　康',val:'まずまず'},
+      {label:'学　業',val:'復習が効果的'},
+    ],
+    msg:'今は目立った動きはなくとも、小さな積み重ねが将来に花開きます。焦らず一歩一歩丁寧に進むことが、運気を引き寄せる鍵です。',
+  },
+  {
+    result:'平', yomi:'たいら', color:'#64748b', bg:'#f8fafc',
+    weight:7,
+    overall:'良くも悪くもない、平穏な一日',
+    rows:[
+      {label:'願い事',val:'現状のまま'},
+      {label:'恋　愛',val:'変化なし'},
+      {label:'仕　事',val:'いつも通り'},
+      {label:'金　運',val:'収支トントン'},
+      {label:'健　康',val:'普通'},
+      {label:'学　業',val:'現状維持'},
+    ],
+    msg:'「平」は珍しいおみくじ。良くも悪くもない、穏やかな平和の日。特別なことを求めず、今日は日常を大切に過ごしましょう。それ自体が幸せです。',
+  },
+  {
+    result:'小凶', yomi:'しょうきょう', color:'#a16207', bg:'#fefce8',
+    weight:6,
+    overall:'小さなトラブルに注意。慌てず対処を',
+    rows:[
+      {label:'願い事',val:'今は控えめに'},
+      {label:'恋　愛',val:'すれ違いに注意'},
+      {label:'仕　事',val:'確認作業を徹底'},
+      {label:'金　運',val:'衝動買いはNG'},
+      {label:'健　康',val:'疲れに注意'},
+      {label:'学　業',val:'見直しを忘れずに'},
+    ],
+    msg:'小さな凶が潜む一日。大きな問題にはならないけれど、小さなミスや誤解が起きやすい。丁寧に確認し、落ち着いて行動することで乗り越えられます。',
+  },
+  {
+    result:'半凶', yomi:'はんきょう', color:'#dc2626', bg:'#fff1f2',
+    weight:3,
+    overall:'半分は良く、半分は注意が必要な日',
+    rows:[
+      {label:'願い事',val:'タイミングを見て'},
+      {label:'恋　愛',val:'誤解を招きやすい'},
+      {label:'仕　事',val:'判断は慎重に'},
+      {label:'金　運',val:'大きな出費は避けて'},
+      {label:'健　康',val:'無理は禁物'},
+      {label:'学　業',val:'焦りは禁物'},
+    ],
+    msg:'良い面と悪い面が混在する複雑な一日。良い流れには乗り、悪い流れには逆らわないのが賢明。状況をよく見極め、慎重に判断しましょう。',
+  },
+  {
+    result:'凶', yomi:'きょう', color:'#6b7280', bg:'#f9fafb',
+    weight:2,
+    overall:'慎重に行動する日。焦りは禁物',
+    rows:[
+      {label:'願い事',val:'時期を待つべし'},
+      {label:'恋　愛',val:'慎重に'},
+      {label:'仕　事',val:'ミスに注意'},
+      {label:'金　運',val:'出費に注意'},
+      {label:'健　康',val:'無理は禁物'},
+      {label:'学　業',val:'基礎をやり直そう'},
+    ],
+    msg:'今日は慎重さが大切な日。無理に新しいことを始めるより、今あることを丁寧に見直すチャンス。凶は「悪いことへの警告」。気をつければ必ず好転します。',
+  },
+  {
+    result:'大凶', yomi:'だいきょう', color:'#1e1e2e', bg:'#f1f0ff',
+    weight:1,
+    overall:'今日は動かず、嵐が過ぎるのを待て',
+    rows:[
+      {label:'願い事',val:'今は願わないのが吉'},
+      {label:'恋　愛',val:'告白・連絡は控えて'},
+      {label:'仕　事',val:'大きな決断は先送り'},
+      {label:'金　運',val:'財布のひもをしめて'},
+      {label:'健　康',val:'身体を休めよう'},
+      {label:'学　業',val:'今日は復習だけに'},
+    ],
+    msg:'大凶は滅多に出ない、とても珍しいおみくじ。でも安心してください。大凶を引いた後は運気が上がるだけ！今日は無理せず静かに過ごし、英気を養いましょう。嵐の後には必ず晴れがきます。',
+  },
+];
+
+function weightedRandom() {
+  const total = OMIKUJI.reduce((s,o) => s+o.weight, 0);
+  let r = Math.random() * total;
+  for (const o of OMIKUJI) { r -= o.weight; if (r <= 0) return o; }
+  return OMIKUJI[0];
+}
+
+let drawing = false;
+
+function drawOmikuji() {
+  if (drawing) return;
+  drawing = true;
+
+  // 振るアニメ
+  const wrap = document.getElementById('tubeWrap');
+  wrap.classList.add('shaking');
+
+  setTimeout(() => {
+    // 棒が出る
+    document.getElementById('stick').classList.add('out');
+  }, 300);
+
+  setTimeout(() => {
+    wrap.classList.remove('shaking');
+    showResult();
+  }, 1000);
+}
+
+function showResult() {
+  const o = weightedRandom();
+
+  const rowsHTML = o.rows.map(r =>
+    `<div class="fortune-row"><span class="fr-label">${r.label}</span><span class="fr-val">${r.val}</span></div>`
+  ).join('');
+
+  document.getElementById('omikujiPaper').innerHTML = `
+    <div class="paper-title">— 御 神 籤 —</div>
+    <div class="kekka-big" style="color:${o.color}">${o.result}</div>
+    <div class="kekka-yomi">（${o.yomi}）</div>
+    <hr class="divider">
+    <div style="font-size:.8rem;color:#6b4c11;font-weight:700;margin-bottom:10px">${o.overall}</div>
+    <div class="fortune-rows">${rowsHTML}</div>
+    <div class="omikuji-msg">${o.msg}</div>
+  `;
+
+  document.getElementById('drawArea').style.display = 'none';
+  const rw = document.getElementById('resultWrap');
+  rw.style.display = 'block';
+  rw.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function reset() {
+  drawing = false;
+  document.getElementById('stick').classList.remove('out');
+  document.getElementById('drawArea').style.display = 'block';
+  document.getElementById('resultWrap').style.display = 'none';
+  document.getElementById('omikujiPaper').innerHTML = '';
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+</script>
+</body>
+</html>
