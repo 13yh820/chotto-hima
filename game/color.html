@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>色彩感覚テスト | ちょっとヒマ</title>
+  <meta name="description" content="微妙に違う色を見つけ出す色彩感覚テスト。レベルが上がるほど色の差が小さくなる。あなたの色の識別能力を試そう！">
+  <meta name="keywords" content="色彩感覚,テスト,色の違い,ゲーム,無料">
+  <meta property="og:title" content="色彩感覚テスト | ちょっとヒマ">
+  <meta property="og:url" content="https://13yh820.github.io/chotto-hima/game/color.html">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/color.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .color-grid {
+      display:grid;
+      gap:6px;
+      margin:0 auto 20px;
+      max-width:360px;
+    }
+    .color-cell {
+      aspect-ratio:1;
+      border-radius:8px;
+      cursor:pointer;
+      transition:transform .1s, opacity .15s;
+      border:2px solid rgba(255,255,255,.12);
+    }
+    .color-cell:hover { transform:scale(1.06); }
+    .color-cell.correct { animation:pop .35s ease; }
+    .color-cell.wrong { animation:shake .3s ease; }
+
+    @keyframes pop {
+      0%{transform:scale(1)} 40%{transform:scale(1.25)} 100%{transform:scale(1)}
+    }
+    @keyframes shake {
+      0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)}
+    }
+
+    .status-bar {
+      display:flex; gap:12px; justify-content:center; flex-wrap:wrap;
+      margin-bottom:20px;
+    }
+    .stat-chip {
+      background:var(--card-bg); border:1px solid var(--border);
+      border-radius:99px; padding:6px 16px;
+      font-size:.85rem; font-weight:700; color:var(--text);
+      box-shadow:var(--shadow);
+      display:flex; align-items:center; gap:6px;
+    }
+    .stat-chip .val { color:var(--primary); font-size:1rem; }
+
+    .result-screen {
+      background:var(--card-bg); border-radius:var(--radius);
+      padding:36px 24px; text-align:center;
+      box-shadow:var(--shadow); border:1px solid var(--border);
+    }
+    .result-screen .grade {
+      font-size:3rem; margin-bottom:8px;
+    }
+    .result-screen h2 { font-size:1.3rem; margin-bottom:6px; }
+    .result-screen .sub { color:var(--text-muted); font-size:.9rem; margin-bottom:24px; }
+    .level-badge {
+      display:inline-block; background:linear-gradient(135deg,var(--primary),#a78bfa);
+      color:#fff; border-radius:99px; padding:8px 20px;
+      font-size:1rem; font-weight:800; margin-bottom:20px;
+    }
+    .feedback-msg {
+      text-align:center; font-size:1rem; font-weight:700;
+      min-height:28px; margin-bottom:10px;
+      transition:opacity .3s;
+    }
+    .feedback-msg.correct { color:#00c853; }
+    .feedback-msg.wrong   { color:#e53e3e; }
+
+    .level-display {
+      text-align:center; font-size:.82rem; color:var(--text-muted);
+      margin-bottom:6px;
+    }
+    .diff-bar {
+      height:6px; border-radius:99px;
+      background:var(--border); overflow:hidden; margin-bottom:20px;
+    }
+    .diff-fill {
+      height:100%; border-radius:99px;
+      background:linear-gradient(to right,#00c853,var(--primary),#e53e3e);
+      transition:width .5s ease;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+    <nav>
+      <a href="../uranai/horoscope.html">占い</a>
+      <a href="reflex.html">ゲーム</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="page-header">
+    <div class="icon">🎨</div>
+    <h1>色彩感覚テスト</h1>
+    <p>仲間はずれの色を見つけよう！レベルが上がるほど難しくなるよ</p>
+  </div>
+
+  <div class="game-area" style="max-width:480px">
+    <div class="ad-box">広告スペース</div>
+
+    <!-- ゲーム中 -->
+    <div id="gameArea">
+      <div class="status-bar">
+        <div class="stat-chip">🏆 レベル <span class="val" id="lvlNum">1</span></div>
+        <div class="stat-chip">✅ 正解 <span class="val" id="scoreNum">0</span></div>
+        <div class="stat-chip">❌ ミス <span class="val" id="missNum">0</span></div>
+      </div>
+
+      <div class="level-display">難易度: <span id="diffLabel">かんたん</span></div>
+      <div class="diff-bar"><div class="diff-fill" id="diffFill" style="width:5%"></div></div>
+
+      <div class="feedback-msg" id="feedbackMsg">どれが違う色？</div>
+
+      <div class="color-grid" id="colorGrid"></div>
+
+      <div style="text-align:center">
+        <button class="btn btn-outline" onclick="restartGame()">最初から 🔄</button>
+      </div>
+    </div>
+
+    <!-- 結果 -->
+    <div id="resultArea" style="display:none">
+      <div class="result-screen">
+        <div class="grade" id="resGrade"></div>
+        <div class="level-badge" id="resLevel"></div>
+        <h2 id="resTitle"></h2>
+        <p class="sub" id="resSub"></p>
+        <button class="btn btn-primary" onclick="restartGame()">もう一度 🎨</button>
+      </div>
+    </div>
+
+    <div class="ad-box" style="margin-top:24px">広告スペース</div>
+  </div>
+</main>
+<footer>
+  <p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
+</footer>
+<script src="../js/common.js"></script>
+<script>
+let level = 1;
+let score = 0;
+let misses = 0;
+let correctIdx = 0;
+const MAX_MISS = 3;
+
+// レベルごとのグリッドサイズと色の差
+function getLevelConfig(lv) {
+  // グリッドサイズ: 2x2, 3x3, 4x4, 5x5, 6x6
+  const size = Math.min(2 + Math.floor((lv - 1) / 4), 6);
+  // 色の差: レベルが上がるほど小さく (180→5)
+  const diff = Math.max(180 - (lv - 1) * 8, 5);
+  return { size, diff };
+}
+
+function randHSL() {
+  return {
+    h: Math.floor(Math.random() * 360),
+    s: 55 + Math.floor(Math.random() * 25),
+    l: 45 + Math.floor(Math.random() * 20)
+  };
+}
+
+function hslStr(h, s, l) {
+  return `hsl(${h},${s}%,${l}%)`;
+}
+
+function buildGrid() {
+  const { size, diff } = getLevelConfig(level);
+  const grid = document.getElementById('colorGrid');
+  grid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+  grid.innerHTML = '';
+
+  const base = randHSL();
+  correctIdx = Math.floor(Math.random() * size * size);
+
+  // 差をランダムな方向に
+  const dh = (Math.random() > .5 ? 1 : -1) * diff;
+  const odd = { h: (base.h + dh + 360) % 360, s: base.s, l: base.l };
+
+  const total = size * size;
+  for (let i = 0; i < total; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'color-cell';
+    cell.style.background = (i === correctIdx)
+      ? hslStr(odd.h, odd.s, odd.l)
+      : hslStr(base.h, base.s, base.l);
+    cell.onclick = () => handleClick(cell, i === correctIdx);
+    grid.appendChild(cell);
+  }
+
+  // 難易度バー
+  const pct = Math.min(((level - 1) / 30) * 100, 100);
+  document.getElementById('diffFill').style.width = pct + '%';
+  const labels = ['かんたん','ふつう','むずかしい','かなり難','エキスパート'];
+  document.getElementById('diffLabel').textContent = labels[Math.min(Math.floor((level-1)/8), 4)];
+  document.getElementById('lvlNum').textContent = level;
+}
+
+function handleClick(cell, isCorrect) {
+  const msg = document.getElementById('feedbackMsg');
+  if (isCorrect) {
+    cell.classList.add('correct');
+    score++;
+    level++;
+    document.getElementById('scoreNum').textContent = score;
+    msg.textContent = '✅ 正解！';
+    msg.className = 'feedback-msg correct';
+    setTimeout(() => { msg.textContent = 'どれが違う色？'; msg.className = 'feedback-msg'; buildGrid(); }, 500);
+  } else {
+    cell.classList.add('wrong');
+    misses++;
+    document.getElementById('missNum').textContent = misses;
+    msg.textContent = '❌ 違う！もう一度';
+    msg.className = 'feedback-msg wrong';
+    setTimeout(() => { msg.textContent = 'どれが違う色？'; msg.className = 'feedback-msg'; cell.classList.remove('wrong'); }, 600);
+    if (misses >= MAX_MISS) {
+      setTimeout(showResult, 700);
+    }
+  }
+}
+
+function showResult() {
+  document.getElementById('gameArea').style.display = 'none';
+  document.getElementById('resultArea').style.display = 'block';
+
+  const grades = [
+    { min:0,  grade:'😅', title:'これから伸びる！',  sub:'練習すれば色の識別力がアップします。' },
+    { min:5,  grade:'🙂', title:'なかなかやるね！',  sub:'平均的な色彩感覚の持ち主です。' },
+    { min:10, grade:'😊', title:'色の達人！',        sub:'かなり鋭い色彩感覚を持っています。' },
+    { min:18, grade:'🤩', title:'色彩エキスパート！', sub:'上位5%の色彩識別能力です！' },
+    { min:25, grade:'🌈', title:'色のマエストロ！',  sub:'デザイナー並みの超鋭敏な色彩感覚！' },
+  ];
+  const g = [...grades].reverse().find(g => score >= g.min) || grades[0];
+
+  document.getElementById('resGrade').textContent = g.grade;
+  document.getElementById('resLevel').textContent = `最高レベル ${level - 1}`;
+  document.getElementById('resTitle').textContent = g.title;
+  document.getElementById('resSub').textContent = `正解 ${score}問 / ミス ${misses}回 — ${g.sub}`;
+}
+
+function restartGame() {
+  level = 1; score = 0; misses = 0;
+  document.getElementById('scoreNum').textContent = 0;
+  document.getElementById('missNum').textContent = 0;
+  document.getElementById('feedbackMsg').textContent = 'どれが違う色？';
+  document.getElementById('feedbackMsg').className = 'feedback-msg';
+  document.getElementById('gameArea').style.display = 'block';
+  document.getElementById('resultArea').style.display = 'none';
+  buildGrid();
+}
+
+restartGame();
+</script>
+</body>
+</html>

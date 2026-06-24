@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数字記憶ゲーム | ちょっとヒマ</title>
+  <meta name="description" content="一瞬だけ表示される数字を覚えて入力する記憶力ゲーム。正解するたびに桁数が増える。あなたの記憶力の限界に挑戦！">
+  <meta name="keywords" content="数字記憶,記憶力,脳トレ,ゲーム,無料">
+  <meta property="og:title" content="数字記憶ゲーム | ちょっとヒマ">
+  <meta property="og:url" content="https://13yh820.github.io/chotto-hima/game/number-memory.html">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/number-memory.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .number-display {
+      background:linear-gradient(135deg, #1a0a2e, #2d1560);
+      border-radius:var(--radius); padding:40px 24px;
+      text-align:center; margin-bottom:20px; min-height:140px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      border:2px solid rgba(139,92,246,.3);
+      position:relative; overflow:hidden;
+    }
+    .number-display::before {
+      content:''; position:absolute; inset:0;
+      background:radial-gradient(ellipse at 50% 50%, rgba(139,92,246,.15) 0%, transparent 70%);
+    }
+    .num-big {
+      font-size:3rem; font-weight:900; letter-spacing:.18em;
+      color:#fff; text-shadow:0 0 30px rgba(139,92,246,.8), 0 0 60px rgba(139,92,246,.4);
+      position:relative; z-index:1;
+      animation:numIn .3s ease;
+    }
+    .num-hidden { font-size:2rem; color:rgba(255,255,255,.15); position:relative; z-index:1; }
+    .num-label {
+      font-size:.8rem; color:rgba(255,255,255,.5); margin-bottom:8px; position:relative; z-index:1;
+    }
+    @keyframes numIn {
+      from { opacity:0; transform:scale(.85); }
+      to   { opacity:1; transform:scale(1); }
+    }
+
+    .countdown-num {
+      font-size:5rem; font-weight:900; color:var(--primary);
+      text-shadow:0 0 30px rgba(139,92,246,.6);
+      position:relative; z-index:1;
+      animation:countPop .6s ease;
+    }
+    @keyframes countPop {
+      0%   { transform:scale(1.4); opacity:.6; }
+      100% { transform:scale(1);   opacity:1; }
+    }
+
+    .digit-input-row {
+      display:flex; gap:8px; justify-content:center; flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+    .digit-box {
+      width:44px; height:54px; border:2px solid var(--border);
+      border-radius:10px; font-size:1.4rem; font-weight:900;
+      text-align:center; color:var(--text); background:var(--card-bg);
+      font-family:inherit; transition:border-color .2s;
+      -moz-appearance:textfield;
+    }
+    .digit-box::-webkit-inner-spin-button { display:none; }
+    .digit-box:focus { outline:none; border-color:var(--primary); background:rgba(139,92,246,.08); }
+    .digit-box.correct { border-color:#00c853; background:#f0fff4; }
+    .digit-box.wrong   { border-color:#e53e3e; background:#fff5f5; }
+
+    .answer-input-full {
+      width:100%; padding:14px 16px; border:2px solid var(--border);
+      border-radius:var(--radius-sm); font-size:1.8rem; font-weight:900;
+      text-align:center; font-family:inherit; color:var(--text);
+      background:var(--card-bg); letter-spacing:.2em;
+      -moz-appearance:textfield;
+    }
+    .answer-input-full::-webkit-inner-spin-button { display:none; }
+    .answer-input-full:focus { outline:none; border-color:var(--primary); }
+    .answer-input-full.correct { border-color:#00c853; background:#f0fff4; }
+    .answer-input-full.wrong   { border-color:#e53e3e; background:#fff5f5; }
+
+    .status-row {
+      display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:20px;
+    }
+    .stat-chip {
+      background:var(--card-bg); border:1px solid var(--border);
+      border-radius:99px; padding:6px 16px;
+      font-size:.85rem; font-weight:700; color:var(--text);
+      display:flex; align-items:center; gap:5px;
+    }
+    .stat-chip .val { color:var(--primary); font-size:1rem; }
+
+    .lives-display {
+      text-align:center; font-size:1.4rem; margin-bottom:12px; letter-spacing:.1em;
+    }
+
+    .phase-label {
+      text-align:center; font-size:.9rem; font-weight:700;
+      color:var(--text-muted); margin-bottom:8px;
+    }
+
+    .result-screen {
+      background:var(--card-bg); border-radius:var(--radius);
+      padding:36px 24px; text-align:center;
+      box-shadow:var(--shadow); border:1px solid var(--border);
+    }
+    .result-grade { font-size:3.5rem; margin-bottom:8px; }
+    .best-badge {
+      display:inline-block; background:linear-gradient(135deg,#f59e0b,#ef4444);
+      color:#fff; border-radius:99px; padding:8px 20px;
+      font-size:1rem; font-weight:800; margin-bottom:16px;
+    }
+    .result-stat { font-size:1.1rem; margin-bottom:6px; }
+    .result-sub { font-size:.85rem; color:var(--text-muted); margin-bottom:24px; }
+
+    .start-area { text-align:center; padding:12px 0; }
+    .start-icon { font-size:4rem; margin-bottom:12px; }
+    .start-desc { font-size:.9rem; color:var(--text-muted); margin-bottom:24px; line-height:1.7; }
+    .rules-box {
+      background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm);
+      padding:16px; margin-bottom:20px; text-align:left; font-size:.85rem;
+      color:var(--text-muted); line-height:1.8;
+    }
+    .rules-box li { list-style:none; padding-left:1.2em; text-indent:-1.2em; }
+    .rules-box li::before { content:'▸ '; color:var(--primary); }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+    <nav>
+      <a href="../uranai/horoscope.html">占い</a>
+      <a href="reflex.html">ゲーム</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="page-header">
+    <div class="icon">🔢</div>
+    <h1>数字記憶ゲーム</h1>
+    <p>一瞬表示される数字を覚えて入力しよう！</p>
+  </div>
+
+  <div class="game-area" style="max-width:480px">
+    <div class="ad-box">広告スペース</div>
+
+    <!-- スタート画面 -->
+    <div id="startArea">
+      <div class="start-area">
+        <div class="start-icon">🧠</div>
+        <p class="start-desc">数字が一瞬だけ表示されます。<br>覚えて正確に入力しよう！<br>正解するたびに桁数が増えます。</p>
+        <ul class="rules-box">
+          <li>最初は3桁の数字からスタート</li>
+          <li>正解するたびに1桁ずつ増加</li>
+          <li>ミス2回でゲームオーバー</li>
+          <li>表示時間は桁数に応じて変わる</li>
+        </ul>
+        <button class="btn btn-primary" style="font-size:1.1rem;padding:14px 36px" onclick="startGame()">スタート ▶</button>
+      </div>
+    </div>
+
+    <!-- ゲーム中 -->
+    <div id="gameArea" style="display:none">
+      <div class="status-row">
+        <div class="stat-chip">🔢 桁数 <span class="val" id="digitCount">3</span></div>
+        <div class="stat-chip">🏆 最高 <span class="val" id="bestCount">-</span>桁</div>
+      </div>
+
+      <div class="lives-display" id="livesDisplay">❤️ ❤️</div>
+
+      <div class="phase-label" id="phaseLabel">数字を覚えよう！</div>
+
+      <div class="number-display" id="numDisplay">
+        <div class="num-label" id="numLabelText">表示中...</div>
+        <div id="numContent" class="num-big"></div>
+      </div>
+
+      <div id="inputArea" style="display:none">
+        <input type="number" class="answer-input-full" id="mainInput"
+          placeholder="数字を入力..." autocomplete="off" inputmode="numeric"
+          onkeydown="handleKey(event)" maxlength="12">
+        <div style="display:flex;gap:10px;margin-top:12px">
+          <button class="btn btn-primary" style="flex:1" onclick="checkAnswer()">決定 ✓</button>
+          <button class="btn btn-outline" onclick="restartGame()">やり直し 🔄</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 結果 -->
+    <div id="resultArea" style="display:none">
+      <div class="result-screen">
+        <div class="result-grade" id="resGrade"></div>
+        <div class="best-badge" id="resBest"></div>
+        <div class="result-stat" id="resStat"></div>
+        <div class="result-sub" id="resSub"></div>
+        <button class="btn btn-primary" onclick="restartGame()">もう一度 🔢</button>
+      </div>
+    </div>
+
+    <div class="ad-box" style="margin-top:24px">広告スペース</div>
+  </div>
+</main>
+<footer>
+  <p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
+</footer>
+<script src="../js/common.js"></script>
+<script>
+let digits = 3;
+let lives = 2;
+let bestDigits = 0;
+let currentNumber = '';
+let phase = 'idle'; // idle | showing | waiting | answering
+let showTimer = null;
+const MAX_LIVES = 2;
+
+function genNumber(d) {
+  let n = '';
+  // 最初の桁は1-9
+  n += Math.floor(Math.random() * 9) + 1;
+  for (let i = 1; i < d; i++) n += Math.floor(Math.random() * 10);
+  return n;
+}
+
+function startGame() {
+  digits = 3; lives = MAX_LIVES; bestDigits = 0;
+  document.getElementById('startArea').style.display = 'none';
+  document.getElementById('resultArea').style.display = 'none';
+  document.getElementById('gameArea').style.display = 'block';
+  updateStatus();
+  nextRound();
+}
+
+function restartGame() {
+  clearTimeout(showTimer);
+  digits = 3; lives = MAX_LIVES; bestDigits = 0;
+  document.getElementById('resultArea').style.display = 'none';
+  document.getElementById('startArea').style.display = 'none';
+  document.getElementById('gameArea').style.display = 'block';
+  updateStatus();
+  nextRound();
+}
+
+function updateStatus() {
+  document.getElementById('digitCount').textContent = digits;
+  document.getElementById('bestCount').textContent = bestDigits > 0 ? bestDigits : '-';
+  const heartsArr = Array(MAX_LIVES).fill('❤️');
+  for (let i = 0; i < MAX_LIVES - lives; i++) heartsArr[MAX_LIVES - 1 - i] = '🖤';
+  document.getElementById('livesDisplay').textContent = heartsArr.join(' ');
+}
+
+function nextRound() {
+  currentNumber = genNumber(digits);
+  phase = 'showing';
+  updateStatus();
+
+  // 表示エリアリセット
+  document.getElementById('inputArea').style.display = 'none';
+  document.getElementById('mainInput').value = '';
+  document.getElementById('mainInput').className = 'answer-input-full';
+  document.getElementById('phaseLabel').textContent = '数字を覚えよう！';
+
+  // カウントダウン 3→2→1→表示
+  let count = 3;
+  const numContent = document.getElementById('numContent');
+  const numLabel = document.getElementById('numLabelText');
+  numLabel.textContent = '準備して...';
+  numContent.className = 'countdown-num';
+  numContent.textContent = count;
+
+  const cdInterval = setInterval(() => {
+    count--;
+    if (count > 0) {
+      numContent.textContent = count;
+      numContent.className = 'countdown-num';
+    } else {
+      clearInterval(cdInterval);
+      showNumber();
+    }
+  }, 700);
+}
+
+function showNumber() {
+  const numContent = document.getElementById('numContent');
+  const numLabel = document.getElementById('numLabelText');
+  numLabel.textContent = '覚えて！';
+  numContent.className = 'num-big';
+  numContent.textContent = currentNumber;
+
+  // 表示時間: 桁数 × 0.7秒 (最低1.5秒)
+  const showTime = Math.max(digits * 700, 1500);
+  showTimer = setTimeout(() => {
+    hideNumber();
+  }, showTime);
+}
+
+function hideNumber() {
+  const numContent = document.getElementById('numContent');
+  const numLabel = document.getElementById('numLabelText');
+  numLabel.textContent = '入力してください';
+  numContent.className = 'num-hidden';
+  numContent.textContent = '?'.repeat(digits);
+  document.getElementById('phaseLabel').textContent = `${digits}桁の数字を入力しよう`;
+  document.getElementById('inputArea').style.display = 'block';
+  document.getElementById('mainInput').focus();
+  phase = 'answering';
+}
+
+function handleKey(e) { if (e.key === 'Enter') checkAnswer(); }
+
+function checkAnswer() {
+  if (phase !== 'answering') return;
+  const inp = document.getElementById('mainInput');
+  const val = inp.value.trim();
+
+  if (val === currentNumber) {
+    inp.className = 'answer-input-full correct';
+    if (digits > bestDigits) bestDigits = digits;
+    digits++;
+    document.getElementById('phaseLabel').textContent = '✅ 正解！次は' + digits + '桁！';
+    setTimeout(() => nextRound(), 900);
+  } else {
+    inp.className = 'answer-input-full wrong';
+    lives--;
+    updateStatus();
+    document.getElementById('phaseLabel').textContent = `❌ 不正解！正解は ${currentNumber}`;
+    if (lives <= 0) {
+      setTimeout(showResult, 1200);
+    } else {
+      setTimeout(() => nextRound(), 1500);
+    }
+  }
+}
+
+function showResult() {
+  document.getElementById('gameArea').style.display = 'none';
+  document.getElementById('resultArea').style.display = 'block';
+
+  const grades = [
+    { min:0,  g:'😅', t:'もっと練習！',      s:'3〜4桁が平均的なスタートラインです。' },
+    { min:5,  g:'🙂', t:'なかなかやるね！',  s:'5桁以上は上位30%の記憶力です。' },
+    { min:7,  g:'😊', t:'記憶力いいね！',    s:'7桁以上は上位10%の記憶力です！' },
+    { min:9,  g:'🤩', t:'記憶の達人！',      s:'電話番号くらい余裕で覚えられる記憶力！' },
+    { min:12, g:'🧠', t:'超人的な記憶力！',  s:'一般人の3倍以上の記憶スパンを持っています！' },
+  ];
+  const g = [...grades].reverse().find(g => bestDigits >= g.min) || grades[0];
+
+  document.getElementById('resGrade').textContent = g.g;
+  document.getElementById('resBest').textContent = `最高 ${bestDigits} 桁`;
+  document.getElementById('resStat').textContent = g.t;
+  document.getElementById('resSub').textContent = g.s;
+}
+</script>
+</body>
+</html>

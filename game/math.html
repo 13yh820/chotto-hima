@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>計算スピードテスト | ちょっとヒマ</title>
+  <meta name="description" content="60秒間で暗算問題をどれだけ解けるか挑戦！足し算・引き算・掛け算。難易度3段階。あなたの計算力を試そう。">
+  <meta name="keywords" content="計算,暗算,スピードテスト,脳トレ,ゲーム,無料">
+  <meta property="og:title" content="計算スピードテスト | ちょっとヒマ">
+  <meta property="og:url" content="https://13yh820.github.io/chotto-hima/game/math.html">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/math.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .diff-btns { display:flex; gap:10px; justify-content:center; margin-bottom:24px; flex-wrap:wrap; }
+    .diff-btn {
+      padding:10px 22px; border-radius:99px; border:2px solid var(--border);
+      background:var(--card-bg); font-size:.9rem; font-weight:700;
+      cursor:pointer; font-family:inherit; color:var(--text); transition:all .18s;
+    }
+    .diff-btn.active, .diff-btn:hover {
+      border-color:var(--primary); background:var(--primary); color:#fff;
+    }
+
+    .timer-ring {
+      position:relative; width:110px; height:110px; margin:0 auto 20px;
+    }
+    .timer-ring svg { transform:rotate(-90deg); }
+    .timer-ring circle { fill:none; stroke-width:8; }
+    .timer-ring .bg { stroke:var(--border); }
+    .timer-ring .fg { stroke:var(--primary); stroke-linecap:round; transition:stroke-dashoffset .9s linear; }
+    .timer-num {
+      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+      font-size:1.8rem; font-weight:900; color:var(--primary);
+    }
+
+    .question-card {
+      background:linear-gradient(135deg,var(--primary),#a78bfa);
+      border-radius:var(--radius); padding:28px 20px;
+      text-align:center; margin-bottom:16px; color:#fff;
+    }
+    .question-card .op-label { font-size:.85rem; opacity:.8; margin-bottom:4px; }
+    .question-card .q-text { font-size:2.4rem; font-weight:900; letter-spacing:.05em; }
+
+    .answer-row {
+      display:flex; gap:10px; margin-bottom:16px;
+    }
+    .answer-input {
+      flex:1; padding:14px 16px; border:2px solid var(--border);
+      border-radius:var(--radius-sm); font-size:1.5rem; font-weight:700;
+      text-align:center; font-family:inherit; color:var(--text);
+      background:var(--card-bg); transition:border-color .2s;
+      -moz-appearance:textfield;
+    }
+    .answer-input::-webkit-inner-spin-button { display:none; }
+    .answer-input:focus { outline:none; border-color:var(--primary); }
+    .answer-input.correct { border-color:#00c853; background:#f0fff4; }
+    .answer-input.wrong   { border-color:#e53e3e; background:#fff5f5; }
+
+    .score-row {
+      display:flex; gap:10px; justify-content:center; margin-bottom:20px;
+    }
+    .score-chip {
+      background:var(--card-bg); border:1px solid var(--border);
+      border-radius:99px; padding:6px 16px;
+      font-size:.85rem; font-weight:700; color:var(--text);
+      display:flex; align-items:center; gap:5px;
+    }
+    .score-chip .val { color:var(--primary); font-size:1rem; }
+
+    .skip-btn {
+      width:100%; padding:12px; border-radius:var(--radius-sm);
+      border:1.5px solid var(--border); background:var(--card-bg);
+      font-size:.85rem; color:var(--text-muted); cursor:pointer; font-family:inherit;
+    }
+    .skip-btn:hover { border-color:var(--primary); color:var(--primary); }
+
+    .result-grid {
+      display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0;
+    }
+    .res-box {
+      background:var(--bg); border-radius:var(--radius-sm); padding:16px;
+      text-align:center; border:1px solid var(--border);
+    }
+    .res-box .rb-val { font-size:1.6rem; font-weight:900; color:var(--primary); }
+    .res-box .rb-label { font-size:.75rem; color:var(--text-muted); margin-top:2px; }
+    .grade-display { font-size:3rem; text-align:center; margin:10px 0 4px; }
+    .grade-title { font-size:1.1rem; font-weight:800; text-align:center; margin-bottom:4px; }
+    .grade-sub { font-size:.85rem; color:var(--text-muted); text-align:center; }
+
+    .start-area { text-align:center; }
+    .start-area .big-icon { font-size:4rem; margin-bottom:12px; }
+    .start-area p { color:var(--text-muted); font-size:.9rem; margin-bottom:24px; }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+    <nav>
+      <a href="../uranai/horoscope.html">占い</a>
+      <a href="reflex.html">ゲーム</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="page-header">
+    <div class="icon">🧮</div>
+    <h1>計算スピードテスト</h1>
+    <p>60秒間でできるだけ多くの計算問題を解こう！</p>
+  </div>
+
+  <div class="game-area" style="max-width:480px">
+    <div class="ad-box">広告スペース</div>
+
+    <!-- スタート画面 -->
+    <div id="startArea">
+      <div class="start-area">
+        <div class="big-icon">🧮</div>
+        <p>難易度を選んでスタート！<br>60秒間で何問解けるか挑戦しよう</p>
+      </div>
+      <div class="diff-btns">
+        <button class="diff-btn active" data-diff="easy" onclick="setDiff(this)">かんたん<br><small>1桁の足し引き</small></button>
+        <button class="diff-btn" data-diff="normal" onclick="setDiff(this)">ふつう<br><small>2桁の足し引き</small></button>
+        <button class="diff-btn" data-diff="hard" onclick="setDiff(this)">むずかしい<br><small>掛け算あり</small></button>
+      </div>
+      <div style="text-align:center">
+        <button class="btn btn-primary" style="font-size:1.1rem;padding:14px 36px" onclick="startGame()">スタート ▶</button>
+      </div>
+    </div>
+
+    <!-- ゲーム中 -->
+    <div id="gameArea" style="display:none">
+      <div class="timer-ring">
+        <svg width="110" height="110" viewBox="0 0 110 110">
+          <circle class="bg" cx="55" cy="55" r="46"/>
+          <circle class="fg" id="timerCircle" cx="55" cy="55" r="46"
+            stroke-dasharray="289" stroke-dashoffset="0"/>
+        </svg>
+        <div class="timer-num" id="timerNum">60</div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-chip">✅ 正解 <span class="val" id="correctCount">0</span></div>
+        <div class="score-chip">❌ 不正解 <span class="val" id="wrongCount">0</span></div>
+      </div>
+
+      <div class="question-card">
+        <div class="op-label" id="opLabel">足し算</div>
+        <div class="q-text" id="qText">? + ? = ?</div>
+      </div>
+
+      <div class="answer-row">
+        <input type="number" class="answer-input" id="answerInput"
+          placeholder="答え" autocomplete="off" inputmode="numeric"
+          onkeydown="handleKey(event)">
+        <button class="btn btn-primary" style="min-width:80px" onclick="submitAnswer()">決定</button>
+      </div>
+
+      <button class="skip-btn" onclick="skipQuestion()">この問題をスキップ →</button>
+    </div>
+
+    <!-- 結果 -->
+    <div id="resultArea" style="display:none">
+      <div class="grade-display" id="resGrade"></div>
+      <div class="grade-title" id="resTitle"></div>
+      <div class="grade-sub" id="resSub"></div>
+      <div class="result-grid">
+        <div class="res-box"><div class="rb-val" id="resCorrect">0</div><div class="rb-label">正解数</div></div>
+        <div class="res-box"><div class="rb-val" id="resWrong">0</div><div class="rb-label">不正解数</div></div>
+        <div class="res-box"><div class="rb-val" id="resAcc">0%</div><div class="rb-label">正解率</div></div>
+        <div class="res-box"><div class="rb-val" id="resPace">0秒</div><div class="rb-label">1問あたり</div></div>
+      </div>
+      <div style="text-align:center">
+        <button class="btn btn-primary" onclick="goStart()">もう一度 🧮</button>
+      </div>
+    </div>
+
+    <div class="ad-box" style="margin-top:24px">広告スペース</div>
+  </div>
+</main>
+<footer>
+  <p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
+</footer>
+<script src="../js/common.js"></script>
+<script>
+let diff = 'easy';
+let timeLeft = 60;
+let timer = null;
+let correct = 0, wrong = 0, total = 0;
+let currentAnswer = 0;
+
+function setDiff(btn) {
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  diff = btn.dataset.diff;
+}
+
+function genQuestion() {
+  let a, b, op, ans, opLabel;
+  if (diff === 'easy') {
+    a = Math.floor(Math.random() * 9) + 1;
+    b = Math.floor(Math.random() * 9) + 1;
+    op = Math.random() > .5 ? '+' : '-';
+    if (op === '-' && b > a) [a, b] = [b, a];
+    ans = op === '+' ? a + b : a - b;
+    opLabel = op === '+' ? '足し算' : '引き算';
+  } else if (diff === 'normal') {
+    a = Math.floor(Math.random() * 49) + 10;
+    b = Math.floor(Math.random() * 49) + 10;
+    op = Math.random() > .5 ? '+' : '-';
+    if (op === '-' && b > a) [a, b] = [b, a];
+    ans = op === '+' ? a + b : a - b;
+    opLabel = op === '+' ? '足し算' : '引き算';
+  } else {
+    const type = Math.floor(Math.random() * 3);
+    if (type === 0) {
+      a = Math.floor(Math.random() * 9) + 2;
+      b = Math.floor(Math.random() * 9) + 2;
+      op = '×'; ans = a * b; opLabel = '掛け算';
+    } else if (type === 1) {
+      a = Math.floor(Math.random() * 90) + 10;
+      b = Math.floor(Math.random() * 90) + 10;
+      op = '+'; ans = a + b; opLabel = '足し算';
+    } else {
+      a = Math.floor(Math.random() * 90) + 20;
+      b = Math.floor(Math.random() * (a - 10)) + 5;
+      op = '-'; ans = a - b; opLabel = '引き算';
+    }
+  }
+  currentAnswer = ans;
+  document.getElementById('qText').textContent = `${a} ${op} ${b} = ?`;
+  document.getElementById('opLabel').textContent = opLabel;
+  document.getElementById('answerInput').value = '';
+  document.getElementById('answerInput').className = 'answer-input';
+  document.getElementById('answerInput').focus();
+}
+
+function submitAnswer() {
+  const inp = document.getElementById('answerInput');
+  const val = parseInt(inp.value);
+  if (isNaN(val)) return;
+  total++;
+  if (val === currentAnswer) {
+    correct++;
+    inp.className = 'answer-input correct';
+    document.getElementById('correctCount').textContent = correct;
+    setTimeout(() => genQuestion(), 250);
+  } else {
+    wrong++;
+    inp.className = 'answer-input wrong';
+    document.getElementById('wrongCount').textContent = wrong;
+    setTimeout(() => { inp.className = 'answer-input'; inp.value = ''; inp.focus(); }, 500);
+  }
+}
+
+function skipQuestion() { genQuestion(); }
+
+function handleKey(e) { if (e.key === 'Enter') submitAnswer(); }
+
+function startGame() {
+  correct = 0; wrong = 0; total = 0; timeLeft = 60;
+  document.getElementById('correctCount').textContent = 0;
+  document.getElementById('wrongCount').textContent = 0;
+  document.getElementById('startArea').style.display = 'none';
+  document.getElementById('resultArea').style.display = 'none';
+  document.getElementById('gameArea').style.display = 'block';
+
+  updateTimer();
+  genQuestion();
+
+  timer = setInterval(() => {
+    timeLeft--;
+    updateTimer();
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      showResult();
+    }
+  }, 1000);
+}
+
+function updateTimer() {
+  document.getElementById('timerNum').textContent = timeLeft;
+  const circ = document.getElementById('timerCircle');
+  const pct = timeLeft / 60;
+  const dashLen = 289;
+  circ.style.strokeDashoffset = dashLen * (1 - pct);
+  circ.style.stroke = timeLeft > 20 ? 'var(--primary)' : timeLeft > 10 ? '#f59e0b' : '#e53e3e';
+}
+
+function showResult() {
+  document.getElementById('gameArea').style.display = 'none';
+  document.getElementById('resultArea').style.display = 'block';
+
+  const acc = total > 0 ? Math.round((correct / total) * 100) : 0;
+  const pace = correct > 0 ? (60 / correct).toFixed(1) : '—';
+
+  document.getElementById('resCorrect').textContent = correct;
+  document.getElementById('resWrong').textContent = wrong;
+  document.getElementById('resAcc').textContent = acc + '%';
+  document.getElementById('resPace').textContent = pace + '秒';
+
+  const grades = [
+    { min:0,  g:'😅', t:'もっと練習！',        s:'コツコツ続ければ必ず速くなります。' },
+    { min:10, g:'🙂', t:'なかなか！',           s:'平均的な計算スピードです。' },
+    { min:20, g:'😊', t:'計算が速い！',         s:'上位30%の計算力をお持ちです。' },
+    { min:30, g:'🤩', t:'計算マスター！',       s:'上位10%の計算スピードです！' },
+    { min:40, g:'🧠', t:'計算の天才！',         s:'驚異的な暗算能力の持ち主です！' },
+  ];
+  const g = [...grades].reverse().find(g => correct >= g.min) || grades[0];
+  document.getElementById('resGrade').textContent = g.g;
+  document.getElementById('resTitle').textContent = g.t;
+  document.getElementById('resSub').textContent = g.s;
+}
+
+function goStart() {
+  clearInterval(timer);
+  document.getElementById('resultArea').style.display = 'none';
+  document.getElementById('gameArea').style.display = 'none';
+  document.getElementById('startArea').style.display = 'block';
+}
+</script>
+</body>
+</html>

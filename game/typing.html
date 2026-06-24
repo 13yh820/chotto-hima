@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>タイピングゲーム | ちょっとヒマ</title>
+  <meta name="description" content="表示されたテキストをどれだけ速く正確に入力できるか挑戦！日本語ローマ字・英語対応。WPMを測定してタイピング力を鍛えよう。">
+  <meta name="keywords" content="タイピング,キーボード,WPM,速度テスト,ゲーム,無料">
+  <meta property="og:title" content="タイピングゲーム | ちょっとヒマ">
+  <meta property="og:url" content="https://13yh820.github.io/chotto-hima/game/typing.html">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/typing.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .mode-tabs {
+      display:flex; gap:0; border-radius:var(--radius-sm); overflow:hidden;
+      border:1.5px solid var(--border); margin-bottom:20px;
+    }
+    .mode-tab {
+      flex:1; padding:10px 12px; background:var(--card-bg); border:none;
+      font-family:inherit; font-size:.85rem; font-weight:700;
+      cursor:pointer; color:var(--text-muted); transition:all .18s;
+    }
+    .mode-tab.active {
+      background:var(--primary); color:#fff;
+    }
+
+    .text-display {
+      background:var(--card-bg); border-radius:var(--radius);
+      border:2px solid var(--border); padding:20px;
+      font-size:1.15rem; line-height:1.9; min-height:80px;
+      margin-bottom:16px; letter-spacing:.03em;
+      word-break:break-all; position:relative;
+    }
+    .char-ok   { color:var(--primary); }
+    .char-err  { color:#e53e3e; background:rgba(229,62,62,.12); border-radius:2px; }
+    .char-cur  { background:var(--primary); color:#fff; border-radius:2px; animation:blink .9s step-start infinite; }
+    .char-rest { color:var(--text-muted); }
+
+    @keyframes blink { 50% { opacity:0; } }
+
+    .type-input {
+      width:100%; padding:14px 16px; border:2px solid var(--border);
+      border-radius:var(--radius-sm); font-size:1rem; font-family:inherit;
+      color:var(--text); background:var(--card-bg); margin-bottom:12px;
+      transition:border-color .2s;
+    }
+    .type-input:focus { outline:none; border-color:var(--primary); }
+    .type-input.has-error { border-color:#e53e3e; }
+
+    .stats-row {
+      display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:16px;
+    }
+    .stat-pill {
+      background:var(--card-bg); border:1px solid var(--border);
+      border-radius:99px; padding:5px 14px; font-size:.82rem; font-weight:700;
+      display:flex; align-items:center; gap:5px;
+    }
+    .stat-pill .val { color:var(--primary); font-size:.95rem; }
+
+    .progress-bar {
+      height:6px; border-radius:99px; background:var(--border);
+      overflow:hidden; margin-bottom:20px;
+    }
+    .progress-fill {
+      height:100%; border-radius:99px;
+      background:linear-gradient(to right,var(--primary),#a78bfa);
+      transition:width .15s ease;
+    }
+
+    /* 結果 */
+    .result-grid {
+      display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin:20px 0;
+    }
+    .res-box {
+      background:var(--bg); border:1px solid var(--border);
+      border-radius:var(--radius-sm); padding:16px; text-align:center;
+    }
+    .res-box .rb-val { font-size:1.6rem; font-weight:900; color:var(--primary); }
+    .res-box .rb-label { font-size:.75rem; color:var(--text-muted); margin-top:2px; }
+    .grade-big { font-size:3rem; text-align:center; margin-bottom:6px; }
+    .grade-title { font-size:1.1rem; font-weight:800; text-align:center; margin-bottom:4px; }
+    .grade-sub { font-size:.85rem; color:var(--text-muted); text-align:center; margin-bottom:20px; }
+
+    .start-card {
+      background:var(--card-bg); border-radius:var(--radius);
+      border:1px solid var(--border); padding:28px 20px;
+      text-align:center; margin-bottom:20px;
+    }
+    .start-card .icon { font-size:3.5rem; margin-bottom:10px; }
+    .start-card p { color:var(--text-muted); font-size:.9rem; margin-bottom:0; }
+
+    .countdown-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.65);
+      display:flex; align-items:center; justify-content:center;
+      z-index:100; backdrop-filter:blur(4px);
+    }
+    .countdown-big {
+      font-size:8rem; font-weight:900; color:#fff;
+      text-shadow:0 0 40px rgba(139,92,246,1);
+      animation:countPop .7s ease;
+    }
+    @keyframes countPop {
+      0%  { transform:scale(1.6); opacity:0; }
+      50% { transform:scale(1.0); opacity:1; }
+      100%{ transform:scale(.9);  opacity:1; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+    <nav>
+      <a href="../uranai/horoscope.html">占い</a>
+      <a href="reflex.html">ゲーム</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="page-header">
+    <div class="icon">⌨️</div>
+    <h1>タイピングゲーム</h1>
+    <p>表示されたテキストをできるだけ速く正確に入力しよう！</p>
+  </div>
+
+  <div class="game-area" style="max-width:560px">
+    <div class="ad-box">広告スペース</div>
+
+    <!-- スタート画面 -->
+    <div id="startArea">
+      <div class="start-card">
+        <div class="icon">⌨️</div>
+        <p>モードを選んでスタート！<br>タイピング速度（WPM）と正確さを測定します</p>
+      </div>
+
+      <div class="mode-tabs" id="modeTabs">
+        <button class="mode-tab active" data-mode="jp" onclick="setMode(this)">🇯🇵 日本語</button>
+        <button class="mode-tab" data-mode="en" onclick="setMode(this)">🇺🇸 English</button>
+        <button class="mode-tab" data-mode="mix" onclick="setMode(this)">🔀 ミックス</button>
+      </div>
+
+      <div style="text-align:center">
+        <button class="btn btn-primary" style="font-size:1.1rem;padding:14px 40px" onclick="startCountdown()">スタート ▶</button>
+      </div>
+    </div>
+
+    <!-- ゲーム中 -->
+    <div id="gameArea" style="display:none">
+      <div class="stats-row">
+        <div class="stat-pill">⏱ <span class="val" id="timerVal">60</span>秒</div>
+        <div class="stat-pill">⌨️ WPM <span class="val" id="wpmVal">0</span></div>
+        <div class="stat-pill">✅ <span class="val" id="accVal">100</span>%</div>
+        <div class="stat-pill">📝 <span class="val" id="wordVal">0</span>語</div>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progFill" style="width:0%"></div>
+      </div>
+
+      <div class="text-display" id="textDisplay"></div>
+
+      <input type="text" class="type-input" id="typeInput"
+        placeholder="ここに入力..." autocomplete="off" autocorrect="off"
+        autocapitalize="off" spellcheck="false" oninput="handleInput()">
+
+      <div style="text-align:center;margin-top:4px">
+        <button class="btn btn-outline btn-sm" onclick="skipText()">この問題をスキップ →</button>
+      </div>
+    </div>
+
+    <!-- 結果 -->
+    <div id="resultArea" style="display:none">
+      <div class="grade-big" id="resGrade"></div>
+      <div class="grade-title" id="resTitle"></div>
+      <div class="grade-sub" id="resSub"></div>
+      <div class="result-grid">
+        <div class="res-box"><div class="rb-val" id="resWpm">0</div><div class="rb-label">WPM（語/分）</div></div>
+        <div class="res-box"><div class="rb-val" id="resAcc">0%</div><div class="rb-label">正確さ</div></div>
+        <div class="res-box"><div class="rb-val" id="resWords">0</div><div class="rb-label">入力語数</div></div>
+        <div class="res-box"><div class="rb-val" id="resMiss">0</div><div class="rb-label">ミス回数</div></div>
+      </div>
+      <div style="text-align:center">
+        <button class="btn btn-primary" onclick="goStart()">もう一度 ⌨️</button>
+      </div>
+    </div>
+
+    <div class="ad-box" style="margin-top:24px">広告スペース</div>
+  </div>
+</main>
+<footer>
+  <p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
+</footer>
+<script src="../js/common.js"></script>
+<script>
+// ====== テキストデータ ======
+const TEXTS = {
+  jp: [
+    'すもももももももものうち',
+    'なかなかかたかなかけなかった',
+    '竹垣に竹立てかけたのは竹立てかけたかったから',
+    'きしゃのきしゃがきしゃできしゃした',
+    'このにわにはにわにわとりがいる',
+    'やまのうえのやまんばはやまんばだ',
+    '東京特許許可局きょかきょく',
+    'かえるぴょこぴょこみぴょこぴょこ',
+    'うちのうらのうらないしゃ',
+    'たとえどんなことがあってもあきらめずにがんばろう',
+    'さくらのはながきれいにさいていた',
+    'はるのそらはどこまでもつづいていた',
+  ],
+  en: [
+    'the quick brown fox jumps over the lazy dog',
+    'pack my box with five dozen liquor jugs',
+    'how vexingly quick daft zebras jump',
+    'the five boxing wizards jump quickly',
+    'sphinx of black quartz judge my vow',
+    'we promptly judged antique ivory buckles',
+    'practice makes perfect every single day',
+    'the keyboard is mightier than the sword',
+    'speed and accuracy are both important skills',
+    'keep your fingers on the home row keys',
+    'touch typing is a valuable life skill',
+    'never give up on your goals and dreams',
+  ],
+  mix: [
+    'hello world こんにちは世界',
+    'typing speed WPMはwordsperminute',
+    'game over ゲームオーバー restart',
+    'tokyo東京 osaka大阪 kyoto京都',
+    'amazing すごい fantastic 最高',
+    'practice 練習 every day 毎日',
+  ]
+};
+
+let mode = 'jp';
+let texts = [];
+let textIdx = 0;
+let currentText = '';
+let timeLeft = 60;
+let gameTimer = null;
+let started = false;
+let totalTyped = 0;
+let totalErrors = 0;
+let wordsCompleted = 0;
+let startTime = null;
+
+function setMode(btn) {
+  document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  mode = btn.dataset.mode;
+}
+
+function startCountdown() {
+  document.getElementById('startArea').style.display = 'none';
+
+  // シャッフル
+  texts = [...TEXTS[mode]].sort(() => Math.random() - .5);
+  textIdx = 0; totalTyped = 0; totalErrors = 0; wordsCompleted = 0; timeLeft = 60;
+
+  let cnt = 3;
+  const overlay = document.createElement('div');
+  overlay.className = 'countdown-overlay';
+  const big = document.createElement('div');
+  big.className = 'countdown-big';
+  big.textContent = cnt;
+  overlay.appendChild(big);
+  document.body.appendChild(overlay);
+
+  const cdi = setInterval(() => {
+    cnt--;
+    if (cnt > 0) {
+      big.textContent = cnt;
+      big.className = 'countdown-big'; void big.offsetWidth; big.className = 'countdown-big';
+    } else {
+      clearInterval(cdi);
+      overlay.remove();
+      launchGame();
+    }
+  }, 800);
+}
+
+function launchGame() {
+  document.getElementById('resultArea').style.display = 'none';
+  document.getElementById('gameArea').style.display = 'block';
+  document.getElementById('timerVal').textContent = 60;
+  document.getElementById('wpmVal').textContent = 0;
+  document.getElementById('accVal').textContent = 100;
+  document.getElementById('wordVal').textContent = 0;
+  document.getElementById('progFill').style.width = '0%';
+
+  loadNextText();
+  document.getElementById('typeInput').focus();
+
+  startTime = Date.now();
+  gameTimer = setInterval(() => {
+    timeLeft--;
+    document.getElementById('timerVal').textContent = timeLeft;
+    updateWPM();
+    if (timeLeft <= 0) {
+      clearInterval(gameTimer);
+      showResult();
+    }
+  }, 1000);
+}
+
+function loadNextText() {
+  currentText = texts[textIdx % texts.length];
+  textIdx++;
+  document.getElementById('typeInput').value = '';
+  document.getElementById('typeInput').className = 'type-input';
+  renderText('');
+}
+
+function renderText(typed) {
+  const disp = document.getElementById('textDisplay');
+  let html = '';
+  for (let i = 0; i < currentText.length; i++) {
+    const ch = currentText[i] === ' ' ? '&nbsp;' : currentText[i];
+    if (i < typed.length) {
+      if (typed[i] === currentText[i]) {
+        html += `<span class="char-ok">${ch}</span>`;
+      } else {
+        html += `<span class="char-err">${ch}</span>`;
+      }
+    } else if (i === typed.length) {
+      html += `<span class="char-cur">${ch}</span>`;
+    } else {
+      html += `<span class="char-rest">${ch}</span>`;
+    }
+  }
+  disp.innerHTML = html;
+
+  // プログレス
+  const pct = Math.min((typed.length / currentText.length) * 100, 100);
+  document.getElementById('progFill').style.width = pct + '%';
+}
+
+function handleInput() {
+  if (timeLeft <= 0) return;
+  const inp = document.getElementById('typeInput');
+  const typed = inp.value;
+
+  // エラーチェック（現在位置まで）
+  let hasError = false;
+  for (let i = 0; i < typed.length; i++) {
+    if (i >= currentText.length || typed[i] !== currentText[i]) {
+      hasError = true; break;
+    }
+  }
+  inp.className = 'type-input' + (hasError ? ' has-error' : '');
+
+  // エラー数カウント
+  if (typed.length > 0 && typed[typed.length-1] !== currentText[typed.length-1]) {
+    totalErrors++;
+  }
+  totalTyped++;
+
+  renderText(typed);
+
+  // 完了チェック
+  if (typed === currentText) {
+    wordsCompleted++;
+    const wordCount = currentText.trim().split(/\s+/).length;
+    document.getElementById('wordVal').textContent = wordsCompleted;
+    loadNextText();
+    updateWPM();
+  }
+}
+
+function skipText() { loadNextText(); }
+
+function updateWPM() {
+  const elapsed = (Date.now() - startTime) / 60000;
+  const wpm = elapsed > 0 ? Math.round(wordsCompleted / elapsed) : 0;
+  document.getElementById('wpmVal').textContent = wpm;
+
+  const acc = totalTyped > 0 ? Math.max(0, Math.round(((totalTyped - totalErrors) / totalTyped) * 100)) : 100;
+  document.getElementById('accVal').textContent = acc;
+}
+
+function showResult() {
+  document.getElementById('gameArea').style.display = 'none';
+  document.getElementById('resultArea').style.display = 'block';
+
+  const elapsed = 1; // 60秒
+  const wpm = wordsCompleted;
+  const acc = totalTyped > 0 ? Math.max(0, Math.round(((totalTyped - totalErrors) / totalTyped) * 100)) : 100;
+
+  document.getElementById('resWpm').textContent = wpm;
+  document.getElementById('resAcc').textContent = acc + '%';
+  document.getElementById('resWords').textContent = wordsCompleted;
+  document.getElementById('resMiss').textContent = totalErrors;
+
+  const grades = [
+    { min:0,  g:'🐢', t:'これから伸びる！',    s:'ゆっくりでも正確に打つことが大切です。' },
+    { min:10, g:'🙂', t:'まずまず！',          s:'10〜20WPMは入門者の平均レベルです。' },
+    { min:20, g:'😊', t:'なかなか速い！',      s:'20〜30WPMは標準的なタイピング速度です。' },
+    { min:35, g:'🤩', t:'タイピングが速い！',  s:'30WPM以上は上位25%の速度です！' },
+    { min:50, g:'⚡', t:'タイピングの達人！',  s:'50WPM以上はプロレベルの速度です！！' },
+  ];
+  const g = [...grades].reverse().find(g => wpm >= g.min) || grades[0];
+
+  document.getElementById('resGrade').textContent = g.g;
+  document.getElementById('resTitle').textContent = g.t;
+  document.getElementById('resSub').textContent = g.s;
+}
+
+function goStart() {
+  clearInterval(gameTimer);
+  document.getElementById('resultArea').style.display = 'none';
+  document.getElementById('gameArea').style.display = 'none';
+  document.getElementById('startArea').style.display = 'block';
+}
+</script>
+</body>
+</html>
