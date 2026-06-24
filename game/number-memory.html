@@ -24,10 +24,12 @@
       background:radial-gradient(ellipse at 50% 50%, rgba(139,92,246,.15) 0%, transparent 70%);
     }
     .num-big {
-      font-size:3rem; font-weight:900; letter-spacing:.18em;
+      font-size:3rem; font-weight:900; letter-spacing:.12em;
       color:#fff; text-shadow:0 0 30px rgba(139,92,246,.8), 0 0 60px rgba(139,92,246,.4);
       position:relative; z-index:1;
       animation:numIn .3s ease;
+      word-break:break-all; line-height:1.2;
+      width:100%; text-align:center;
     }
     .num-hidden { font-size:2rem; color:rgba(255,255,255,.15); position:relative; z-index:1; }
     .num-label {
@@ -280,11 +282,19 @@ function nextRound() {
   }, 700);
 }
 
+function getNumFontSize(d) {
+  if (d <= 5) return '3rem';
+  if (d <= 8) return '2.2rem';
+  if (d <= 11) return '1.6rem';
+  return '1.2rem';
+}
+
 function showNumber() {
   const numContent = document.getElementById('numContent');
   const numLabel = document.getElementById('numLabelText');
   numLabel.textContent = '覚えて！';
   numContent.className = 'num-big';
+  numContent.style.fontSize = getNumFontSize(digits);
   numContent.textContent = currentNumber;
 
   // 表示時間: 桁数 × 0.7秒 (最低1.5秒)

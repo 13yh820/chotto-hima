@@ -47,6 +47,20 @@
     .type-input:focus { outline:none; border-color:var(--primary); }
     .type-input.has-error { border-color:#e53e3e; }
 
+    /* スマホ向け: 文字大きく・入力欄を目立たせる */
+    @media (max-width: 500px) {
+      .text-display {
+        font-size:1.3rem; line-height:2; padding:16px;
+        border-color: var(--primary);
+      }
+      .type-input {
+        font-size:1.1rem; padding:16px;
+        border-width:3px;
+      }
+      .stats-row { gap:6px; }
+      .stat-pill { font-size:.75rem; padding:4px 10px; }
+    }
+
     .stats-row {
       display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:16px;
     }
@@ -162,7 +176,9 @@
 
       <input type="text" class="type-input" id="typeInput"
         placeholder="ここに入力..." autocomplete="off" autocorrect="off"
-        autocapitalize="off" spellcheck="false" oninput="handleInput()">
+        autocapitalize="off" spellcheck="false" enterkeyhint="done"
+        oninput="handleInput()"
+        onfocus="setTimeout(()=>document.getElementById('textDisplay').scrollIntoView({behavior:'smooth',block:'nearest'}),350)">
 
       <div style="text-align:center;margin-top:4px">
         <button class="btn btn-outline btn-sm" onclick="skipText()">この問題をスキップ →</button>
