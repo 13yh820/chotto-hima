@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>タイピングゲーム | ちょっとヒマ</title>
   <meta name="description" content="表示されたテキストをどれだけ速く正確に入力できるか挑戦！日本語ローマ字・英語対応。WPMを測定してタイピング力を鍛えよう。">
   <meta name="keywords" content="タイピング,キーボード,WPM,速度テスト,ゲーム,無料">
@@ -290,7 +290,12 @@ function launchGame() {
   document.getElementById('progFill').style.width = '0%';
 
   loadNextText();
-  document.getElementById('typeInput').focus();
+  const inp = document.getElementById('typeInput');
+  inp.focus();
+  // スマホでキーボードが開いた後、テキスト表示エリアが見えるようスクロール
+  setTimeout(() => {
+    document.getElementById('textDisplay').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 400);
 
   startTime = Date.now();
   gameTimer = setInterval(() => {

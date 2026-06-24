@@ -71,23 +71,43 @@
       flex-wrap: wrap;
     }
     .mbtn {
-      width: 56px; height: 56px;
-      border-radius: 12px;
+      width: 64px; height: 64px;
+      border-radius: 14px;
       border: 2px solid var(--border);
       background: var(--card-bg);
-      font-size: 1.4rem;
+      font-size: 1.5rem;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       color: var(--text);
       -webkit-tap-highlight-color: transparent;
       user-select: none;
+      touch-action: manipulation;
     }
     .mbtn:active { background: var(--primary); color: #fff; border-color: var(--primary); }
     .mbtn.rotate { background: rgba(139,92,246,.15); border-color: var(--primary); }
 
+    /* スマホ: サイドパネルを横並びに、キャンバスを最大幅に */
     @media (max-width: 500px) {
       .mobile-btns { display: flex; }
       .ctrl-hint { display: none; }
+      .puzzle-wrap {
+        flex-direction: column;
+        align-items: center;
+        padding: 0 8px 12px;
+      }
+      .side-panel {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        min-width: unset;
+        width: 100%;
+        gap: 8px;
+      }
+      .side-panel .panel-box {
+        padding: 8px 12px;
+        min-width: 60px;
+      }
+      .side-panel .panel-box .val { font-size: 1rem; }
     }
   </style>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7063985125158694" crossorigin="anonymous"></script>
@@ -164,7 +184,11 @@ const nextCanvas = document.getElementById('nextCanvas');
 const nctx = nextCanvas.getContext('2d');
 
 function resize() {
-  const maxW = Math.min(window.innerWidth - 130, 300);
+  const isMobile = window.innerWidth <= 500;
+  // スマホ: サイドパネルが下に移動するのでフル幅使える
+  const maxW = isMobile
+    ? Math.min(window.innerWidth - 24, 320)
+    : Math.min(window.innerWidth - 130, 300);
   CELL = Math.floor(maxW / COLS);
   canvas.width  = CELL * COLS;
   canvas.height = CELL * ROWS;

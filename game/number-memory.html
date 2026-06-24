@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>数字記憶ゲーム | ちょっとヒマ</title>
   <meta name="description" content="一瞬だけ表示される数字を覚えて入力する記憶力ゲーム。正解するたびに桁数が増える。あなたの記憶力の限界に挑戦！">
   <meta name="keywords" content="数字記憶,記憶力,脳トレ,ゲーム,無料">
@@ -176,9 +176,10 @@
       </div>
 
       <div id="inputArea" style="display:none">
-        <input type="number" class="answer-input-full" id="mainInput"
+        <input type="text" class="answer-input-full" id="mainInput"
           placeholder="数字を入力..." autocomplete="off" inputmode="numeric"
-          onkeydown="handleKey(event)" maxlength="12">
+          pattern="[0-9]*" enterkeyhint="send"
+          onkeydown="handleKey(event)" oninput="this.value=this.value.replace(/[^0-9]/g,'')" maxlength="12">
         <div style="display:flex;gap:10px;margin-top:12px">
           <button class="btn btn-primary" style="flex:1" onclick="checkAnswer()">決定 ✓</button>
           <button class="btn btn-outline" onclick="restartGame()">やり直し 🔄</button>

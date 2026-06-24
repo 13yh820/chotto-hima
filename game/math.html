@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>計算スピードテスト | ちょっとヒマ</title>
   <meta name="description" content="60秒間で暗算問題をどれだけ解けるか挑戦！足し算・引き算・掛け算。難易度3段階。あなたの計算力を試そう。">
   <meta name="keywords" content="計算,暗算,スピードテスト,脳トレ,ゲーム,無料">
@@ -151,9 +151,10 @@
       </div>
 
       <div class="answer-row">
-        <input type="number" class="answer-input" id="answerInput"
+        <input type="text" class="answer-input" id="answerInput"
           placeholder="答え" autocomplete="off" inputmode="numeric"
-          onkeydown="handleKey(event)">
+          pattern="[0-9\-]*" enterkeyhint="send"
+          onkeydown="handleKey(event)" oninput="this.value=this.value.replace(/[^0-9\-]/g,'')">
         <button class="btn btn-primary" style="min-width:80px" onclick="submitAnswer()">決定</button>
       </div>
 
