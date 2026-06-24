@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>心理テスト | ちょっとヒマ</title>
+  <meta name="description" content="8つの質問に答えるだけ！あなたの隠れた本質・性格タイプを診断する無料の心理テスト。">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    /* 進捗バー */
+    .progress-wrap {
+      background: var(--border);
+      border-radius: 99px;
+      height: 6px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 99px;
+      transition: width .4s ease;
+    }
+    .progress-label {
+      font-size: .75rem;
+      color: var(--text-muted);
+      text-align: right;
+      margin-bottom: 6px;
+    }
+
+    /* 質問 */
+    .question-area {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 20px;
+      max-width: 480px;
+      margin: 0 auto 20px;
+    }
+    .q-num {
+      font-size: .72rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: .1em;
+      margin-bottom: 8px;
+    }
+    .q-text {
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .choices { display: flex; flex-direction: column; gap: 10px; }
+    .choice-btn {
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      transition: all .15s;
+      line-height: 1.5;
+    }
+    .choice-btn:hover {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+      transform: translateX(4px);
+    }
+    .choice-btn.selected {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+    }
+
+    /* 結果 */
+    .result-wrap {
+      display: none;
+      max-width: 480px;
+      margin: 0 auto;
+      animation: fadeIn .6s ease;
+    }
+    @keyframes fadeIn {
+      from{opacity:0;transform:translateY(24px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    .type-header {
+      text-align: center;
+      padding: 32px 20px 24px;
+      border-radius: 16px 16px 0 0;
+      color: #fff;
+    }
+    .type-emoji { font-size: 3.5rem; margin-bottom: 8px; }
+    .type-name  { font-size: 1.6rem; font-weight: 900; margin-bottom: 4px; }
+    .type-catch { font-size: .88rem; opacity: .88; }
+
+    .type-body {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 16px 16px;
+      padding: 24px 20px;
+      margin-bottom: 20px;
+    }
+
+    .type-desc {
+      font-size: .9rem;
+      line-height: 1.9;
+      margin-bottom: 18px;
+    }
+
+    .tags-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .tag { font-size: .75rem; font-weight: 700; padding: 4px 12px; border-radius: 99px; background: var(--accent-bg); color: var(--accent); }
+
+    .section-head {
+      font-size: .75rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      letter-spacing: .1em;
+      margin: 14px 0 8px;
+    }
+
+    .compat-types { display: flex; gap: 12px; flex-wrap: wrap; }
+    .compat-chip {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 14px;
+      border-radius: 99px;
+      font-size: .82rem; font-weight: 700;
+      color: #fff;
+    }
+
+    .share-area { text-align: center; margin-top: 8px; }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+    <nav>
+      <a href="horoscope.html">星座</a>
+      <a href="tarot.html">タロット</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="page-header">
+    <div class="icon">🧠</div>
+    <h1>心理テスト</h1>
+    <p>8つの質問に答えて、あなたの隠れた本質を診断</p>
+  </div>
+
+  <div class="game-area" style="max-width:520px">
+    <div class="ad-box">広告スペース</div>
+
+    <!-- 質問エリア -->
+    <div id="quizArea">
+      <div class="progress-label" id="progressLabel">1 / 8</div>
+      <div class="progress-wrap">
+        <div class="progress-fill" id="progressFill" style="width:12.5%"></div>
+      </div>
+      <div class="question-area">
+        <div class="q-num" id="qNum">Q1</div>
+        <div class="q-text" id="qText"></div>
+        <div class="choices" id="choices"></div>
+      </div>
+    </div>
+
+    <!-- 結果エリア -->
+    <div class="result-wrap" id="resultWrap">
+      <div class="type-header" id="typeHeader">
+        <div class="type-emoji" id="typeEmoji"></div>
+        <div class="type-name" id="typeName"></div>
+        <div class="type-catch" id="typeCatch"></div>
+      </div>
+      <div class="type-body">
+        <div class="type-desc" id="typeDesc"></div>
+        <div class="section-head">✨ あなたの強み</div>
+        <div class="tags-row" id="typeStrength"></div>
+        <div class="section-head">🕵️ 隠れた本音</div>
+        <p style="font-size:.88rem;line-height:1.8" id="typeHidden"></p>
+        <div class="section-head">💞 相性の良いタイプ</div>
+        <div class="compat-types" id="typeCompat"></div>
+        <div class="section-head">💡 今日のアドバイス</div>
+        <p style="font-size:.88rem;line-height:1.8" id="typeAdvice"></p>
+      </div>
+      <div class="share-area">
+        <button class="btn btn-outline" onclick="restart()">もう一度やる 🔄</button>
+      </div>
+    </div>
+
+    <div class="ad-box" style="margin-top:20px">広告スペース</div>
+  </div>
+</main>
+<footer>
+  <p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
+</footer>
+<script>
+/* タイプ: A=行動派, B=感情派, C=思考派, D=直感派 */
+const QUESTIONS = [
+  {
+    text: '週末の予定、あなたはどっち？',
+    choices: [
+      {text: '🏃 アクティブに外に出て動き回る', type:'A'},
+      {text: '👥 仲の良い友達と会ってゆっくり過ごす', type:'B'},
+      {text: '📚 家で本を読んだり、勉強したりする', type:'C'},
+      {text: '🎵 特に決めず、気分で動く', type:'D'},
+    ],
+  },
+  {
+    text: '困っている友達がいたらどうする？',
+    choices: [
+      {text: '👊 「一緒に解決しよう！」と行動に移す', type:'A'},
+      {text: '🤝 とにかく話を聞いて、そばにいてあげる', type:'B'},
+      {text: '💡 原因を整理して、解決策を考えてあげる', type:'C'},
+      {text: '✨ 「なんとかなるよ！」と元気づける', type:'D'},
+    ],
+  },
+  {
+    text: '新しい仕事やプロジェクトが始まるとき',
+    choices: [
+      {text: '🚀 とにかくまずやってみる派', type:'A'},
+      {text: '🫂 チームの雰囲気や人間関係を大切にする', type:'B'},
+      {text: '📋 計画を立てて、順番に進める', type:'C'},
+      {text: '🌟 なんとなくうまくいく気がして進む', type:'D'},
+    ],
+  },
+  {
+    text: '映画を選ぶなら？',
+    choices: [
+      {text: '🎬 アクション・スポーツ系', type:'A'},
+      {text: '💕 恋愛・ヒューマンドラマ', type:'B'},
+      {text: '🔍 ミステリー・SF・ドキュメンタリー', type:'C'},
+      {text: '🌈 ファンタジー・アニメ・非現実系', type:'D'},
+    ],
+  },
+  {
+    text: '大事な決断をするとき、どうする？',
+    choices: [
+      {text: '⚡ 直感で素早く決める', type:'A'},
+      {text: '💬 大切な人に相談してから決める', type:'B'},
+      {text: '📊 メリット・デメリットを書き出して比較', type:'C'},
+      {text: '🌙 なんとなく「これだ」と感じる方を選ぶ', type:'D'},
+    ],
+  },
+  {
+    text: 'ストレスがたまったとき、どう発散する？',
+    choices: [
+      {text: '🏋️ 運動・スポーツ・体を動かす', type:'A'},
+      {text: '🍽️ 友達と食事して話す', type:'B'},
+      {text: '🎧 一人で音楽を聴いたり映画を見たりする', type:'C'},
+      {text: '🎨 絵や音楽など、何かを創る', type:'D'},
+    ],
+  },
+  {
+    text: '自分の長所はどれに近い？',
+    choices: [
+      {text: '💪 行動力・実行力がある', type:'A'},
+      {text: '❤️ 思いやりがある・話を聞くのが上手', type:'B'},
+      {text: '🧠 論理的・分析が得意', type:'C'},
+      {text: '⭐ 発想力・ひらめきがある', type:'D'},
+    ],
+  },
+  {
+    text: '理想の生き方に近いのは？',
+    choices: [
+      {text: '🏆 目標を立てて、どんどん達成していく人生', type:'A'},
+      {text: '🌸 大切な人に囲まれて、温かい毎日を過ごす人生', type:'B'},
+      {text: '📖 知識や経験を積んで、専門家として認められる人生', type:'C'},
+      {text: '🦋 自由に、自分らしく、感性のままに生きる人生', type:'D'},
+    ],
+  },
+];
+
+const TYPES = {
+  A: {
+    emoji:'🔥', name:'行動派リーダー', catch:'チャレンジャー',
+    color:'#e53e3e',
+    desc:'あなたは考えるより先に体が動く、行動力の塊！目標があればまっすぐ突き進み、困難も前向きにぶつかっていきます。周囲を引っ張るエネルギーがあり、自然とリーダー的ポジションになることが多いタイプです。',
+    strength:['行動力','リーダーシップ','決断力','競争心','向上心'],
+    hidden:'実は「認められたい」という気持ちが人一倍強め。褒められると一気にやる気が上がります。弱さを見せるのが苦手で、一人で抱え込みがちな面も。',
+    compat:[{type:'B',label:'感情派'},{type:'C',label:'思考派'}],
+    advice:'今日は誰かに「ありがとう」と言ってみましょう。行動力に感謝が加わると、あなたの魅力が倍増します。',
+  },
+  B: {
+    emoji:'💖', name:'感情派ヒーラー', catch:'エンパス',
+    color:'#ec4899',
+    desc:'あなたは人の気持ちを敏感に感じ取る、天然の共感力の持ち主。「あの人大丈夫かな」とすぐ気になってしまうほど思いやり深いタイプ。人間関係の中心にいながら、縁の下の力持ちとして場を温める存在です。',
+    strength:['共感力','思いやり','コミュ力','忍耐力','チームワーク'],
+    hidden:'本当は誰よりも「傷つきやすい」繊細な面がある。表には出さないけれど、言葉のひとつひとつをよく覚えています。自分のことを後回しにしすぎる癖がある。',
+    compat:[{type:'A',label:'行動派'},{type:'D',label:'直感派'}],
+    advice:'今日は「自分のやりたいこと」を1つだけ先に決めましょう。自分を大切にすることが、周りも幸せにします。',
+  },
+  C: {
+    emoji:'🔬', name:'思考派アナリスト', catch:'ロジシャン',
+    color:'#3b82f6',
+    desc:'あなたは物事を深く考え、論理的に整理する頭脳派。感情より事実とデータを重視し、ミスなく着実に進めるのが得意。一見クールに見られがちですが、内側には熱い信念を持っています。専門性を磨くことで真価を発揮します。',
+    strength:['論理思考','分析力','計画力','集中力','正確性'],
+    hidden:'感情表現が苦手なだけで、実は人一倍傷つきやすい面がある。「もっと評価されたい」という本音を胸の奥に隠していることも。好きな人にはとことん尽くすタイプ。',
+    compat:[{type:'A',label:'行動派'},{type:'D',label:'直感派'}],
+    advice:'今日はあえて「完璧じゃなくていい」と自分に言い聞かせてみて。70点で動き出すことで、新しい発見があります。',
+  },
+  D: {
+    emoji:'🌙', name:'直感派クリエイター', catch:'ドリーマー',
+    color:'#8b5cf6',
+    desc:'あなたは独特のセンスと豊かな感性を持つ、自由な発想家。「なんとなくこっちが正解」という直感がよく当たるタイプ。枠にはまらない発想で、周囲が思いつかないアイデアをポンと出せます。感性が豊かで、芸術・音楽・創作に才能を発揮します。',
+    strength:['発想力','感性','直感力','創造力','柔軟性'],
+    hidden:'実はかなり人の目が気になっている。自由に見えて「どう思われているか」をひそかに確認しています。好きなことには没頭しすぎて時間を忘れてしまう。',
+    compat:[{type:'B',label:'感情派'},{type:'C',label:'思考派'}],
+    advice:'今日は「あ、いいな」と思ったことをすぐにメモしてみましょう。あなたの直感は宝の山です。',
+  },
+};
+
+let scores = {A:0, B:0, C:0, D:0};
+let current = 0;
+
+function renderQuestion() {
+  const q = QUESTIONS[current];
+  document.getElementById('qNum').textContent = `Q${current+1}`;
+  document.getElementById('qText').textContent = q.text;
+  document.getElementById('progressLabel').textContent = `${current+1} / ${QUESTIONS.length}`;
+  document.getElementById('progressFill').style.width = `${((current+1)/QUESTIONS.length)*100}%`;
+
+  const choices = document.getElementById('choices');
+  choices.innerHTML = '';
+  q.choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c.text;
+    btn.onclick = () => answer(c.type, btn);
+    choices.appendChild(btn);
+  });
+}
+
+function answer(type, btn) {
+  // ハイライト
+  document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  scores[type]++;
+
+  setTimeout(() => {
+    current++;
+    if (current < QUESTIONS.length) {
+      renderQuestion();
+    } else {
+      showResult();
+    }
+  }, 300);
+}
+
+function showResult() {
+  const winner = Object.entries(scores).sort((a,b) => b[1]-a[1])[0][0];
+  const t = TYPES[winner];
+
+  document.getElementById('quizArea').style.display = 'none';
+
+  document.getElementById('typeHeader').style.background = t.color;
+  document.getElementById('typeEmoji').textContent = t.emoji;
+  document.getElementById('typeName').textContent = t.name;
+  document.getElementById('typeCatch').textContent = `タイプ ${winner}：${t.catch}`;
+  document.getElementById('typeDesc').textContent = t.desc;
+  document.getElementById('typeStrength').innerHTML = t.strength.map(s => `<span class="tag">${s}</span>`).join('');
+  document.getElementById('typeHidden').textContent = t.hidden;
+  document.getElementById('typeCompat').innerHTML = t.compat.map(c =>
+    `<div class="compat-chip" style="background:${TYPES[c.type].color}">${TYPES[c.type].emoji} ${c.label}タイプ</div>`
+  ).join('');
+  document.getElementById('typeAdvice').textContent = t.advice;
+
+  const rw = document.getElementById('resultWrap');
+  rw.style.display = 'block';
+  rw.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function restart() {
+  scores = {A:0, B:0, C:0, D:0};
+  current = 0;
+  document.getElementById('resultWrap').style.display = 'none';
+  document.getElementById('quizArea').style.display = 'block';
+  renderQuestion();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+renderQuestion();
+</script>
+</body>
+</html>

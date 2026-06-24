@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数秘術 | ちょっとヒマ</title>
+  <meta name="description" content="生年月日から「運命数」を計算。あなたの本質・才能・人生テーマを数字で読み解く数秘術占い。">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .input-area {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 20px;
+      max-width: 380px;
+      margin: 0 auto 24px;
+      text-align: center;
+    }
+    .input-area label {
+      display: block;
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      letter-spacing: .05em;
+    }
+    .date-inputs {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .date-inputs select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 8px;
+      font-size: .95rem;
+      color: var(--text);
+      flex: 1;
+      text-align: center;
+    }
+    .date-inputs select:focus { outline: 2px solid var(--accent); }
+
+    /* 計算アニメ */
+    .calc-steps {
+      display: none;
+      font-size: .8rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      font-family: monospace;
+      line-height: 2;
+    }
+
+    /* 運命数バッジ */
+    .destiny-badge {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 2.4rem; font-weight: 900;
+      box-shadow: 0 8px 32px rgba(0,0,0,.25);
+      color: #fff;
+    }
+    .destiny-label {
+      font-size: .65rem; font-weight: 700;
+      letter-spacing: .1em; opacity: .85;
+    }
+
+    /* 結果カード */
+    .result-card {
+      display: none;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 20px;
+      max-width: 420px;
+      margin: 0 auto 16px;
+      animation: slideUp .5s ease;
+    }
+    @keyframes slideUp {
+      from{opacity:0;transform:translateY(20px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    .result-title {
+      font-size: 1.1rem; font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .result-catch {
+      font-size: .82rem; color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .result-desc {
+      font-size: .88rem; line-height: 1.9;
+      margin-bottom: 16px;
+    }
+
+    .tags-row {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-bottom: 16px;
+    }
+    .tag {
+      font-size: .75rem; font-weight: 700;
+      padding: 4px 12px; border-radius: 99px;
+      background: var(--accent-bg);
+      color: var(--accent);
+    }
+    .tag.bad { background: #fef2f2; color: #e53e3e; }
+
+    .section-head {
+      font-size: .75rem; font-weight: 800;
+      color: var(--text-muted); letter-spacing: .1em;
+      text-transform: uppercase;
+      margin: 14px 0 8px;
+    }
+
+    .lucky-grid {
+      display: grid; grid-template-columns: repeat(2,1fr); gap: 8px;
+    }
+    .lucky-item {
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: .8rem;
+    }
+    .lucky-item span { font-weight: 800; font-size: .92rem; display: block; }
+
+    .compat-row {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .compat-num {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: .9rem; color: #fff;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+    <nav>
+      <a href="horoscope.html">星座</a>
+      <a href="tarot.html">タロット</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="page-header">
+    <div class="icon">🔢</div>
+    <h1>数秘術</h1>
+    <p>生年月日から「運命数」を計算して、あなたの本質を読み解く</p>
+  </div>
+
+  <div class="game-area" style="max-width:460px">
+    <div class="ad-box">広告スペース</div>
+
+    <div class="input-area">
+      <label>生年月日を入力してください</label>
+      <div class="date-inputs">
+        <select id="selYear"></select>
+        <select id="selMonth"></select>
+        <select id="selDay"></select>
+      </div>
+      <div class="calc-steps" id="calcSteps"></div>
+      <button class="btn btn-primary" onclick="calc()" style="width:100%">運命数を計算する 🔢</button>
+    </div>
+
+    <div class="result-card" id="resultCard">
+      <div style="text-align:center">
+        <div class="destiny-badge" id="destinyBadge"></div>
+        <div class="result-title" id="resultTitle"></div>
+        <div class="result-catch" id="resultCatch"></div>
+      </div>
+      <div class="result-desc" id="resultDesc"></div>
+
+      <div class="section-head">✨ 才能・強み</div>
+      <div class="tags-row" id="tagStrength"></div>
+
+      <div class="section-head">⚠️ 注意点</div>
+      <div class="tags-row" id="tagWeak"></div>
+
+      <div class="section-head">🍀 ラッキー</div>
+      <div class="lucky-grid" id="luckyGrid"></div>
+
+      <div class="section-head">💞 相性の良い運命数</div>
+      <div class="compat-row" id="compatRow"></div>
+    </div>
+
+    <div id="retryArea" style="text-align:center;display:none;margin-bottom:20px">
+      <button class="btn btn-outline" onclick="retry()">別の日付で試す</button>
+    </div>
+
+    <div class="ad-box">広告スペース</div>
+  </div>
+</main>
+<footer>
+  <p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
+</footer>
+<script>
+/* ---- セレクタ初期化 ---- */
+const selY = document.getElementById('selYear');
+const selM = document.getElementById('selMonth');
+const selD = document.getElementById('selDay');
+
+for (let y = new Date().getFullYear(); y >= 1920; y--) {
+  selY.innerHTML += `<option value="${y}">${y}年</option>`;
+}
+for (let m = 1; m <= 12; m++) {
+  selM.innerHTML += `<option value="${m}">${m}月</option>`;
+}
+function updateDays() {
+  const y = +selY.value, m = +selM.value;
+  const days = new Date(y, m, 0).getDate();
+  const cur = +selD.value;
+  selD.innerHTML = '';
+  for (let d = 1; d <= days; d++) {
+    selD.innerHTML += `<option value="${d}"${d===cur?' selected':''}>${d}日</option>`;
+  }
+}
+selY.addEventListener('change', updateDays);
+selM.addEventListener('change', updateDays);
+updateDays();
+
+/* ---- 数秘術データ ---- */
+const DATA = {
+  1: {
+    color:'#e53e3e', name:'リーダー', catch:'自立した開拓者・パイオニア',
+    desc:'1はすべての始まりを象徴する数字。あなたは生まれながらのリーダーで、新しいことに挑戦するエネルギーにあふれています。独立心が強く、自分の道を自分で切り拓く力を持っています。困難にぶつかっても諦めず、前進し続ける強さがあります。',
+    strength:['行動力','リーダーシップ','独創性','勇気','自立心'],
+    weak:['頑固になりやすい','人に頼れない','衝動的になることも'],
+    lucky:{color:'赤', number:'1・10', day:'日曜日', place:'高い場所・山頂'},
+    compat:[1,3,5,9],
+  },
+  2: {
+    color:'#ec4899', name:'調和の人', catch:'繊細な協調者・平和の使者',
+    desc:'2は調和と協力を象徴する数字。あなたは相手の気持ちを感じ取る共感力に優れ、人と人をつなぐ橋渡し役が得意です。細かいところまで気を配り、チームをまとめる縁の下の力持ち的存在。感受性豊かで、芸術や音楽にも才能を発揮します。',
+    strength:['共感力','協調性','気配り','忍耐力','観察眼'],
+    weak:['優柔不断になりやすい','傷つきやすい','自己主張が苦手'],
+    lucky:{color:'ピンク', number:'2・11', day:'月曜日', place:'海・川辺'},
+    compat:[2,4,6,8],
+  },
+  3: {
+    color:'#f59e0b', name:'クリエイター', catch:'表現力豊かな創造の星',
+    desc:'3は創造と表現を象徴する数字。あなたはユーモアがあり、場を明るくする天性の才能を持っています。アイデアが次々と湧き出し、話術・文章・芸術など表現に関わることで輝きます。ポジティブなエネルギーで周りを元気にする存在です。',
+    strength:['表現力','ユーモア','創造性','コミュニケーション力','明るさ'],
+    weak:['飽きっぽい面も','散漫になりやすい','感情の波が激しいことも'],
+    lucky:{color:'イエロー', number:'3・12', day:'木曜日', place:'賑やかな場所・舞台'},
+    compat:[1,3,5,9],
+  },
+  4: {
+    color:'#10b981', name:'職人', catch:'堅実で信頼できる現実主義者',
+    desc:'4は安定と秩序を象徴する数字。あなたはコツコツと積み上げる努力家で、どんな仕事も丁寧にやり遂げます。計画を立てて着実に実行する能力が高く、周囲からの信頼が厚いです。地に足のついた堅実な判断力で、安心感を与える存在です。',
+    strength:['勤勉さ','誠実さ','計画力','忍耐力','信頼性'],
+    weak:['融通が利かないことも','変化を嫌う面がある','頑固になりやすい'],
+    lucky:{color:'グリーン', number:'4・13', day:'土曜日', place:'自然・農場・工場'},
+    compat:[2,4,6,8],
+  },
+  5: {
+    color:'#3b82f6', name:'自由人', catch:'変化を愛するアドベンチャラー',
+    desc:'5は自由と変化を象徴する数字。あなたは好奇心旺盛で、新しい経験・場所・人との出会いを楽しむエネルギッシュな人。柔軟性があり、どんな状況にも素早く適応できます。型にはまらない発想で、時代の先を行くような独自のスタイルを持っています。',
+    strength:['適応力','好奇心','機転','行動力','コミュニケーション力'],
+    weak:['飽き性な面がある','落ち着きがないことも','衝動的な判断をしやすい'],
+    lucky:{color:'ブルー', number:'5・14', day:'水曜日', place:'旅先・空港・新幹線'},
+    compat:[1,3,5,7],
+  },
+  6: {
+    color:'#8b5cf6', name:'愛の人', catch:'思いやりあふれる奉仕者',
+    desc:'6は愛と責任を象徴する数字。あなたは家族・友人・仲間を大切にし、誰かのために力を尽くすことに喜びを感じます。面倒見が良く、困っている人を放っておけない優しさがあります。美的センスにも優れ、インテリアや料理など生活を豊かにすることが得意です。',
+    strength:['思いやり','責任感','面倒見の良さ','審美眼','チームワーク'],
+    weak:['お節介になりがち','自分を後回しにしすぎる','心配性'],
+    lucky:{color:'パープル', number:'6・15', day:'金曜日', place:'家・カフェ・病院'},
+    compat:[2,4,6,9],
+  },
+  7: {
+    color:'#0891b2', name:'探究者', catch:'真理を追い求める知の哲学者',
+    desc:'7は探求と神秘を象徴する数字。あなたは深く考え、物事の本質を見極めようとする哲学者タイプ。一人の時間を大切にし、内側の世界を豊かに育てています。直感が鋭く、スピリチュアルな感受性も高め。専門知識を深めることで真価を発揮します。',
+    strength:['分析力','直感力','集中力','知的好奇心','洞察力'],
+    weak:['孤独を好みすぎることも','人に心を開きにくい','完璧主義になりやすい'],
+    lucky:{color:'ネイビー', number:'7・16', day:'月曜日', place:'図書館・神社・森'},
+    compat:[3,5,7],
+  },
+  8: {
+    color:'#d97706', name:'成功者', catch:'強い意志を持つビジネスの達人',
+    desc:'8は力と豊かさを象徴する数字。あなたは目標に向かって突き進む強い意志と、物事を大きくスケールさせる才能を持っています。権力・お金・地位に対して現実的な視点を持ち、大きなプロジェクトをリードする力があります。努力が実りやすく、物質的な成功を手にしやすいタイプです。',
+    strength:['決断力','リーダーシップ','ビジネスセンス','野心','実行力'],
+    weak:['支配的になりやすい','物質主義に偏ることも','強引な面がある'],
+    lucky:{color:'ゴールド', number:'8・17', day:'土曜日', place:'オフィス・都心・証券取引所'},
+    compat:[2,4,6,8],
+  },
+  9: {
+    color:'#dc2626', name:'博愛主義者', catch:'世界を愛する理想の人道主義者',
+    desc:'9はすべての完成を象徴する数字。あなたは広い視野と深い慈愛を持ち、人類全体の幸せを願う大きな心の持ち主。過去の経験から多くを学び、知恵と思いやりで人の道を照らします。芸術・教育・ボランティアなど、人のために生きることで魂が輝きます。',
+    strength:['慈愛','芸術的感性','智慧','包容力','精神的な深さ'],
+    weak:['自己犠牲しすぎることも','夢想家になりやすい','感情的になることも'],
+    lucky:{color:'ワインレッド', number:'9・18', day:'火曜日', place:'美術館・海外・ボランティア現場'},
+    compat:[1,3,6,9],
+  },
+  11: {
+    color:'#7c3aed', name:'直感の人', catch:'高い霊感を持つマスタービジョナリー',
+    desc:'11はマスターナンバーと呼ばれる特別な数字。あなたは鋭い直感と高い精神性を持ち、多くの人に影響を与えるインスピレーションの源です。理想主義者ですが、その理想で現実を変える力を持っています。感受性が非常に強く、人の気持ちや空気を読む能力が際立っています。',
+    strength:['超直感力','インスピレーション','精神性','カリスマ','芸術的才能'],
+    weak:['繊細すぎることも','プレッシャーを感じやすい','現実から離れすぎることも'],
+    lucky:{color:'シルバー', number:'11・2', day:'月曜日', place:'静かな場所・瞑想スポット'},
+    compat:[2,6,11,22],
+  },
+  22: {
+    color:'#b45309', name:'マスタービルダー', catch:'夢を現実に変える最強の建設者',
+    desc:'22もマスターナンバーの最高峰。あなたは大きなビジョンを現実世界に形として作り出す、並外れた力を持っています。夢想家でありながら実践者でもあり、人類や社会に永続的な影響を与える仕事をする可能性を秘めています。責任感と実行力が最高レベルに達したとき、偉大なことを成し遂げます。',
+    strength:['ビジョン力','実行力','カリスマ性','組織力','不屈の精神'],
+    weak:['自分への期待が高すぎることも','燃え尽きやすい','過度なプレッシャー'],
+    lucky:{color:'ゴールド×ブラック', number:'22・4', day:'土曜日', place:'大きな建物・国際的な場所'},
+    compat:[4,8,11,22],
+  },
+};
+
+/* ---- 計算 ---- */
+function reduceNum(n) {
+  while (n > 9 && n !== 11 && n !== 22) {
+    n = String(n).split('').reduce((s,d) => s + +d, 0);
+  }
+  return n;
+}
+
+function calc() {
+  const y = +selY.value, m = +selM.value, d = +selD.value;
+  const digits = `${y}${String(m).padStart(2,'0')}${String(d).padStart(2,'0')}`;
+  const sum = digits.split('').reduce((s,c) => s + +c, 0);
+  const destiny = reduceNum(sum);
+
+  // 計算過程を表示
+  const steps = document.getElementById('calcSteps');
+  steps.style.display = 'block';
+  steps.innerHTML =
+    `${y}年${m}月${d}日<br>` +
+    `= ${digits.split('').join(' + ')} = ${sum}<br>` +
+    `→ 運命数：<strong>${destiny}</strong>`;
+
+  showResult(destiny);
+}
+
+function showResult(n) {
+  const d = DATA[n] || DATA[9];
+
+  document.getElementById('destinyBadge').style.background = d.color;
+  document.getElementById('destinyBadge').innerHTML =
+    `<div>${n}</div><div class="destiny-label">運命数</div>`;
+
+  document.getElementById('resultTitle').textContent = `【${n}】${d.name}`;
+  document.getElementById('resultCatch').textContent = d.catch;
+  document.getElementById('resultDesc').textContent = d.desc;
+
+  document.getElementById('tagStrength').innerHTML =
+    d.strength.map(t => `<span class="tag">${t}</span>`).join('');
+  document.getElementById('tagWeak').innerHTML =
+    d.weak.map(t => `<span class="tag bad">${t}</span>`).join('');
+
+  document.getElementById('luckyGrid').innerHTML = `
+    <div class="lucky-item">🎨 カラー<span>${d.lucky.color}</span></div>
+    <div class="lucky-item">🔢 数字<span>${d.lucky.number}</span></div>
+    <div class="lucky-item">📅 曜日<span>${d.lucky.day}</span></div>
+    <div class="lucky-item">📍 場所<span>${d.lucky.place}</span></div>
+  `;
+
+  document.getElementById('compatRow').innerHTML =
+    d.compat.map(c => `<div class="compat-num" style="background:${(DATA[c]||DATA[9]).color}">${c}</div>`).join('');
+
+  const rc = document.getElementById('resultCard');
+  rc.style.display = 'block';
+  document.getElementById('retryArea').style.display = 'block';
+  rc.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function retry() {
+  document.getElementById('calcSteps').style.display = 'none';
+  document.getElementById('calcSteps').innerHTML = '';
+  document.getElementById('resultCard').style.display = 'none';
+  document.getElementById('retryArea').style.display = 'none';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+</script>
+</body>
+</html>
