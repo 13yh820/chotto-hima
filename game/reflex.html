@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>反射神経テスト | ちょっとヒマ</title>
+  <meta name="description" content="無料の反射神経テスト。画面が光ったら即タップ！あなたの反応速度（ミリ秒）を計測します。スマホでもPCでも遊べます。">
+  <meta name="keywords" content="反射神経テスト,反応速度,測定,無料,ゲーム,暇つぶし">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="反射神経テスト | ちょっとヒマ">
+  <meta property="og:description" content="画面が光ったら即タップ！あなたの反応速度を計測しよう。">
+  <meta property="og:url" content="https://chotto-hima.com/game/reflex.html">
+  <meta property="og:site_name" content="ちょっとヒマ">
+  <meta name="twitter:card" content="summary">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "反射神経テスト",
+    "description": "画面が光ったら即タップ！あなたの反応速度を計測しよう",
+    "url": "https://chotto-hima.com/game/reflex.html",
+    "isPartOf": { "@type": "WebSite", "name": "ちょっとヒマ", "url": "https://chotto-hima.com/" }
+  }
+  </script>
+  <link rel="canonical" href="https://chotto-hima.com/game/reflex.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    #reflex-box {
+      width: 100%;
+      max-width: 420px;
+      height: 300px;
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.08s;
+      margin: 0 auto;
+      border: none;
+      font-family: inherit;
+    }
+    #reflex-box.waiting {
+      background: #3a3a5c;
+      color: #aaa;
+    }
+    #reflex-box.ready {
+      background: #2d2d3a;
+      color: #666;
+    }
+    #reflex-box.go {
+      background: #00c853;
+      color: #fff;
+    }
+    #reflex-box.early {
+      background: #f44336;
+      color: #fff;
+    }
+    #reflex-box.done {
+      background: var(--primary);
+      color: #fff;
+    }
+    #reflex-box .big-text {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    #reflex-box .sub-text {
+      font-size: 1rem;
+      opacity: 0.85;
+    }
+    .stats-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 16px 0;
+    }
+    .stat-box {
+      background: var(--card-bg);
+      border-radius: var(--radius-sm);
+      padding: 12px 18px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      min-width: 90px;
+    }
+    .stat-box .stat-val { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+    .stat-box .stat-label { font-size: 0.72rem; color: var(--text-muted); }
+    .rank-box {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-top: 8px;
+      display: none;
+    }
+    .rank-box.show { display: block; }
+    .rank-box .rank-label { font-size: 1.5rem; font-weight: 800; }
+    .rank-box p { color: var(--text-muted); font-size: 0.88rem; margin-top: 6px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+    <nav>
+      <a href="../uranai/horoscope.html">占い</a>
+      <a href="reflex.html">ゲーム</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="page-header">
+    <div class="icon">⚡</div>
+    <h1>反射神経テスト</h1>
+    <p>画面が<strong style="color:var(--primary)">緑</strong>に変わったら即タップ！</p>
+  </div>
+
+  <div class="game-area">
+    <div class="ad-box">広告スペース</div>
+
+    <button id="reflex-box" class="waiting" onclick="handleClick()">
+      <div class="big-text" id="mainText">タップしてスタート</div>
+      <div class="sub-text" id="subText">準備ができたら押してください</div>
+    </button>
+
+    <!-- 統計 -->
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-val" id="statBest">—</div>
+        <div class="stat-label">ベスト (ms)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="statAvg">—</div>
+        <div class="stat-label">平均 (ms)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="statCount">0</div>
+        <div class="stat-label">試行回数</div>
+      </div>
+    </div>
+
+    <div class="rank-box" id="rankBox">
+      <div class="rank-label" id="rankLabel"></div>
+      <p id="rankDesc"></p>
+    </div>
+
+    <div style="text-align:center;margin-top:12px">
+      <button class="btn btn-outline" onclick="resetGame()">リセット</button>
+    </div>
+
+    <div class="ad-box" style="margin-top:24px">広告スペース</div>
+  </div>
+</main>
+
+<footer>
+  <p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
+</footer>
+
+<script src="../js/common.js"></script>
+<script>
+let state = 'idle'; // idle | waiting | go | early | done
+let timer = null;
+let startTime = 0;
+let results = [];
+
+const box = document.getElementById('reflex-box');
+const mainText = document.getElementById('mainText');
+const subText = document.getElementById('subText');
+
+function setBox(s, big, sub) {
+  box.className = s;
+  mainText.textContent = big;
+  subText.textContent = sub;
+}
+
+function handleClick() {
+  if (state === 'idle') {
+    startWaiting();
+  } else if (state === 'waiting') {
+    tooEarly();
+  } else if (state === 'go') {
+    recordTime();
+  } else if (state === 'early' || state === 'done') {
+    startWaiting();
+  }
+}
+
+function startWaiting() {
+  state = 'waiting';
+  setBox('ready', '待って…', '緑になったらタップ！');
+  const delay = 1500 + Math.random() * 3500;
+  timer = setTimeout(() => {
+    state = 'go';
+    startTime = performance.now();
+    setBox('go', '今！', 'タップ！！');
+  }, delay);
+}
+
+function tooEarly() {
+  clearTimeout(timer);
+  state = 'early';
+  setBox('early', '早すぎ！', 'タップしてもう一度');
+}
+
+function recordTime() {
+  const ms = Math.round(performance.now() - startTime);
+  results.push(ms);
+  state = 'done';
+  setBox('done', ms + ' ms', 'タップしてもう一度');
+  updateStats();
+  showRank(ms);
+}
+
+function updateStats() {
+  if (results.length === 0) return;
+  const best = Math.min(...results);
+  const avg = Math.round(results.reduce((a,b) => a+b, 0) / results.length);
+  document.getElementById('statBest').textContent = best;
+  document.getElementById('statAvg').textContent = avg;
+  document.getElementById('statCount').textContent = results.length;
+}
+
+function showRank(ms) {
+  const rankBox = document.getElementById('rankBox');
+  const label = document.getElementById('rankLabel');
+  const desc = document.getElementById('rankDesc');
+  let rank, d;
+  if (ms < 150)      { rank = '🏆 超人級！';   d = '150ms未満は人間の限界レベル。プロゲーマー並みです！'; }
+  else if (ms < 200) { rank = '⚡ 超高速！';    d = '200ms未満。かなり鋭い反応速度です。'; }
+  else if (ms < 250) { rank = '🎯 高速！';      d = '一般的な人よりかなり速いです。'; }
+  else if (ms < 300) { rank = '👍 なかなか！';  d = '平均的な人間の反応速度は200〜300ms。いい線です！'; }
+  else if (ms < 400) { rank = '😊 普通';        d = 'もう少し練習すると速くなるかも？'; }
+  else               { rank = '😴 ゆっくり';    d = '少し遅め。焦らず何度か試してみてください！'; }
+  label.textContent = rank;
+  desc.textContent = d;
+  rankBox.classList.add('show');
+}
+
+function resetGame() {
+  clearTimeout(timer);
+  state = 'idle';
+  results = [];
+  setBox('waiting', 'タップしてスタート', '準備ができたら押してください');
+  document.getElementById('statBest').textContent = '—';
+  document.getElementById('statAvg').textContent = '—';
+  document.getElementById('statCount').textContent = '0';
+  document.getElementById('rankBox').classList.remove('show');
+}
+</script>
+</body>
+</html>

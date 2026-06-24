@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>記憶力ゲーム・神経衰弱 | ちょっとヒマ</title>
+  <meta name="description" content="無料の記憶力ゲーム（神経衰弱）。絵文字カードをめくってペアを揃えよう！スマホでもPCでも遊べます。脳トレにもなる暇つぶしゲーム。">
+  <meta name="keywords" content="神経衰弱,記憶力ゲーム,無料,脳トレ,カードゲーム,暇つぶし,ブラウザゲーム">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="記憶力ゲーム・神経衰弱 | ちょっとヒマ">
+  <meta property="og:description" content="カードをめくってペアを揃えよう！無料で遊べる神経衰弱。">
+  <meta property="og:url" content="https://chotto-hima.com/game/memory.html">
+  <meta property="og:site_name" content="ちょっとヒマ">
+  <meta name="twitter:card" content="summary">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "記憶力ゲーム・神経衰弱",
+    "description": "カードをめくってペアを揃えよう！無料で遊べる神経衰弱",
+    "url": "https://chotto-hima.com/game/memory.html",
+    "isPartOf": { "@type": "WebSite", "name": "ちょっとヒマ", "url": "https://chotto-hima.com/" }
+  }
+  </script>
+  <link rel="canonical" href="https://chotto-hima.com/game/memory.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .difficulty-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .diff-btn {
+      padding: 8px 20px;
+      border-radius: 99px;
+      border: 2px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: all 0.18s;
+      font-family: inherit;
+    }
+    .diff-btn:hover, .diff-btn.active {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #fff;
+    }
+    #card-grid {
+      display: grid;
+      gap: 10px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .mem-card {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+      perspective: 500px;
+    }
+    .mem-card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.35s;
+    }
+    .mem-card.flipped .mem-card-inner,
+    .mem-card.matched .mem-card-inner {
+      transform: rotateY(180deg);
+    }
+    .mem-card-front, .mem-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .mem-card-front {
+      background: linear-gradient(135deg, var(--primary) 0%, #a78bfa 100%);
+      font-size: 1.5rem;
+      color: #fff;
+    }
+    .mem-card-back {
+      background: var(--card-bg);
+      transform: rotateY(180deg);
+      border: 2px solid var(--border);
+      font-size: 2rem;
+    }
+    .mem-card.matched .mem-card-back {
+      background: #e8f5e9;
+      border-color: #66bb6a;
+    }
+    .info-row {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin: 16px 0;
+      flex-wrap: wrap;
+    }
+    .info-chip {
+      background: var(--card-bg);
+      border-radius: 99px;
+      padding: 6px 18px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .info-chip span { color: var(--primary); }
+    .clear-msg {
+      background: linear-gradient(135deg, var(--primary), #a78bfa);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 28px;
+      text-align: center;
+      display: none;
+      margin-top: 16px;
+    }
+    .clear-msg.show { display: block; }
+    .clear-msg h2 { font-size: 1.6rem; margin-bottom: 8px; }
+    .clear-msg p { opacity: 0.9; font-size: 0.95rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+    <nav>
+      <a href="../uranai/horoscope.html">占い</a>
+      <a href="reflex.html">ゲーム</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="page-header">
+    <div class="icon">🧠</div>
+    <h1>記憶力ゲーム</h1>
+    <p>カードをめくってペアを揃えよう</p>
+  </div>
+
+  <div class="game-area" style="max-width:560px">
+    <div class="ad-box">広告スペース</div>
+
+    <!-- 難易度 -->
+    <div class="difficulty-row">
+      <button class="diff-btn active" onclick="startGame(4,3,this)">かんたん (4×3)</button>
+      <button class="diff-btn" onclick="startGame(4,4,this)">ふつう (4×4)</button>
+      <button class="diff-btn" onclick="startGame(5,4,this)">むずかしい (5×4)</button>
+    </div>
+
+    <!-- スコア -->
+    <div class="info-row">
+      <div class="info-chip">めくった回数: <span id="moves">0</span></div>
+      <div class="info-chip">残りペア: <span id="remaining">—</span></div>
+      <div class="info-chip">時間: <span id="timer">0</span>秒</div>
+    </div>
+
+    <!-- カードグリッド -->
+    <div id="card-grid"></div>
+
+    <!-- クリアメッセージ -->
+    <div class="clear-msg" id="clearMsg">
+      <h2>🎉 クリア！</h2>
+      <p id="clearText"></p>
+      <br>
+      <button class="btn" style="background:#fff;color:var(--primary)" onclick="restartGame()">もう一度</button>
+    </div>
+
+    <div style="text-align:center;margin-top:16px">
+      <button class="btn btn-outline" onclick="restartGame()">シャッフルして再スタート</button>
+    </div>
+
+    <div class="ad-box" style="margin-top:24px">広告スペース</div>
+  </div>
+</main>
+
+<footer>
+  <p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
+</footer>
+
+<script src="../js/common.js"></script>
+<script>
+const EMOJIS = ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯',
+                 '🦁','🐸','🐙','🦋','🌸','🍎','⭐','🌈','🎵','🍕'];
+
+let cols = 4, rows = 3;
+let cards = [], flipped = [], matched = [], moves = 0;
+let timerInterval = null, seconds = 0;
+let canFlip = true;
+let currentDiffBtn = null;
+
+function startGame(c, r, btn) {
+  cols = c; rows = r;
+  if (currentDiffBtn) currentDiffBtn.classList.remove('active');
+  if (btn) { btn.classList.add('active'); currentDiffBtn = btn; }
+
+  clearInterval(timerInterval);
+  seconds = 0; moves = 0;
+  flipped = []; matched = [];
+  canFlip = true;
+
+  const total = cols * rows;
+  const pairs = total / 2;
+  const chosen = EMOJIS.slice(0, pairs);
+  cards = shuffle([...chosen, ...chosen]);
+
+  document.getElementById('moves').textContent = '0';
+  document.getElementById('remaining').textContent = pairs;
+  document.getElementById('timer').textContent = '0';
+  document.getElementById('clearMsg').classList.remove('show');
+
+  const grid = document.getElementById('card-grid');
+  grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  grid.innerHTML = '';
+  cards.forEach((emoji, i) => {
+    const card = document.createElement('div');
+    card.className = 'mem-card';
+    card.dataset.idx = i;
+    card.dataset.emoji = emoji;
+    card.innerHTML = `
+      <div class="mem-card-inner">
+        <div class="mem-card-front">🌟</div>
+        <div class="mem-card-back">${emoji}</div>
+      </div>`;
+    card.onclick = () => flipCard(card);
+    grid.appendChild(card);
+  });
+
+  timerInterval = setInterval(() => {
+    seconds++;
+    document.getElementById('timer').textContent = seconds;
+  }, 1000);
+}
+
+function restartGame() {
+  const activeDiff = document.querySelector('.diff-btn.active');
+  const text = activeDiff ? activeDiff.textContent : '';
+  if (text.includes('かんたん')) startGame(4,3,activeDiff);
+  else if (text.includes('ふつう')) startGame(4,4,activeDiff);
+  else startGame(5,4,activeDiff);
+}
+
+function flipCard(card) {
+  if (!canFlip) return;
+  if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+  if (flipped.length >= 2) return;
+
+  card.classList.add('flipped');
+  flipped.push(card);
+
+  if (flipped.length === 2) {
+    moves++;
+    document.getElementById('moves').textContent = moves;
+    canFlip = false;
+
+    const [a, b] = flipped;
+    if (a.dataset.emoji === b.dataset.emoji) {
+      // マッチ！
+      setTimeout(() => {
+        a.classList.add('matched');
+        b.classList.add('matched');
+        matched.push(a, b);
+        flipped = [];
+        canFlip = true;
+        const pairs = (cols * rows) / 2;
+        const remaining = pairs - matched.length / 2;
+        document.getElementById('remaining').textContent = remaining;
+        if (matched.length === cols * rows) gameOver();
+      }, 400);
+    } else {
+      // ミス
+      setTimeout(() => {
+        a.classList.remove('flipped');
+        b.classList.remove('flipped');
+        flipped = [];
+        canFlip = true;
+      }, 800);
+    }
+  }
+}
+
+function gameOver() {
+  clearInterval(timerInterval);
+  const pairs = (cols * rows) / 2;
+  let rating = '';
+  if (moves <= pairs + 2) rating = '完璧！記憶力の天才です！';
+  else if (moves <= pairs * 1.5) rating = 'すごい！なかなかの記憶力！';
+  else if (moves <= pairs * 2) rating = 'よくできました！';
+  else rating = 'クリア！次はもっと少ない回数で挑戦してみよう。';
+
+  document.getElementById('clearText').textContent =
+    `${seconds}秒 / ${moves}回でクリア！ ${rating}`;
+  document.getElementById('clearMsg').classList.add('show');
+  document.getElementById('clearMsg').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// 初期ゲーム開始
+startGame(4, 3, document.querySelector('.diff-btn.active'));
+currentDiffBtn = document.querySelector('.diff-btn.active');
+</script>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>今日の運勢・星座占い | ちょっとヒマ</title>
+  <meta name="description" content="無料の今日の運勢占い。12星座（おひつじ座〜うお座）の今日の運勢・ラッキーカラー・ラッキーアイテムをすぐチェック！">
+  <meta name="keywords" content="今日の運勢,星座占い,無料,12星座,ラッキーカラー,おひつじ座,おうし座,ふたご座,かに座,しし座,おとめ座,てんびん座,さそり座,いて座,やぎ座,みずがめ座,うお座">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="今日の運勢・星座占い | ちょっとヒマ">
+  <meta property="og:description" content="12星座の今日の運勢を無料でチェック！">
+  <meta property="og:url" content="https://chotto-hima.com/uranai/horoscope.html">
+  <meta property="og:site_name" content="ちょっとヒマ">
+  <meta name="twitter:card" content="summary">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "今日の運勢・星座占い",
+    "description": "12星座の今日の運勢を無料でチェック！",
+    "url": "https://chotto-hima.com/uranai/horoscope.html",
+    "isPartOf": { "@type": "WebSite", "name": "ちょっとヒマ", "url": "https://chotto-hima.com/" }
+  }
+  </script>
+  <link rel="canonical" href="https://chotto-hima.com/uranai/horoscope.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .sign-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .sign-btn {
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 4px;
+      cursor: pointer;
+      text-align: center;
+      font-size: 0.8rem;
+      transition: all 0.18s;
+      color: var(--text);
+    }
+    .sign-btn:hover, .sign-btn.active {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #fff;
+    }
+    .sign-btn .sign-emoji { font-size: 1.5rem; display: block; margin-bottom: 4px; }
+    .fortune-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-top: 20px;
+      display: none;
+      text-align: left;
+    }
+    .fortune-card.show { display: block; }
+    .fortune-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .fortune-emoji { font-size: 2.8rem; }
+    .fortune-header h2 { font-size: 1.3rem; font-weight: 800; }
+    .fortune-header .sign-period { color: var(--text-muted); font-size: 0.82rem; }
+    .stars {
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+      letter-spacing: 2px;
+    }
+    .fortune-text {
+      font-size: 0.97rem;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+    .lucky-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .lucky-item {
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      font-size: 0.82rem;
+    }
+    .lucky-item strong { color: var(--primary); display: block; font-size: 0.72rem; margin-bottom: 2px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+    <nav>
+      <a href="horoscope.html">占い</a>
+      <a href="../game/reflex.html">ゲーム</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="page-header">
+    <div class="icon">⭐</div>
+    <h1>今日の運勢</h1>
+    <p>あなたの星座を選んでください</p>
+  </div>
+
+  <div class="game-area" style="max-width:700px">
+    <!-- 広告 -->
+    <div class="ad-box">広告スペース</div>
+
+    <!-- 星座選択 -->
+    <div class="sign-grid" id="signGrid"></div>
+
+    <!-- 結果 -->
+    <div class="fortune-card" id="fortuneCard">
+      <div class="fortune-header">
+        <div class="fortune-emoji" id="fEmoji"></div>
+        <div>
+          <h2 id="fName"></h2>
+          <div class="sign-period" id="fPeriod"></div>
+        </div>
+      </div>
+      <div class="stars" id="fStars"></div>
+      <p class="fortune-text" id="fText"></p>
+      <div class="lucky-row" id="fLucky"></div>
+      <br>
+      <button class="btn btn-outline" onclick="document.getElementById('fortuneCard').classList.remove('show')">
+        ← 星座を選び直す
+      </button>
+    </div>
+
+    <!-- 広告 -->
+    <div class="ad-box" style="margin-top:28px">広告スペース</div>
+  </div>
+</main>
+
+<footer>
+  <p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
+</footer>
+
+<script src="../js/common.js"></script>
+<script>
+const SIGNS = [
+  { name:'おひつじ座', emoji:'♈', period:'3/21〜4/19',
+    colors:['赤','オレンジ'], items:['鍵','コーヒー','手帳'] },
+  { name:'おうし座', emoji:'♉', period:'4/20〜5/20',
+    colors:['グリーン','ピンク'], items:['花','チョコレート','アクセサリー'] },
+  { name:'ふたご座', emoji:'♊', period:'5/21〜6/21',
+    colors:['黄色','水色'], items:['本','ペン','スマホ'] },
+  { name:'かに座', emoji:'♋', period:'6/22〜7/22',
+    colors:['白','シルバー'], items:['水','お菓子','写真'] },
+  { name:'しし座', emoji:'♌', period:'7/23〜8/22',
+    colors:['ゴールド','オレンジ'], items:['鏡','アクセサリー','太陽グッズ'] },
+  { name:'おとめ座', emoji:'♍', period:'8/23〜9/22',
+    colors:['ネイビー','ベージュ'], items:['手帳','お茶','観葉植物'] },
+  { name:'てんびん座', emoji:'♎', period:'9/23〜10/23',
+    colors:['ピンク','水色'], items:['マカロン','香水','ルームスプレー'] },
+  { name:'さそり座', emoji:'♏', period:'10/24〜11/22',
+    colors:['ダークレッド','ブラック'], items:['水晶','カード','香水'] },
+  { name:'いて座', emoji:'♐', period:'11/23〜12/21',
+    colors:['パープル','ターコイズ'], items:['旅行グッズ','本','スポーツ用品'] },
+  { name:'やぎ座', emoji:'♑', period:'12/22〜1/19',
+    colors:['チャコール','ブラウン'], items:['腕時計','手帳','コーヒー'] },
+  { name:'みずがめ座', emoji:'♒', period:'1/20〜2/18',
+    colors:['電気ブルー','シルバー'], items:['ガジェット','ミントグッズ','本'] },
+  { name:'うお座', emoji:'♓', period:'2/19〜3/20',
+    colors:['シーグリーン','ラベンダー'], items:['アロマ','音楽','写真'] },
+];
+
+const FORTUNES = [
+  { stars:5, text:'今日はとても運気が高い日！積極的に行動することで、思わぬ幸運が舞い込んできそう。新しいことに挑戦するのにも最適な日です。大切な人への連絡も吉。' },
+  { stars:4, text:'全体的に好調な一日。コツコツと積み重ねてきたことが実を結ぶ予感。午後は特に集中力が高まりそうなので、大事な作業は後半に回して。' },
+  { stars:4, text:'人間関係が好調。友人や家族との会話から思いがけないヒントが得られそう。感謝の気持ちを素直に伝えることで関係がさらに深まります。' },
+  { stars:3, text:'可もなく不可もない普通の一日。焦らずマイペースに過ごすことがカギ。無理に予定を詰め込まず、自分のペースで動くと心地よく過ごせます。' },
+  { stars:3, text:'少し気持ちが沈みがちかも。そんな日は好きな音楽を聴いたり、おいしいものを食べたりして心を満たして。夕方から運気が上向きます。' },
+  { stars:2, text:'今日は少し慎重に行動を。衝動的な判断は後悔につながりやすい日です。じっくり考えてから動くことで、余計なトラブルを防げます。' },
+];
+
+// 日付＋星座のシードで毎日変わるが、同じ日は同じ結果になるように
+function seededRandom(seed) {
+  let s = seed;
+  return function() {
+    s = (s * 1664525 + 1013904223) & 0xffffffff;
+    return (s >>> 0) / 4294967296;
+  };
+}
+
+function getTodayFortune(signIdx) {
+  const d = new Date();
+  const seed = (d.getFullYear() * 10000 + (d.getMonth()+1) * 100 + d.getDate()) * 100 + signIdx;
+  const rng = seededRandom(seed);
+  const fi = Math.floor(rng() * FORTUNES.length);
+  const f = FORTUNES[fi];
+  const sign = SIGNS[signIdx];
+  const colorIdx = Math.floor(rng() * sign.colors.length);
+  const itemIdx = Math.floor(rng() * sign.items.length);
+  const num = Math.floor(rng() * 9) + 1;
+  return { ...f, color: sign.colors[colorIdx], item: sign.items[itemIdx], num };
+}
+
+// 星座ボタン生成
+const grid = document.getElementById('signGrid');
+SIGNS.forEach((s, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'sign-btn';
+  btn.innerHTML = `<span class="sign-emoji">${s.emoji}</span>${s.name}`;
+  btn.onclick = () => showFortune(i, btn);
+  grid.appendChild(btn);
+});
+
+function showFortune(idx, btn) {
+  document.querySelectorAll('.sign-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const sign = SIGNS[idx];
+  const f = getTodayFortune(idx);
+
+  document.getElementById('fEmoji').textContent = sign.emoji;
+  document.getElementById('fName').textContent = sign.name;
+  document.getElementById('fPeriod').textContent = sign.period;
+  document.getElementById('fStars').textContent = '★'.repeat(f.stars) + '☆'.repeat(5 - f.stars);
+  document.getElementById('fText').textContent = f.text;
+  document.getElementById('fLucky').innerHTML = `
+    <div class="lucky-item"><strong>ラッキーカラー</strong>${f.color}</div>
+    <div class="lucky-item"><strong>ラッキーアイテム</strong>${f.item}</div>
+    <div class="lucky-item"><strong>ラッキーナンバー</strong>${f.num}</div>
+  `;
+
+  const card = document.getElementById('fortuneCard');
+  card.classList.add('show');
+  card.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+</script>
+</body>
+</html>
