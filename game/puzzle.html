@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>落ちものパズル | ちょっとヒマ</title>
+  <meta name="description" content="ブロックを積み上げてラインを消そう！無料で遊べる落ちものパズルゲーム。レベルアップで加速する中毒性抜群のゲーム。">
+  <meta name="keywords" content="落ちもの,パズル,テトリス,ブロック,ゲーム,無料">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/puzzle.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .puzzle-wrap {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 0 16px 20px;
+    }
+
+    #gameCanvas {
+      border-radius: 8px;
+      border: 2px solid rgba(139,92,246,.4);
+      box-shadow: 0 0 30px rgba(139,92,246,.2), 0 8px 24px rgba(0,0,0,.4);
+      display: block;
+      touch-action: none;
+    }
+
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 90px;
+    }
+    .panel-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
+    .panel-box .label {
+      font-size: .7rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 4px;
+      letter-spacing: .05em;
+    }
+    .panel-box .val {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--primary);
+    }
+    #nextCanvas {
+      display: block;
+      margin: 0 auto;
+    }
+
+    .ctrl-hint {
+      font-size: .75rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 4px;
+      line-height: 1.7;
+    }
+
+    .mobile-btns {
+      display: none;
+      gap: 8px;
+      justify-content: center;
+      padding: 8px 16px;
+      flex-wrap: wrap;
+    }
+    .mbtn {
+      width: 56px; height: 56px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: var(--card-bg);
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text);
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .mbtn:active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .mbtn.rotate { background: rgba(139,92,246,.15); border-color: var(--primary); }
+
+    @media (max-width: 500px) {
+      .mobile-btns { display: flex; }
+      .ctrl-hint { display: none; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+    <nav>
+      <a href="../uranai/horoscope.html">占い</a>
+      <a href="reflex.html">ゲーム</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="page-header" style="padding-bottom:10px">
+    <div class="icon">🧩</div>
+    <h1>落ちものパズル</h1>
+    <p>ブロックを積み上げてラインを消そう！</p>
+  </div>
+
+  <div class="puzzle-wrap">
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="side-panel">
+      <div class="panel-box">
+        <div class="label">SCORE</div>
+        <div class="val" id="scoreVal">0</div>
+      </div>
+      <div class="panel-box">
+        <div class="label">BEST</div>
+        <div class="val" id="bestVal">0</div>
+      </div>
+      <div class="panel-box">
+        <div class="label">LEVEL</div>
+        <div class="val" id="levelVal">1</div>
+      </div>
+      <div class="panel-box">
+        <div class="label">LINES</div>
+        <div class="val" id="linesVal">0</div>
+      </div>
+      <div class="panel-box">
+        <div class="label">NEXT</div>
+        <canvas id="nextCanvas" width="80" height="80"></canvas>
+      </div>
+      <button class="btn btn-outline" style="font-size:.8rem;padding:8px" onclick="restartGame()">リスタート</button>
+    </div>
+  </div>
+
+  <!-- スマホ用ボタン -->
+  <div class="mobile-btns">
+    <button class="mbtn" id="btnLeft"  ontouchstart="mbtnDown('left')"  ontouchend="mbtnUp()">◀</button>
+    <button class="mbtn rotate" id="btnRotate" ontouchstart="rotatePiece()">🔄</button>
+    <button class="mbtn" id="btnRight" ontouchstart="mbtnDown('right')" ontouchend="mbtnUp()">▶</button>
+    <button class="mbtn" id="btnDown"  ontouchstart="mbtnDown('down')"  ontouchend="mbtnUp()">▼</button>
+    <button class="mbtn" id="btnDrop"  ontouchstart="hardDrop()">⬇</button>
+  </div>
+
+  <p class="ctrl-hint">
+    ← → : 移動 &nbsp;|&nbsp; ↑ / Z : 回転 &nbsp;|&nbsp; ↓ : 加速 &nbsp;|&nbsp; Space : 一気に落とす
+  </p>
+</main>
+<footer>
+  <p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p>
+</footer>
+<script>
+// ===== 設定 =====
+const COLS = 10, ROWS = 20;
+let CELL; // canvas.width / COLS
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const nextCanvas = document.getElementById('nextCanvas');
+const nctx = nextCanvas.getContext('2d');
+
+function resize() {
+  const maxW = Math.min(window.innerWidth - 130, 300);
+  CELL = Math.floor(maxW / COLS);
+  canvas.width  = CELL * COLS;
+  canvas.height = CELL * ROWS;
+}
+resize();
+window.addEventListener('resize', () => { resize(); render(); });
+
+// ===== ピース定義 =====
+const PIECES = [
+  { shape: [[1,1,1,1]],                       color: '#06b6d4', name:'I' },
+  { shape: [[1,1],[1,1]],                      color: '#fbbf24', name:'O' },
+  { shape: [[0,1,0],[1,1,1]],                  color: '#8b5cf6', name:'T' },
+  { shape: [[1,0],[1,0],[1,1]],                color: '#f97316', name:'J' },
+  { shape: [[0,1],[0,1],[1,1]],                color: '#3b82f6', name:'L' },
+  { shape: [[1,1,0],[0,1,1]],                  color: '#22c55e', name:'S' },
+  { shape: [[0,1,1],[1,1,0]],                  color: '#e53e3e', name:'Z' },
+];
+
+// ===== 状態 =====
+let board, current, next, score, best, level, lines;
+let dropInterval, dropTimer, gameOver, paused;
+let clearAnim = []; // {row, alpha}
+let mbtnInterval = null;
+
+function initBoard() { board = Array.from({length:ROWS}, () => Array(COLS).fill(0)); }
+
+let bag = [];
+function randPiece() {
+  if (bag.length === 0) {
+    // 7-bagシャッフル: 7種類全部1回ずつ出してからまたシャッフル
+    bag = [...PIECES].sort(() => Math.random() - 0.5);
+  }
+  const p = bag.pop();
+  return {
+    shape: p.shape.map(r => [...r]),
+    color: p.color,
+    x: Math.floor(COLS/2) - Math.floor(p.shape[0].length/2),
+    y: 0
+  };
+}
+
+function rotate(shape) {
+  const rows = shape.length, cols = shape[0].length;
+  const r = Array.from({length:cols}, () => Array(rows).fill(0));
+  for (let y=0; y<rows; y++)
+    for (let x=0; x<cols; x++)
+      r[x][rows-1-y] = shape[y][x];
+  return r;
+}
+
+function valid(shape, ox, oy) {
+  for (let y=0; y<shape.length; y++)
+    for (let x=0; x<shape[y].length; x++)
+      if (shape[y][x]) {
+        const nx=ox+x, ny=oy+y;
+        if (nx<0||nx>=COLS||ny>=ROWS) return false;
+        if (ny>=0 && board[ny][nx]) return false;
+      }
+  return true;
+}
+
+function place() {
+  current.shape.forEach((row,y) =>
+    row.forEach((v,x) => {
+      if (v) board[current.y+y][current.x+x] = current.color;
+    })
+  );
+  checkLines();
+  current = next;
+  next = randPiece();
+  if (!valid(current.shape, current.x, current.y)) endGame();
+  drawNext();
+}
+
+function checkLines() {
+  const full = [];
+  for (let y=ROWS-1; y>=0; y--)
+    if (board[y].every(c => c)) full.push(y);
+  if (!full.length) return;
+
+  // クリアアニメ
+  clearAnim = full.map(r => ({ row: r, alpha: 1 }));
+
+  setTimeout(() => {
+    full.forEach(r => {
+      board.splice(r, 1);
+      board.unshift(Array(COLS).fill(0));
+    });
+    clearAnim = [];
+    const pts = [0, 100, 300, 500, 800];
+    score += (pts[full.length] || 800) * level;
+    lines += full.length;
+    level = Math.floor(lines / 10) + 1;
+    if (score > best) { best = score; localStorage.setItem('puzzleBest', best); }
+    updateHUD();
+  }, 200);
+}
+
+function updateHUD() {
+  document.getElementById('scoreVal').textContent = score.toLocaleString();
+  document.getElementById('bestVal').textContent  = best.toLocaleString();
+  document.getElementById('levelVal').textContent = level;
+  document.getElementById('linesVal').textContent = lines;
+}
+
+// ===== 描画 =====
+const COLORS = {
+  bg:    '#0d001f',
+  grid:  'rgba(139,92,246,.08)',
+  ghost: 'rgba(255,255,255,.08)',
+};
+
+function drawCell(cx, x, y, color, alpha=1, glow=true) {
+  const px = x * CELL, py = y * CELL;
+  cx.save();
+  cx.globalAlpha = alpha;
+  if (glow) { cx.shadowColor = color; cx.shadowBlur = 8; }
+
+  // ブロック本体
+  cx.fillStyle = color;
+  cx.fillRect(px+1, py+1, CELL-2, CELL-2);
+
+  // ハイライト（上・左）
+  cx.fillStyle = 'rgba(255,255,255,.25)';
+  cx.fillRect(px+2, py+2, CELL-4, 4);
+  cx.fillRect(px+2, py+2, 4, CELL-4);
+
+  // シャドウ（下・右）
+  cx.fillStyle = 'rgba(0,0,0,.3)';
+  cx.fillRect(px+2, py+CELL-5, CELL-4, 3);
+  cx.fillRect(px+CELL-5, py+2, 3, CELL-4);
+
+  cx.restore();
+}
+
+function ghostY() {
+  let gy = current.y;
+  while (valid(current.shape, current.x, gy+1)) gy++;
+  return gy;
+}
+
+function render() {
+  ctx.fillStyle = COLORS.bg;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // グリッド線
+  ctx.strokeStyle = COLORS.grid;
+  ctx.lineWidth = 1;
+  for (let x=0; x<=COLS; x++) { ctx.beginPath(); ctx.moveTo(x*CELL,0); ctx.lineTo(x*CELL,canvas.height); ctx.stroke(); }
+  for (let y=0; y<=ROWS; y++) { ctx.beginPath(); ctx.moveTo(0,y*CELL); ctx.lineTo(canvas.width,y*CELL); ctx.stroke(); }
+
+  // ボード
+  board.forEach((row,y) => row.forEach((c,x) => {
+    if (!c) return;
+    const ca = clearAnim.find(a => a.row === y);
+    drawCell(ctx, x, y, c, ca ? ca.alpha : 1);
+  }));
+
+  // クリアアニメ白フラッシュ
+  clearAnim.forEach(a => {
+    ctx.save();
+    ctx.globalAlpha = a.alpha * .5;
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, a.row*CELL, canvas.width, CELL);
+    ctx.restore();
+    a.alpha -= 0.08;
+  });
+
+  if (gameOver) { drawGameOver(); return; }
+
+  // ゴースト
+  const gy = ghostY();
+  current.shape.forEach((row,y) =>
+    row.forEach((v,x) => {
+      if (v && gy !== current.y) drawCell(ctx, current.x+x, gy+y, COLORS.ghost, 1, false);
+    })
+  );
+
+  // 現在ピース
+  current.shape.forEach((row,y) =>
+    row.forEach((v,x) => {
+      if (v) drawCell(ctx, current.x+x, current.y+y, current.color);
+    })
+  );
+
+  if (paused) {
+    ctx.fillStyle = 'rgba(0,0,0,.6)';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = '#fff';
+    ctx.font = `bold ${CELL*1.5}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText('PAUSE', canvas.width/2, canvas.height/2);
+  }
+}
+
+function drawNext() {
+  nctx.fillStyle = '#1a0a2e';
+  nctx.fillRect(0,0,80,80);
+  const nc = Math.floor(10 / next.shape[0].length);
+  const offX = Math.floor((80 - next.shape[0].length * nc) / 2);
+  const offY = Math.floor((80 - next.shape.length * nc) / 2);
+  next.shape.forEach((row,y) =>
+    row.forEach((v,x) => {
+      if (!v) return;
+      nctx.fillStyle = next.color;
+      nctx.shadowColor = next.color;
+      nctx.shadowBlur = 6;
+      nctx.fillRect(offX+x*nc+1, offY+y*nc+1, nc-2, nc-2);
+    })
+  );
+}
+
+function drawGameOver() {
+  ctx.fillStyle = 'rgba(0,0,0,.75)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#e53e3e';
+  ctx.shadowColor = '#e53e3e';
+  ctx.shadowBlur = 20;
+  ctx.font = `900 ${CELL*1.6}px sans-serif`;
+  ctx.fillText('GAME', canvas.width/2, canvas.height/2 - CELL*2);
+  ctx.fillText('OVER', canvas.width/2, canvas.height/2 - CELL*.2);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = 'rgba(255,255,255,.6)';
+  ctx.font = `${CELL*.8}px sans-serif`;
+  ctx.fillText('タップで再スタート', canvas.width/2, canvas.height/2 + CELL*1.5);
+}
+
+// ===== ゲームループ =====
+let lastTime = 0, accumulator = 0;
+
+function gameLoop(ts) {
+  requestAnimationFrame(gameLoop);
+  if (gameOver || paused) { render(); return; }
+  const dt = ts - lastTime;
+  lastTime = ts;
+  accumulator += dt;
+  const interval = Math.max(800 - (level-1)*60, 100);
+  if (accumulator >= interval) {
+    accumulator = 0;
+    if (valid(current.shape, current.x, current.y+1)) current.y++;
+    else place();
+  }
+  render();
+}
+
+// ===== 操作 =====
+function moveLeft()   { if (valid(current.shape, current.x-1, current.y)) current.x--; }
+function moveRight()  { if (valid(current.shape, current.x+1, current.y)) current.x++; }
+function moveDown()   { if (valid(current.shape, current.x, current.y+1)) current.y++; else place(); accumulator=0; }
+function rotatePiece() {
+  const r = rotate(current.shape);
+  // Wall kick
+  let ox = 0;
+  if (!valid(r, current.x, current.y)) {
+    if (valid(r, current.x+1, current.y)) ox=1;
+    else if (valid(r, current.x-1, current.y)) ox=-1;
+    else if (valid(r, current.x+2, current.y)) ox=2;
+    else return;
+  }
+  current.shape = r;
+  current.x += ox;
+}
+function hardDrop() {
+  while (valid(current.shape, current.x, current.y+1)) current.y++;
+  place();
+  accumulator = 0;
+}
+
+// キーボード
+const keys = {};
+document.addEventListener('keydown', e => {
+  if (gameOver) { if (e.key === 'Enter' || e.key === ' ') { restartGame(); return; } }
+  switch(e.key) {
+    case 'ArrowLeft':  e.preventDefault(); moveLeft(); break;
+    case 'ArrowRight': e.preventDefault(); moveRight(); break;
+    case 'ArrowDown':  e.preventDefault(); moveDown(); break;
+    case 'ArrowUp': case 'z': case 'Z': e.preventDefault(); rotatePiece(); break;
+    case ' ': e.preventDefault(); hardDrop(); break;
+    case 'p': case 'P': paused = !paused; break;
+  }
+});
+
+// タッチスワイプ
+let touchStartX=0, touchStartY=0, touchMoved=false;
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  touchMoved = false;
+  if (gameOver) restartGame();
+}, { passive:false });
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const dx = e.touches[0].clientX - touchStartX;
+  const dy = e.touches[0].clientY - touchStartY;
+  if (Math.abs(dx) > 20 || Math.abs(dy) > 20) touchMoved = true;
+  if (Math.abs(dx) > 30) {
+    if (dx > 0) moveRight(); else moveLeft();
+    touchStartX = e.touches[0].clientX;
+  }
+  if (dy > 30) { moveDown(); touchStartY = e.touches[0].clientY; }
+}, { passive:false });
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  if (!touchMoved) rotatePiece();
+}, { passive:false });
+
+// モバイルボタン長押し
+function mbtnDown(dir) {
+  clearInterval(mbtnInterval);
+  const fn = dir==='left' ? moveLeft : dir==='right' ? moveRight : moveDown;
+  fn();
+  mbtnInterval = setInterval(fn, 100);
+}
+function mbtnUp() { clearInterval(mbtnInterval); }
+
+// ===== 初期化 =====
+function startGame() {
+  initBoard();
+  best = parseInt(localStorage.getItem('puzzleBest') || '0');
+  score = 0; level = 1; lines = 0; gameOver = false; paused = false; accumulator = 0;
+  current = randPiece();
+  next = randPiece();
+  drawNext();
+  updateHUD();
+}
+
+function restartGame() {
+  startGame();
+}
+
+startGame();
+requestAnimationFrame(gameLoop);
+
+function endGame() {
+  gameOver = true;
+  if (score > best) { best = score; localStorage.setItem('puzzleBest', best); updateHUD(); }
+}
+</script>
+</body>
+</html>
