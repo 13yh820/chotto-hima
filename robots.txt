@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://chotto-hima.com/sitemap.xml
+Sitemap: https://13yh820.github.io/chotto-hima/sitemap.xml
