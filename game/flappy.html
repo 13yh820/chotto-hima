@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>フラッピーバード | ちょっとヒマ</title>
+  <meta name="description" content="タップして障害物をくぐり抜けろ！無料フラッピーバード風ゲーム。何点取れる？">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/flappy.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .wrap{max-width:400px;margin:0 auto;padding:0 16px 32px;text-align:center}
+    canvas{border-radius:16px;display:block;margin:0 auto;touch-action:manipulation;cursor:pointer}
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7063985125158694" crossorigin="anonymous"></script>
+</head>
+<body>
+<header><div class="header-inner"><a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+<nav><a href="../index.html#uranai">占い</a><a href="../index.html#game">ゲーム</a></nav></div></header>
+<main>
+<div class="page-header" style="padding-bottom:8px">
+  <div class="icon">🐦</div><h1>フラッピーバード</h1><p>タップして隙間を抜けろ！</p>
+</div>
+<div class="wrap">
+  <canvas id="c" width="360" height="480"></canvas>
+  <p style="font-size:.82rem;color:var(--text-muted);margin-top:8px">タップ / クリック / スペースキーでジャンプ</p>
+</div>
+</main>
+<footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p></footer>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+const W=360,H=480;
+const PIPE_W=50,GAP=130,PIPE_SPEED=2.5,GRAVITY=0.35,JUMP=-7.5,BIRD_X=80,BIRD_R=16;
+let bird,pipes,score,best,state,animId;
+best=parseInt(localStorage.getItem('flappyBest')||'0');
+
+function init(){ bird={y:H/2,vy:0,rot:0}; pipes=[];score=0;state='idle'; }
+
+function addPipe(){
+  const top=60+Math.random()*(H-GAP-120);
+  pipes.push({x:W,top,scored:false});
+}
+
+function flap(){
+  if(state==='idle'){state='play';addPipe();}
+  else if(state==='dead'){init();return;}
+  bird.vy=JUMP;
+}
+
+function loop(){ update();draw(); animId=requestAnimationFrame(loop); }
+
+function update(){
+  if(state!=='play')return;
+  bird.vy+=GRAVITY;bird.y+=bird.vy;
+  bird.rot=Math.max(-0.5,Math.min(1.2,bird.vy/10));
+  if(pipes.length===0||(pipes[pipes.length-1].x<W-180))addPipe();
+  pipes.forEach(p=>{
+    p.x-=PIPE_SPEED;
+    if(!p.scored&&p.x+PIPE_W<BIRD_X){p.scored=true;score++;if(score>best){best=score;localStorage.setItem('flappyBest',best);}}
+  });
+  pipes=pipes.filter(p=>p.x>-PIPE_W-10);
+  if(bird.y-BIRD_R<0||bird.y+BIRD_R>H){state='dead';return;}
+  for(let p of pipes){
+    if(BIRD_X+BIRD_R>p.x&&BIRD_X-BIRD_R<p.x+PIPE_W){
+      if(bird.y-BIRD_R<p.top||bird.y+BIRD_R>p.top+GAP){state='dead';return;}
+    }
+  }
+}
+
+function draw(){
+  ctx.fillStyle='#1e3a5f';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(255,255,255,.08)';
+  [[60,80,70,25],[200,120,90,20],[300,60,60,18]].forEach(([x,y,w,h])=>{ctx.beginPath();ctx.ellipse(x,y,w,h,0,0,Math.PI*2);ctx.fill();});
+  pipes.forEach(p=>{
+    const grad=ctx.createLinearGradient(p.x,0,p.x+PIPE_W,0);
+    grad.addColorStop(0,'#16a34a');grad.addColorStop(1,'#22c55e');
+    ctx.fillStyle=grad;
+    ctx.fillRect(p.x,0,PIPE_W,p.top);
+    ctx.fillRect(p.x,p.top+GAP,PIPE_W,H-(p.top+GAP));
+    ctx.fillStyle='#15803d';
+    ctx.fillRect(p.x-4,p.top-16,PIPE_W+8,16);
+    ctx.fillRect(p.x-4,p.top+GAP,PIPE_W+8,16);
+  });
+  ctx.save();ctx.translate(BIRD_X,bird.y);ctx.rotate(bird.rot);
+  ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(0,0,BIRD_R,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(7,-5,5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#1a1a1a';ctx.beginPath();ctx.arc(9,-4,3,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#f97316';ctx.beginPath();ctx.moveTo(BIRD_R,0);ctx.lineTo(BIRD_R+10,-3);ctx.lineTo(BIRD_R+10,5);ctx.closePath();ctx.fill();
+  ctx.restore();
+  ctx.fillStyle='#fff';ctx.font='bold 28px sans-serif';ctx.textAlign='center';
+  ctx.fillText(score,W/2,44);
+  if(state==='idle'){
+    ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#fff';ctx.font='bold 22px sans-serif';ctx.fillText('タップでスタート',W/2,H/2-10);
+    ctx.font='16px sans-serif';ctx.fillStyle='rgba(255,255,255,.7)';ctx.fillText(`ベスト: ${best}`,W/2,H/2+24);
+  }
+  if(state==='dead'){
+    ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#fff';ctx.font='bold 26px sans-serif';ctx.fillText('ゲームオーバー',W/2,H/2-30);
+    ctx.font='20px sans-serif';ctx.fillText(`スコア: ${score}`,W/2,H/2+4);
+    ctx.font='16px sans-serif';ctx.fillStyle='rgba(255,255,255,.7)';ctx.fillText(`ベスト: ${best}`,W/2,H/2+32);
+    ctx.font='14px sans-serif';ctx.fillText('タップでリスタート',W/2,H/2+60);
+  }
+}
+
+c.addEventListener('click',flap);
+c.addEventListener('touchstart',e=>{e.preventDefault();flap();},{passive:false});
+document.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();flap();}});
+init();loop();
+</script>
+</body>
+</html>
