@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>15パズル | ちょっとヒマ</title>
+  <meta name="description" content="15枚のタイルを並べ替えて完成させよう！無料スライドパズルゲーム。スマホでもスワイプ操作。">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/puzzle15.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .wrap{max-width:380px;margin:0 auto;padding:0 16px 32px;text-align:center}
+    .board{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 auto 16px;
+      background:var(--bg);border-radius:16px;padding:10px;border:2px solid var(--border);max-width:320px}
+    .tile{border-radius:10px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+      font-size:1.4rem;font-weight:900;cursor:pointer;transition:all .15s;user-select:none;
+      -webkit-tap-highlight-color:transparent}
+    .tile.num{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;box-shadow:0 2px 8px rgba(124,58,237,.35)}
+    .tile.num:active{transform:scale(.93)}
+    .tile.empty{background:transparent;cursor:default}
+    .hud{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+    .sp{background:var(--card-bg);border:1px solid var(--border);border-radius:99px;padding:5px 14px;font-size:.82rem;font-weight:700}
+    .sp b{color:var(--primary)}
+    .win-msg{font-size:1.2rem;font-weight:900;color:#22c55e;min-height:30px;margin-bottom:8px}
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7063985125158694" crossorigin="anonymous"></script>
+</head>
+<body>
+<header><div class="header-inner"><a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+<nav><a href="../index.html#uranai">占い</a><a href="../index.html#game">ゲーム</a></nav></div></header>
+<main>
+<div class="page-header" style="padding-bottom:8px">
+  <div class="icon">🔢</div><h1>15パズル</h1><p>1〜15を順番に並べ替えよう！</p>
+</div>
+<div class="wrap">
+  <div class="hud">
+    <div class="sp">手数: <b id="moves">0</b></div>
+    <div class="sp">⏱ <b id="timerEl">0</b>秒</div>
+    <div class="sp">ベスト: <b id="best">—</b></div>
+  </div>
+  <div class="win-msg" id="winMsg"></div>
+  <div class="board" id="board"></div>
+  <button class="btn btn-primary" onclick="newGame()">シャッフル 🔀</button>
+</div>
+</main>
+<footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p></footer>
+<script>
+let tiles,moves,elapsed,timerInt,over;
+let best=JSON.parse(localStorage.getItem('p15Best')||'null');
+if(best)document.getElementById('best').textContent=best+'手';
+
+function newGame(){
+  clearInterval(timerInt);over=false;moves=0;elapsed=0;
+  document.getElementById('moves').textContent=0;
+  document.getElementById('timerEl').textContent=0;
+  document.getElementById('winMsg').textContent='';
+  tiles=Array.from({length:16},(_,i)=>i);
+  do{for(let i=15;i>0;i--){const j=Math.floor(Math.random()*(i+1));[tiles[i],tiles[j]]=[tiles[j],tiles[i]];}}
+  while(!isSolvable()||isSolved());
+  timerInt=setInterval(()=>{if(!over){elapsed++;document.getElementById('timerEl').textContent=elapsed;}},1000);
+  render();
+}
+
+function isSolvable(){
+  let inv=0;const t=tiles.filter(x=>x!==0);
+  for(let i=0;i<t.length;i++)for(let j=i+1;j<t.length;j++)if(t[i]>t[j])inv++;
+  const blankRow=Math.floor(tiles.indexOf(0)/4);
+  return (inv%2===0)===(blankRow%2===1);
+}
+
+function isSolved(){return tiles.every((v,i)=>v===(i===15?0:i+1));}
+
+function move(idx){
+  if(over)return;
+  const blank=tiles.indexOf(0);
+  const r=Math.floor(idx/4),c=idx%4,br=Math.floor(blank/4),bc=blank%4;
+  if(Math.abs(r-br)+Math.abs(c-bc)!==1)return;
+  [tiles[blank],tiles[idx]]=[tiles[idx],tiles[blank]];
+  moves++;document.getElementById('moves').textContent=moves;
+  render();
+  if(isSolved()){
+    over=true;clearInterval(timerInt);
+    if(!best||moves<best){best=moves;localStorage.setItem('p15Best',moves);document.getElementById('best').textContent=moves+'手';}
+    document.getElementById('winMsg').textContent=`🎉 クリア！ ${moves}手 / ${elapsed}秒`;
+  }
+}
+
+let sx,sy;
+document.getElementById('board').addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+document.getElementById('board').addEventListener('touchend',e=>{
+  if(sx===undefined)return;
+  const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+  const blank=tiles.indexOf(0);
+  if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>20){
+    const target=blank+(dx>0?-1:1);
+    if(Math.floor(target/4)===Math.floor(blank/4)&&target>=0&&target<16)move(target);
+  } else if(Math.abs(dy)>20){
+    const target=blank+(dy>0?-4:4);
+    if(target>=0&&target<16)move(target);
+  }
+  sx=sy=undefined;
+},{passive:true});
+
+function render(){
+  const bd=document.getElementById('board');bd.innerHTML='';
+  tiles.forEach((v,i)=>{
+    const d=document.createElement('div');
+    if(v===0){d.className='tile empty';}
+    else{
+      d.className='tile num';d.textContent=v;
+      const goal=i===15?0:i+1;
+      if(v===goal)d.style.background='linear-gradient(135deg,#16a34a,#22c55e)';
+      d.addEventListener('click',()=>move(i));
+    }
+    bd.appendChild(d);
+  });
+}
+
+newGame();
+</script>
+</body>
+</html>
