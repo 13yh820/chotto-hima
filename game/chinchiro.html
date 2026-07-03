@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>チンチロ | ちょっとヒマ</title>
+  <meta name="description" content="無料でチンチロリン！サイコロ3個を振って親と勝負。スマホでカジノ気分。">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/chinchiro.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .wrap{max-width:420px;margin:0 auto;padding:0 16px 32px}
+    .info-bar{background:rgba(0,0,0,.25);border-radius:10px;padding:10px 16px;
+      display:flex;justify-content:space-between;color:#fff;margin-bottom:14px}
+    .money{font-size:1.2rem;font-weight:900;color:#fbbf24}
+    .dice-row{display:flex;gap:14px;justify-content:center;margin:16px 0;flex-wrap:wrap}
+    .die{width:64px;height:64px;border-radius:12px;background:#fff;
+      display:flex;align-items:center;justify-content:center;
+      font-size:2rem;box-shadow:0 4px 14px rgba(0,0,0,.3);transition:transform .25s}
+    .die.rolling{animation:shake .25s infinite alternate}
+    @keyframes shake{from{transform:rotate(-8deg) scale(1.05)}to{transform:rotate(8deg) scale(.95)}}
+    .result-box{background:var(--card-bg);border-radius:var(--radius);padding:14px 20px;margin:10px 0;text-align:center}
+    .result-label{font-size:.78rem;color:var(--text-muted);margin-bottom:4px}
+    .result-val{font-size:1.3rem;font-weight:900;color:var(--primary)}
+    .outcome{text-align:center;font-size:1.2rem;font-weight:900;padding:12px;border-radius:var(--radius);margin:10px 0;display:none}
+    .outcome.win{background:rgba(34,197,94,.2);color:#22c55e;border:1px solid #22c55e;display:block}
+    .outcome.lose{background:rgba(229,62,62,.2);color:#e53e3e;border:1px solid #e53e3e;display:block}
+    .outcome.push{background:rgba(251,191,36,.2);color:#fbbf24;border:1px solid #fbbf24;display:block}
+    .chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+    .chip{width:52px;height:52px;border-radius:50%;border:3px dashed rgba(255,255,255,.4);
+      font-size:.82rem;font-weight:900;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center}
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7063985125158694" crossorigin="anonymous"></script>
+</head>
+<body>
+<header><div class="header-inner"><a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+<nav><a href="../index.html#uranai">占い</a><a href="../index.html#game">ゲーム</a></nav></div></header>
+<main>
+<div class="page-header" style="padding-bottom:8px">
+  <div class="icon">🎲</div><h1>チンチロ</h1><p>3つのサイコロで親に勝とう！</p>
+</div>
+<div class="wrap">
+  <div class="info-bar">
+    <div><div style="font-size:.72rem;color:rgba(255,255,255,.5)">所持金</div><div class="money" id="money">1000</div></div>
+    <div style="text-align:right"><div style="font-size:.72rem;color:rgba(255,255,255,.5)">ベット</div><div id="betShow" style="font-weight:700">0コイン</div></div>
+  </div>
+  <div class="chips">
+    <div class="chip" style="background:#e53e3e" onclick="addBet(10)">10</div>
+    <div class="chip" style="background:#f59e0b" onclick="addBet(25)">25</div>
+    <div class="chip" style="background:#22c55e" onclick="addBet(50)">50</div>
+    <div class="chip" style="background:#3b82f6" onclick="addBet(100)">100</div>
+  </div>
+  <div class="result-box">
+    <div class="result-label">親のサイコロ</div>
+    <div class="dice-row">
+      <div class="die" id="dd0">🎲</div>
+      <div class="die" id="dd1">🎲</div>
+      <div class="die" id="dd2">🎲</div>
+    </div>
+    <div class="result-val" id="dealerResult">—</div>
+  </div>
+  <div class="result-box">
+    <div class="result-label">あなたのサイコロ</div>
+    <div class="dice-row">
+      <div class="die" id="pd0">🎲</div>
+      <div class="die" id="pd1">🎲</div>
+      <div class="die" id="pd2">🎲</div>
+    </div>
+    <div class="result-val" id="playerResult">—</div>
+  </div>
+  <div class="outcome" id="outcome"></div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <button class="btn btn-outline" onclick="clearBet()">クリア</button>
+    <button class="btn btn-primary" id="rollBtn" onclick="roll()">サイコロを振る 🎲</button>
+    <button class="btn btn-outline" id="nextBtn" style="display:none" onclick="nextRound()">次のゲーム ▶</button>
+  </div>
+</div>
+</main>
+<footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p></footer>
+<script>
+const FACES=['⚀','⚁','⚂','⚃','⚄','⚅'];
+let money=parseInt(localStorage.getItem('chinchiroMoney')||'1000'),bet=0,rolling=false;
+
+function addBet(n){if(rolling)return;if(bet+n>money)n=money-bet;bet+=n;update();}
+function clearBet(){if(!rolling){bet=0;update();}}
+function update(){
+  document.getElementById('money').textContent=money;
+  document.getElementById('betShow').textContent=bet?bet+'コイン':'未設定';
+}
+
+function rand(){return Math.floor(Math.random()*6)+1;}
+
+function hand(d){
+  const s=d.slice().sort((a,b)=>a-b);
+  if(s[0]===s[1]&&s[1]===s[2]) return {rank:10,label:`ゾロ目(${s[0]})`};
+  if(s[0]===4&&s[1]===5&&s[2]===6) return {rank:9,label:'シゴロ'};
+  if(s[0]===1&&s[1]===2&&s[2]===3) return {rank:-1,label:'ヒフミ'};
+  for(let v=1;v<=6;v++){
+    const cnt=s.filter(x=>x===v).length;
+    if(cnt===2){const other=s.find(x=>x!==v);return {rank:other,label:`${v}のペア ${other}目`};}
+  }
+  return {rank:0,label:'ドボン'};
+}
+
+async function roll(){
+  if(rolling)return;
+  if(bet===0){bet=Math.min(10,money);}
+  if(bet===0)return;
+  rolling=true;
+  document.getElementById('rollBtn').disabled=true;
+  document.getElementById('outcome').className='outcome';
+  document.getElementById('dealerResult').textContent='—';
+  document.getElementById('playerResult').textContent='—';
+  const ids=['dd0','dd1','dd2','pd0','pd1','pd2'];
+  ids.forEach(id=>document.getElementById(id).classList.add('rolling'));
+  await new Promise(r=>setTimeout(r,700));
+  ids.forEach(id=>document.getElementById(id).classList.remove('rolling'));
+  const dd=[rand(),rand(),rand()];
+  const pd=[rand(),rand(),rand()];
+  ['dd0','dd1','dd2'].forEach((id,i)=>document.getElementById(id).textContent=FACES[dd[i]-1]);
+  ['pd0','pd1','pd2'].forEach((id,i)=>document.getElementById(id).textContent=FACES[pd[i]-1]);
+  const dh=hand(dd),ph=hand(pd);
+  document.getElementById('dealerResult').textContent=dh.label;
+  document.getElementById('playerResult').textContent=ph.label;
+  const oc=document.getElementById('outcome');
+  let gain=0;
+  if(ph.rank===-1||(ph.rank===0&&dh.rank>0)){oc.textContent=`😢 負け！ -${bet}コイン`;oc.className='outcome lose';gain=-bet;}
+  else if(dh.rank===-1||(dh.rank===0&&ph.rank>0)){oc.textContent=`🎉 勝ち！ +${bet}コイン`;oc.className='outcome win';gain=bet;}
+  else if(ph.rank>dh.rank){oc.textContent=`🎉 勝ち！ +${bet}コイン`;oc.className='outcome win';gain=bet;}
+  else if(ph.rank<dh.rank){oc.textContent=`😢 負け！ -${bet}コイン`;oc.className='outcome lose';gain=-bet;}
+  else{oc.textContent='🤝 引き分け！';oc.className='outcome push';}
+  money=Math.max(0,money+gain);
+  if(money<=0){money=1000;oc.textContent+=' (リセット)';}
+  localStorage.setItem('chinchiroMoney',money);
+  update();
+  document.getElementById('nextBtn').style.display='';
+  document.getElementById('rollBtn').style.display='none';
+  rolling=false;
+}
+
+function nextRound(){
+  bet=0;
+  document.getElementById('nextBtn').style.display='none';
+  document.getElementById('rollBtn').style.display='';
+  document.getElementById('rollBtn').disabled=false;
+  document.getElementById('outcome').className='outcome';
+  ['dd0','dd1','dd2','pd0','pd1','pd2'].forEach(id=>document.getElementById(id).textContent='🎲');
+  document.getElementById('dealerResult').textContent='—';
+  document.getElementById('playerResult').textContent='—';
+  update();
+}
+update();
+</script>
+</body>
+</html>
