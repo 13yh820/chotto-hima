@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>スネークゲーム | ちょっとヒマ</title>
+  <meta name="description" content="えさを食べて長くなれ！古典的なスネークゲームをスマホでも快適プレイ。スワイプで操作。">
+  <meta name="keywords" content="スネーク,snake,ゲーム,無料,暇つぶし">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/snake.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .wrap { display:flex; flex-direction:column; align-items:center; padding:0 16px 24px; }
+    .hud { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:10px 0 10px; }
+    .hud-chip { background:var(--card-bg); border:1px solid var(--border); border-radius:99px;
+      padding:6px 18px; font-size:.9rem; font-weight:700; display:flex; align-items:center; gap:6px; }
+    .hud-chip .val { color:var(--primary); }
+    #gameCanvas { border-radius:12px; border:2px solid rgba(139,92,246,.4);
+      box-shadow:0 0 30px rgba(139,92,246,.2); display:block; touch-action:none; }
+    .dpad { display:none; flex-direction:column; align-items:center; gap:4px; margin-top:12px; }
+    .dpad-row { display:flex; gap:4px; }
+    .dpad-btn { width:60px; height:60px; border-radius:12px; border:2px solid var(--border);
+      background:var(--card-bg); font-size:1.4rem; display:flex; align-items:center; justify-content:center;
+      cursor:pointer; -webkit-tap-highlight-color:transparent; user-select:none; touch-action:manipulation; }
+    .dpad-btn:active { background:var(--primary); color:#fff; border-color:var(--primary); }
+    @media(max-width:500px){ .dpad{display:flex;} }
+    .ctrl-hint { font-size:.78rem; color:var(--text-muted); text-align:center; margin-top:8px; }
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7063985125158694" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+    <nav><a href="../index.html#uranai">占い</a><a href="../index.html#game">ゲーム</a></nav>
+  </div>
+</header>
+<main>
+  <div class="page-header" style="padding-bottom:8px">
+    <div class="icon">🐍</div>
+    <h1>スネークゲーム</h1>
+    <p>えさを食べて長くなれ！壁と自分に当たったら終了</p>
+  </div>
+  <div class="wrap">
+    <div class="hud">
+      <div class="hud-chip">🏆 スコア <span class="val" id="scoreEl">0</span></div>
+      <div class="hud-chip">⭐ 最高 <span class="val" id="bestEl">0</span></div>
+      <div class="hud-chip">📏 長さ <span class="val" id="lenEl">1</span></div>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <div class="dpad">
+      <div class="dpad-row"><button class="dpad-btn" ontouchstart="setDir(0,-1)">▲</button></div>
+      <div class="dpad-row">
+        <button class="dpad-btn" ontouchstart="setDir(-1,0)">◀</button>
+        <button class="dpad-btn" style="background:rgba(139,92,246,.15);border-color:var(--primary)" ontouchstart="if(state!=='playing')startGame()">▶</button>
+        <button class="dpad-btn" ontouchstart="setDir(1,0)">▶</button>
+      </div>
+      <div class="dpad-row"><button class="dpad-btn" ontouchstart="setDir(0,1)">▼</button></div>
+    </div>
+    <p class="ctrl-hint">矢印キーまたはスワイプで操作 | タップでスタート</p>
+  </div>
+</main>
+<footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p></footer>
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const CELL = 20;
+const COLS = 20, ROWS = 20;
+
+function resize() {
+  const s = Math.min((window.innerWidth - 32) / (COLS * CELL), 1);
+  canvas.width = COLS * CELL; canvas.height = ROWS * CELL;
+  canvas.style.width = canvas.width * s + 'px';
+  canvas.style.height = canvas.height * s + 'px';
+}
+resize();
+
+let snake, dir, nextDir, food, score, best, state, timer;
+
+function startGame() {
+  snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+  dir = {x:1,y:0}; nextDir = {x:1,y:0};
+  score = 0; state = 'playing';
+  best = parseInt(localStorage.getItem('snakeBest')||'0');
+  placeFood();
+  clearInterval(timer);
+  timer = setInterval(tick, 120);
+  render();
+}
+
+function placeFood() {
+  do { food = {x:Math.floor(Math.random()*COLS), y:Math.floor(Math.random()*ROWS)}; }
+  while(snake.some(s=>s.x===food.x&&s.y===food.y));
+}
+
+function tick() {
+  dir = nextDir;
+  const head = {x:snake[0].x+dir.x, y:snake[0].y+dir.y};
+  if(head.x<0||head.x>=COLS||head.y<0||head.y>=ROWS||snake.some(s=>s.x===head.x&&s.y===head.y)) {
+    state='dead'; clearInterval(timer); render(); return;
+  }
+  snake.unshift(head);
+  if(head.x===food.x&&head.y===food.y) {
+    score++; placeFood();
+    if(score>best){best=score;localStorage.setItem('snakeBest',best);}
+  } else {
+    snake.pop();
+  }
+  render();
+}
+
+function setDir(dx, dy) {
+  if(state!=='playing') { startGame(); return; }
+  if(dx===dir.x*-1&&dy===dir.y*-1) return;
+  nextDir={x:dx,y:dy};
+}
+
+function render() {
+  ctx.fillStyle='#0d001f'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle='rgba(139,92,246,.06)'; ctx.lineWidth=1;
+  for(let x=0;x<COLS;x++){ctx.beginPath();ctx.moveTo(x*CELL,0);ctx.lineTo(x*CELL,canvas.height);ctx.stroke();}
+  for(let y=0;y<ROWS;y++){ctx.beginPath();ctx.moveTo(0,y*CELL);ctx.lineTo(canvas.width,y*CELL);ctx.stroke();}
+
+  ctx.shadowColor='#22c55e'; ctx.shadowBlur=12;
+  ctx.fillStyle='#22c55e';
+  ctx.beginPath();
+  ctx.arc(food.x*CELL+CELL/2, food.y*CELL+CELL/2, CELL/2-2, 0, Math.PI*2);
+  ctx.fill();
+  ctx.shadowBlur=0;
+
+  snake.forEach((s,i) => {
+    const alpha = 1 - (i/snake.length)*0.5;
+    ctx.fillStyle = i===0 ? '#a78bfa' : `rgba(139,92,246,${alpha})`;
+    ctx.shadowColor = '#8b5cf6'; ctx.shadowBlur = i===0?16:0;
+    const pad = i===0?1:2;
+    ctx.beginPath();
+    ctx.roundRect(s.x*CELL+pad, s.y*CELL+pad, CELL-pad*2, CELL-pad*2, 4);
+    ctx.fill();
+    ctx.shadowBlur=0;
+  });
+
+  document.getElementById('scoreEl').textContent = score;
+  document.getElementById('bestEl').textContent = best;
+  document.getElementById('lenEl').textContent = snake.length;
+
+  if(state==='dead'||state==='idle') {
+    ctx.fillStyle='rgba(0,0,0,.6)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.textAlign='center'; ctx.fillStyle='#fff';
+    if(state==='dead') {
+      ctx.font=`bold ${CELL*2}px sans-serif`; ctx.shadowColor='#e53e3e'; ctx.shadowBlur=20;
+      ctx.fillText('GAME OVER',canvas.width/2,canvas.height/2-20);
+      ctx.font=`${CELL*1.2}px sans-serif`; ctx.shadowBlur=0; ctx.fillStyle='rgba(255,255,255,.7)';
+      ctx.fillText('タップで再スタート',canvas.width/2,canvas.height/2+20);
+    } else {
+      ctx.font=`bold ${CELL*2}px sans-serif`; ctx.shadowColor='#8b5cf6'; ctx.shadowBlur=20;
+      ctx.fillText('SNAKE',canvas.width/2,canvas.height/2-20);
+      ctx.font=`${CELL*1.2}px sans-serif`; ctx.shadowBlur=0; ctx.fillStyle='rgba(255,255,255,.7)';
+      ctx.fillText('タップでスタート',canvas.width/2,canvas.height/2+20);
+    }
+  }
+}
+
+document.addEventListener('keydown',e=>{
+  const map={ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0},ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1}};
+  if(map[e.key]){e.preventDefault();
+    if(state!=='playing'){startGame();return;}
+    const d=map[e.key];
+    if(d.x!==dir.x*-1||d.y!==dir.y*-1) nextDir=d;
+  }
+});
+
+canvas.addEventListener('click',()=>{ if(state!=='playing') startGame(); });
+
+let sx=0,sy=0;
+canvas.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+canvas.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+  if(Math.max(Math.abs(dx),Math.abs(dy))<15){if(state!=='playing')startGame();return;}
+  if(state!=='playing'){startGame();return;}
+  if(Math.abs(dx)>Math.abs(dy)) setDir(dx>0?1:-1,0);
+  else setDir(0,dy>0?1:-1);
+},{passive:true});
+
+state='idle'; score=0; best=parseInt(localStorage.getItem('snakeBest')||'0');
+snake=[{x:10,y:10}]; food={x:15,y:10}; dir={x:1,y:0};
+render();
+</script>
+</body>
+</html>
