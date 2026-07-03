@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>カード当て | ちょっとヒマ</title>
+  <meta name="description" content="めくられたカードのマークを当てよう！直感力勝負の無料カード当てゲーム。">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/cardmatch.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .wrap{max-width:420px;margin:0 auto;padding:0 16px 32px;text-align:center}
+    .card-area{height:160px;display:flex;align-items:center;justify-content:center;margin:16px 0}
+    .playing-card{width:100px;height:140px;border-radius:12px;background:#fff;border:3px solid var(--border);
+      display:flex;align-items:center;justify-content:center;font-size:4rem;
+      box-shadow:0 8px 28px rgba(0,0,0,.3);transition:all .35s;perspective:800px;position:relative}
+    .playing-card.flip{transform:rotateY(90deg)}
+    .choice-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+    .suit-btn{padding:16px 0;border-radius:12px;border:2px solid var(--border);
+      background:var(--card-bg);font-size:2rem;cursor:pointer;transition:all .15s;
+      -webkit-tap-highlight-color:transparent}
+    .suit-btn:active{transform:scale(.92)}
+    .suit-btn.correct{background:#22c55e;border-color:#22c55e}
+    .suit-btn.wrong{background:#e53e3e;border-color:#e53e3e}
+    .stats{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+    .sp{background:var(--card-bg);border:1px solid var(--border);border-radius:99px;
+      padding:5px 14px;font-size:.82rem;font-weight:700}
+    .sp b{color:var(--primary)}
+    .streak-disp{font-size:1.8rem;font-weight:900;color:var(--primary);margin:4px 0}
+    .msg{font-size:1.1rem;font-weight:800;min-height:32px;margin:6px 0}
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7063985125158694" crossorigin="anonymous"></script>
+</head>
+<body>
+<header><div class="header-inner"><a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+<nav><a href="../index.html#uranai">占い</a><a href="../index.html#game">ゲーム</a></nav></div></header>
+<main>
+<div class="page-header" style="padding-bottom:8px">
+  <div class="icon">🃏</div><h1>カード当て</h1><p>マークを直感で当てよう！連続正解を狙え</p>
+</div>
+<div class="wrap">
+  <div class="stats">
+    <div class="sp">正解 <b id="hits">0</b></div>
+    <div class="sp">不正解 <b id="misses">0</b></div>
+    <div class="sp">連続 <b id="streak">0</b></div>
+    <div class="sp">最高 <b id="best">0</b></div>
+  </div>
+  <div class="card-area">
+    <div class="playing-card" id="card">🂠</div>
+  </div>
+  <div class="streak-disp" id="streakBig"></div>
+  <div class="msg" id="msg">マークを選んでカードを当てよう！</div>
+  <div class="choice-row">
+    <button class="suit-btn" id="btn♠" onclick="guess('♠')">♠</button>
+    <button class="suit-btn" id="btn♥" onclick="guess('♥')" style="color:#e53e3e">♥</button>
+    <button class="suit-btn" id="btn♦" onclick="guess('♦')" style="color:#e53e3e">♦</button>
+    <button class="suit-btn" id="btn♣" onclick="guess('♣')">♣</button>
+  </div>
+  <button class="btn btn-outline" onclick="resetGame()" style="margin-top:4px;font-size:.85rem;padding:8px 20px">リセット</button>
+</div>
+</main>
+<footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p></footer>
+<script>
+const SUITS=['♠','♥','♦','♣'];
+const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+let hits=0,misses=0,streak=0,best=parseInt(localStorage.getItem('cardmatchBest')||'0');
+let current=null,locked=false;
+document.getElementById('best').textContent=best;
+
+function pick(){ return {suit:SUITS[Math.floor(Math.random()*4)],rank:RANKS[Math.floor(Math.random()*13)]}; }
+
+function guess(suit){
+  if(locked)return;
+  if(!current)current=pick();
+  locked=true;
+  const c=document.getElementById('card');
+  c.classList.add('flip');
+  setTimeout(()=>{
+    const isRed=['♥','♦'].includes(current.suit);
+    c.textContent=current.rank+' '+current.suit;
+    c.style.color=isRed?'#e53e3e':'#111';
+    c.classList.remove('flip');
+    const correct=suit===current.suit;
+    const btn=document.getElementById('btn'+suit);
+    const ans=document.getElementById('btn'+current.suit);
+    if(correct){
+      btn.classList.add('correct');hits++;streak++;
+      if(streak>best){best=streak;localStorage.setItem('cardmatchBest',best);document.getElementById('best').textContent=best;}
+      document.getElementById('msg').textContent='🎉 正解！';document.getElementById('msg').style.color='#22c55e';
+    } else {
+      btn.classList.add('wrong');ans.classList.add('correct');misses++;streak=0;
+      document.getElementById('msg').textContent=`❌ 不正解！正解は ${current.suit}`;document.getElementById('msg').style.color='#e53e3e';
+    }
+    document.getElementById('hits').textContent=hits;
+    document.getElementById('misses').textContent=misses;
+    document.getElementById('streak').textContent=streak;
+    document.getElementById('streakBig').textContent=streak>=3?`🔥 ${streak}連続！`:'';
+    setTimeout(()=>{
+      document.querySelectorAll('.suit-btn').forEach(b=>b.classList.remove('correct','wrong'));
+      current=pick();
+      c.textContent='🂠';c.style.color='';locked=false;
+    },900);
+  },180);
+}
+
+function resetGame(){
+  hits=0;misses=0;streak=0;
+  ['hits','misses','streak'].forEach(id=>document.getElementById(id).textContent=0);
+  document.getElementById('streakBig').textContent='';
+  document.getElementById('msg').textContent='マークを選んでカードを当てよう！';
+  document.getElementById('msg').style.color='';
+  document.getElementById('card').textContent='🂠';
+  document.getElementById('card').style.color='';
+  current=pick();locked=false;
+}
+
+current=pick();
+</script>
+</body>
+</html>
