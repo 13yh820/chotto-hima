@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>じゃんけん対決 | ちょっとヒマ</title>
+  <meta name="description" content="じゃんけんで連勝記録に挑戦！CPUに勝ち続けてハイスコアを目指せ。">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/janken.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .wrap{max-width:420px;margin:0 auto;padding:0 16px 32px;text-align:center}
+    .vs-row{display:flex;justify-content:center;align-items:center;gap:24px;margin:20px 0}
+    .hand-box{flex:1;background:var(--card-bg);border-radius:16px;padding:18px 10px;border:2px solid var(--border)}
+    .hand-box .label{font-size:.75rem;color:var(--text-muted);margin-bottom:6px;font-weight:700}
+    .hand-big{font-size:4rem;line-height:1;transition:transform .2s}
+    .vs-label{font-size:1.5rem;font-weight:900;color:var(--text-muted)}
+    .choice-row{display:flex;gap:14px;justify-content:center;margin:10px 0 20px}
+    .choice-btn{width:80px;height:80px;border-radius:16px;border:2px solid var(--border);
+      background:var(--card-bg);font-size:2.4rem;cursor:pointer;transition:all .15s;
+      -webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center}
+    .choice-btn:active{transform:scale(.9);background:var(--primary);border-color:var(--primary)}
+    .result-msg{font-size:1.5rem;font-weight:900;min-height:44px;margin:8px 0}
+    .result-msg.win{color:#22c55e}.result-msg.lose{color:#e53e3e}.result-msg.draw{color:#f59e0b}
+    .stats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+    .stat-pill{background:var(--card-bg);border:1px solid var(--border);border-radius:99px;
+      padding:5px 14px;font-size:.82rem;font-weight:700}
+    .streak{font-size:1.1rem;font-weight:900;color:var(--primary)}
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7063985125158694" crossorigin="anonymous"></script>
+</head>
+<body>
+<header><div class="header-inner"><a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+<nav><a href="../index.html#uranai">占い</a><a href="../index.html#game">ゲーム</a></nav></div></header>
+<main>
+<div class="page-header" style="padding-bottom:8px">
+  <div class="icon">✊</div><h1>じゃんけん対決</h1><p>CPUに連勝し続けてハイスコアを狙え！</p>
+</div>
+<div class="wrap">
+  <div class="stats">
+    <div class="stat-pill">勝: <span id="wins" class="streak">0</span></div>
+    <div class="stat-pill">負: <span id="losses">0</span></div>
+    <div class="stat-pill">引: <span id="draws">0</span></div>
+    <div class="stat-pill">連勝: <span id="streak" class="streak">0</span></div>
+    <div class="stat-pill">最高: <span id="best" class="streak">0</span></div>
+  </div>
+  <div class="vs-row">
+    <div class="hand-box"><div class="label">あなた</div><div class="hand-big" id="playerHand">🤔</div></div>
+    <div class="vs-label">VS</div>
+    <div class="hand-box"><div class="label">CPU</div><div class="hand-big" id="cpuHand">🤔</div></div>
+  </div>
+  <div class="result-msg" id="resultMsg">グー・チョキ・パーを選んで！</div>
+  <div class="choice-row">
+    <button class="choice-btn" onclick="play('rock')" title="グー">✊</button>
+    <button class="choice-btn" onclick="play('scissors')" title="チョキ">✌️</button>
+    <button class="choice-btn" onclick="play('paper')" title="パー">🖐️</button>
+  </div>
+  <button class="btn btn-outline" onclick="reset()" style="font-size:.85rem;padding:8px 20px">リセット</button>
+</div>
+</main>
+<footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p></footer>
+<script>
+const HANDS={rock:'✊',scissors:'✌️',paper:'🖐️'};
+const NAMES={rock:'グー',scissors:'チョキ',paper:'パー'};
+const BEATS={rock:'scissors',scissors:'paper',paper:'rock'};
+const OPTIONS=['rock','scissors','paper'];
+let wins=0,losses=0,draws=0,streak=0,best=parseInt(localStorage.getItem('jankenBest')||'0');
+document.getElementById('best').textContent=best;
+function play(choice){
+  const cpu=OPTIONS[Math.floor(Math.random()*3)];
+  document.getElementById('playerHand').textContent=HANDS[choice];
+  document.getElementById('cpuHand').textContent=HANDS[cpu];
+  const msg=document.getElementById('resultMsg');
+  if(choice===cpu){draws++;streak=0;msg.textContent='🤝 引き分け！';msg.className='result-msg draw';}
+  else if(BEATS[choice]===cpu){
+    wins++;streak++;
+    if(streak>best){best=streak;localStorage.setItem('jankenBest',best);document.getElementById('best').textContent=best;}
+    msg.textContent=`🎉 勝ち！（${NAMES[choice]} > ${NAMES[cpu]}）`;msg.className='result-msg win';
+  } else {
+    losses++;streak=0;
+    msg.textContent=`😢 負け！（${NAMES[cpu]} > ${NAMES[choice]}）`;msg.className='result-msg lose';
+  }
+  document.getElementById('wins').textContent=wins;
+  document.getElementById('losses').textContent=losses;
+  document.getElementById('draws').textContent=draws;
+  document.getElementById('streak').textContent=streak;
+}
+function reset(){wins=0;losses=0;draws=0;streak=0;
+  ['wins','losses','draws','streak'].forEach(id=>document.getElementById(id).textContent=0);
+  document.getElementById('playerHand').textContent='🤔';
+  document.getElementById('cpuHand').textContent='🤔';
+  document.getElementById('resultMsg').textContent='グー・チョキ・パーを選んで！';
+  document.getElementById('resultMsg').className='result-msg';
+}
+</script>
+</body>
+</html>
