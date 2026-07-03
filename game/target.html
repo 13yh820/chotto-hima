@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>的当て | ちょっとヒマ</title>
+  <meta name="description" content="動く的をタップして高得点を狙え！的の中心に当てるほど高得点。無料で遊べる的当てゲーム。">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/target.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .wrap{max-width:420px;margin:0 auto;padding:0 16px 32px;text-align:center}
+    canvas{border-radius:16px;display:block;margin:0 auto;touch-action:manipulation;cursor:crosshair}
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7063985125158694" crossorigin="anonymous"></script>
+</head>
+<body>
+<header><div class="header-inner"><a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+<nav><a href="../index.html#uranai">占い</a><a href="../index.html#game">ゲーム</a></nav></div></header>
+<main>
+<div class="page-header" style="padding-bottom:8px">
+  <div class="icon">🎯</div><h1>的当て</h1><p>30秒で高得点！中心ほど高スコア</p>
+</div>
+<div class="wrap">
+  <canvas id="c" width="360" height="440"></canvas>
+</div>
+</main>
+<footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p></footer>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+const W=360,H=440,TIME=30;
+let targets,score,timeLeft,state,animId,lastTime,best,popups;
+best=parseInt(localStorage.getItem('targetBest')||'0');
+
+function init(){
+  targets=[];popups=[];score=0;timeLeft=TIME;state='idle';lastTime=null;
+  spawnTarget();
+}
+
+function spawnTarget(){
+  const r=20+Math.random()*30;
+  const x=r+Math.random()*(W-r*2);
+  const y=r+60+Math.random()*(H-r*2-70);
+  const vx=(Math.random()-.5)*2.5;
+  const vy=(Math.random()-.5)*2.5;
+  const life=2000+Math.random()*2000;
+  targets.push({x,y,r,vx,vy,born:performance.now(),life});
+}
+
+function loop(now){
+  const dt=lastTime?now-lastTime:16;lastTime=now;
+  if(state==='play'){
+    timeLeft=Math.max(0,timeLeft-dt/1000);
+    if(timeLeft<=0){endGame();}
+    targets.forEach(t=>{
+      t.x+=t.vx;t.y+=t.vy;
+      if(t.x-t.r<0||t.x+t.r>W)t.vx*=-1;
+      if(t.y-t.r<60||t.y+t.r>H)t.vy*=-1;
+      if(now-t.born>t.life){t.dead=true;spawnTarget();}
+    });
+    targets=targets.filter(t=>!t.dead);
+    if(targets.length<3)spawnTarget();
+    popups=popups.filter(p=>now-p.t<600);
+  }
+  draw(now);
+  animId=requestAnimationFrame(loop);
+}
+
+function draw(now){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0f172a';ctx.fillRect(0,0,W,H);
+  targets.forEach(t=>{
+    const age=now-t.born,frac=age/t.life;
+    const alpha=frac>0.7?1-(frac-0.7)/0.3:1;
+    const rings=[{r:t.r,c:'#e53e3e'},{r:t.r*.7,c:'#fff'},{r:t.r*.4,c:'#e53e3e'},{r:t.r*.15,c:'#fff'}];
+    rings.forEach(ring=>{
+      ctx.globalAlpha=alpha;
+      ctx.beginPath();ctx.arc(t.x,t.y,ring.r,0,Math.PI*2);ctx.fillStyle=ring.c;ctx.fill();
+    });
+    ctx.globalAlpha=1;
+  });
+  popups.forEach(p=>{
+    const age=now-p.t;
+    ctx.globalAlpha=Math.max(0,1-age/600);
+    ctx.fillStyle=p.pts>=100?'#fbbf24':'#fff';
+    ctx.font=`bold ${p.pts>=100?22:16}px sans-serif`;ctx.textAlign='center';
+    ctx.fillText('+'+p.pts,p.x,p.y-age/600*30);
+    ctx.globalAlpha=1;
+  });
+  ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(0,0,W,52);
+  ctx.fillStyle='#fff';ctx.font='bold 20px sans-serif';ctx.textAlign='left';
+  ctx.fillText(`スコア: ${score}`,12,34);
+  ctx.textAlign='center';ctx.fillText(`${Math.ceil(timeLeft)}秒`,W/2,34);
+  ctx.textAlign='right';ctx.fillText(`ベスト: ${best}`,W-12,34);
+  if(state==='idle'){
+    ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(0,52,W,H-52);
+    ctx.fillStyle='#fff';ctx.font='bold 22px sans-serif';ctx.textAlign='center';
+    ctx.fillText('タップでスタート',W/2,H/2);
+    ctx.font='16px sans-serif';ctx.fillStyle='rgba(255,255,255,.6)';ctx.fillText(`ベスト: ${best}`,W/2,H/2+30);
+  }
+  if(state==='over'){
+    ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(0,52,W,H-52);
+    ctx.fillStyle='#fff';ctx.font='bold 26px sans-serif';ctx.textAlign='center';
+    ctx.fillText(`スコア: ${score}`,W/2,H/2-20);
+    ctx.font='18px sans-serif';ctx.fillStyle='rgba(255,255,255,.7)';ctx.fillText(`ベスト: ${best}`,W/2,H/2+12);
+    ctx.font='15px sans-serif';ctx.fillText('タップでリスタート',W/2,H/2+46);
+  }
+}
+
+function hit(px,py){
+  if(state!=='play')return;
+  for(let i=targets.length-1;i>=0;i--){
+    const t=targets[i];
+    const d=Math.hypot(px-t.x,py-t.y);
+    if(d<=t.r){
+      const pts=d<t.r*.15?200:d<t.r*.4?100:d<t.r*.7?50:10;
+      score+=pts;popups.push({x:t.x,y:t.y,pts,t:performance.now()});
+      targets.splice(i,1);spawnTarget();break;
+    }
+  }
+}
+
+function startOrRestart(px,py){
+  if(state==='idle'){state='play';lastTime=null;return;}
+  if(state==='over'){init();state='play';lastTime=null;return;}
+  hit(px,py);
+}
+
+function endGame(){
+  state='over';
+  if(score>best){best=score;localStorage.setItem('targetBest',best);}
+}
+
+c.addEventListener('click',e=>{
+  const r=c.getBoundingClientRect();startOrRestart(e.clientX-r.left,e.clientY-r.top);
+});
+c.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  const r=c.getBoundingClientRect();
+  startOrRestart(e.touches[0].clientX-r.left,e.touches[0].clientY-r.top);
+},{passive:false});
+
+init();requestAnimationFrame(loop);
+</script>
+</body>
+</html>
