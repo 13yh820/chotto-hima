@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>数字当て | ちょっとヒマ</title>
+  <meta name="description" content="1〜100の数字を当てよう！ヒントを頼りに少ない回数でズバリ当てろ。無料推理ゲーム。">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/numguess.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .wrap{max-width:420px;margin:0 auto;padding:0 16px 32px}
+    .big-num{font-size:5rem;font-weight:900;text-align:center;color:var(--primary);line-height:1;margin:10px 0}
+    .hint{text-align:center;font-size:1.2rem;font-weight:800;min-height:36px;margin:8px 0}
+    .hint.high{color:#e53e3e}.hint.low{color:#3b82f6}.hint.ok{color:#22c55e}
+    .input-row{display:flex;gap:10px;margin:16px 0}
+    .num-input{flex:1;padding:14px;border:2px solid var(--border);border-radius:var(--radius-sm);
+      font-size:1.5rem;font-weight:700;text-align:center;font-family:inherit;
+      color:var(--text);background:var(--card-bg)}
+    .num-input:focus{outline:none;border-color:var(--primary)}
+    .history{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0;min-height:36px;justify-content:center}
+    .hist-chip{background:var(--bg);border:1px solid var(--border);border-radius:99px;
+      padding:4px 12px;font-size:.82rem;font-weight:700}
+    .hist-chip.high{border-color:#e53e3e;color:#e53e3e}
+    .hist-chip.low{border-color:#3b82f6;color:#3b82f6}
+    .stats{display:flex;gap:8px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+    .sp{background:var(--card-bg);border:1px solid var(--border);border-radius:99px;
+      padding:5px 14px;font-size:.82rem;font-weight:700}
+    .sp b{color:var(--primary)}
+    .range-bar{height:8px;background:var(--border);border-radius:99px;margin:10px 0;position:relative;overflow:hidden}
+    .range-fill{height:100%;background:var(--primary);border-radius:99px;transition:all .3s}
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7063985125158694" crossorigin="anonymous"></script>
+</head>
+<body>
+<header><div class="header-inner"><a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+<nav><a href="../index.html#uranai">占い</a><a href="../index.html#game">ゲーム</a></nav></div></header>
+<main>
+<div class="page-header" style="padding-bottom:8px">
+  <div class="icon">🔢</div><h1>数字当て</h1><p>1〜100の数字を少ない回数で当てろ！</p>
+</div>
+<div class="wrap">
+  <div class="stats">
+    <div class="sp">試行: <b id="tries">0</b>回</div>
+    <div class="sp">範囲: <b id="range">1〜100</b></div>
+    <div class="sp">ベスト: <b id="best">—</b>回</div>
+  </div>
+  <div class="range-bar"><div class="range-fill" id="rangeFill" style="width:100%"></div></div>
+  <div class="big-num" id="inputDisplay">?</div>
+  <div class="hint" id="hint">1〜100の数字を入力してください</div>
+  <div class="input-row">
+    <input type="text" class="num-input" id="numInput" inputmode="numeric" pattern="[0-9]*"
+      placeholder="1〜100" enterkeyhint="send"
+      oninput="this.value=this.value.replace(/[^0-9]/g,'')" onkeydown="if(event.key==='Enter')guess()">
+    <button class="btn btn-primary" onclick="guess()">決定</button>
+  </div>
+  <div class="history" id="history"></div>
+  <button class="btn btn-outline" onclick="newGame()" style="width:100%;margin-top:8px">新しいゲーム 🔄</button>
+</div>
+</main>
+<footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p></footer>
+<script>
+let answer,tries,lo,hi,over;
+let best=parseInt(localStorage.getItem('numguessBest')||'0')||null;
+if(best)document.getElementById('best').textContent=best+'回';
+
+function newGame(){
+  answer=Math.floor(Math.random()*100)+1;
+  tries=0;lo=1;hi=100;over=false;
+  document.getElementById('tries').textContent=0;
+  document.getElementById('range').textContent='1〜100';
+  document.getElementById('rangeFill').style.width='100%';
+  document.getElementById('hint').textContent='1〜100の数字を入力してください';
+  document.getElementById('hint').className='hint';
+  document.getElementById('inputDisplay').textContent='?';
+  document.getElementById('inputDisplay').style.color='';
+  document.getElementById('history').innerHTML='';
+  document.getElementById('numInput').value='';
+  document.getElementById('numInput').disabled=false;
+  document.getElementById('numInput').focus();
+}
+
+function guess(){
+  if(over)return;
+  const v=parseInt(document.getElementById('numInput').value);
+  if(!v||v<1||v>100)return;
+  tries++;
+  document.getElementById('tries').textContent=tries;
+  document.getElementById('inputDisplay').textContent=v;
+  const h=document.getElementById('history');
+  
+  if(v===answer){
+    document.getElementById('hint').textContent=`🎉 正解！ ${tries}回で当てた！`;
+    document.getElementById('hint').className='hint ok';
+    document.getElementById('inputDisplay').style.color='#22c55e';
+    const chip=document.createElement('div');chip.className='hist-chip';chip.textContent=v+'✓';h.appendChild(chip);
+    if(!best||tries<best){best=tries;localStorage.setItem('numguessBest',best);}
+    document.getElementById('best').textContent=best+'回';
+    over=true;document.getElementById('numInput').disabled=true;
+  } else if(v>answer){
+    hi=Math.min(hi,v-1);
+    document.getElementById('hint').textContent=`📉 もっと小さい（${lo}〜${hi}）`;
+    document.getElementById('hint').className='hint high';
+    document.getElementById('range').textContent=lo+'〜'+hi;
+    const chip=document.createElement('div');chip.className='hist-chip high';chip.textContent=v+'↓';h.appendChild(chip);
+  } else {
+    lo=Math.max(lo,v+1);
+    document.getElementById('hint').textContent=`📈 もっと大きい（${lo}〜${hi}）`;
+    document.getElementById('hint').className='hint low';
+    document.getElementById('range').textContent=lo+'〜'+hi;
+    const chip=document.createElement('div');chip.className='hist-chip low';chip.textContent=v+'↑';h.appendChild(chip);
+  }
+  const pct=((hi-lo)/99)*100;
+  document.getElementById('rangeFill').style.width=pct+'%';
+  document.getElementById('numInput').value='';
+  if(!over)document.getElementById('numInput').focus();
+}
+
+newGame();
+</script>
+</body>
+</html>
