@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>2048 | ちょっとヒマ</title>
+  <meta name="description" content="スワイプでタイルを動かして2048を作ろう！無料で遊べる人気パズルゲーム。スマホでも快適プレイ。">
+  <meta name="keywords" content="2048,パズル,ゲーム,無料,暇つぶし">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/2048.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .wrap { display:flex; flex-direction:column; align-items:center; padding:0 16px 24px; }
+    .hud { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:10px 0 14px; }
+    .hud-box { background:var(--card-bg); border:1px solid var(--border); border-radius:12px;
+      padding:8px 20px; text-align:center; min-width:80px; }
+    .hud-box .lbl { font-size:.7rem; font-weight:700; color:var(--text-muted); letter-spacing:.05em; }
+    .hud-box .val { font-size:1.4rem; font-weight:900; color:var(--primary); }
+    #board { display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+      background:#1a0a2e; border-radius:12px; padding:10px;
+      width:100%; max-width:360px; box-shadow:0 8px 32px rgba(0,0,0,.4); }
+    .cell { aspect-ratio:1; border-radius:8px; display:flex; align-items:center; justify-content:center;
+      font-weight:900; font-size:1.5rem; transition:all .1s; background:#2d1560; color:transparent; }
+    .cell[data-v="2"]    { background:#e8d5b7; color:#776e65; }
+    .cell[data-v="4"]    { background:#ede0c8; color:#776e65; }
+    .cell[data-v="8"]    { background:#f2b179; color:#fff; }
+    .cell[data-v="16"]   { background:#f59563; color:#fff; font-size:1.3rem; }
+    .cell[data-v="32"]   { background:#f67c5f; color:#fff; font-size:1.3rem; }
+    .cell[data-v="64"]   { background:#f65e3b; color:#fff; font-size:1.3rem; }
+    .cell[data-v="128"]  { background:#edcf72; color:#fff; font-size:1.1rem; }
+    .cell[data-v="256"]  { background:#edcc61; color:#fff; font-size:1.1rem; }
+    .cell[data-v="512"]  { background:#edc850; color:#fff; font-size:1.1rem; }
+    .cell[data-v="1024"] { background:#edc53f; color:#fff; font-size:.9rem; }
+    .cell[data-v="2048"] { background:#8b5cf6; color:#fff; font-size:.9rem; box-shadow:0 0 20px rgba(139,92,246,.6); }
+    .cell[data-v="4096"] { background:#7c3aed; color:#fff; font-size:.85rem; }
+    .ctrl-hint { font-size:.78rem; color:var(--text-muted); text-align:center; margin-top:10px; }
+    .over-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); display:none;
+      align-items:center; justify-content:center; z-index:50; backdrop-filter:blur(4px); }
+    .over-overlay.show { display:flex; }
+    .over-card { background:var(--card-bg); border-radius:var(--radius); padding:36px 28px;
+      text-align:center; border:1px solid var(--border); max-width:300px; width:90%; }
+    .over-icon { font-size:3.5rem; margin-bottom:8px; }
+    .over-score { font-size:2rem; font-weight:900; color:var(--primary); margin:8px 0 20px; }
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7063985125158694" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+    <nav><a href="../index.html#uranai">占い</a><a href="../index.html#game">ゲーム</a></nav>
+  </div>
+</header>
+<main>
+  <div class="page-header" style="padding-bottom:8px">
+    <div class="icon">🔢</div>
+    <h1>2048</h1>
+    <p>タイルをスワイプして2048を作ろう！</p>
+  </div>
+  <div class="wrap">
+    <div class="hud">
+      <div class="hud-box"><div class="lbl">SCORE</div><div class="val" id="score">0</div></div>
+      <div class="hud-box"><div class="lbl">BEST</div><div class="val" id="best">0</div></div>
+    </div>
+    <div id="board"></div>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button class="btn btn-outline" onclick="newGame()">新しいゲーム 🔄</button>
+      <button class="btn btn-outline" onclick="undo()">↩ 戻す</button>
+    </div>
+    <p class="ctrl-hint">スワイプまたは矢印キーで操作</p>
+  </div>
+</main>
+<footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p></footer>
+
+<div class="over-overlay" id="overlay">
+  <div class="over-card">
+    <div class="over-icon" id="overIcon">😢</div>
+    <div id="overTitle" style="font-size:1.4rem;font-weight:800;margin-bottom:4px">ゲームオーバー</div>
+    <div class="over-score" id="overScore">0</div>
+    <button class="btn btn-primary" onclick="newGame();document.getElementById('overlay').classList.remove('show')">もう一度！</button>
+  </div>
+</div>
+
+<script>
+const SIZE = 4;
+let grid, score, bestScore, prev;
+
+function newGame() {
+  grid = Array.from({length:SIZE}, () => Array(SIZE).fill(0));
+  score = 0;
+  prev = null;
+  bestScore = parseInt(localStorage.getItem('best2048')||'0');
+  addRandom(); addRandom();
+  render();
+}
+
+function addRandom() {
+  const empty = [];
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) if(!grid[r][c]) empty.push([r,c]);
+  if(!empty.length) return;
+  const [r,c] = empty[Math.floor(Math.random()*empty.length)];
+  grid[r][c] = Math.random()<.9 ? 2 : 4;
+}
+
+function render() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) {
+    const v = grid[r][c];
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    if(v) { cell.textContent = v; cell.dataset.v = v; }
+    board.appendChild(cell);
+  }
+  document.getElementById('score').textContent = score;
+  if(score > bestScore) { bestScore = score; localStorage.setItem('best2048', bestScore); }
+  document.getElementById('best').textContent = bestScore;
+}
+
+function clone(g) { return g.map(r=>[...r]); }
+
+function slide(row) {
+  let arr = row.filter(v=>v);
+  let gained = 0;
+  for(let i=0;i<arr.length-1;i++) {
+    if(arr[i]===arr[i+1]) { arr[i]*=2; gained+=arr[i]; arr.splice(i+1,1); }
+  }
+  while(arr.length<SIZE) arr.push(0);
+  return {arr, gained};
+}
+
+function move(dir) {
+  prev = clone(grid);
+  let moved=false, gained=0;
+  if(dir==='left'||dir==='right') {
+    for(let r=0;r<SIZE;r++) {
+      let row = dir==='right' ? [...grid[r]].reverse() : [...grid[r]];
+      const {arr,gained:g} = slide(row);
+      if(dir==='right') arr.reverse();
+      if(arr.join()!==grid[r].join()) moved=true;
+      grid[r]=arr; gained+=g;
+    }
+  } else {
+    for(let c=0;c<SIZE;c++) {
+      let col = [];
+      for(let r=0;r<SIZE;r++) col.push(grid[r][c]);
+      if(dir==='down') col.reverse();
+      const {arr,gained:g} = slide(col);
+      if(dir==='down') arr.reverse();
+      for(let r=0;r<SIZE;r++) { if(arr[r]!==grid[r][c]) moved=true; grid[r][c]=arr[r]; }
+      gained+=g;
+    }
+  }
+  if(!moved) return;
+  score+=gained; addRandom(); render();
+  if(isWin()) showOver(true);
+  else if(isLose()) showOver(false);
+}
+
+function isWin() { return grid.flat().some(v=>v===2048); }
+function isLose() {
+  if(grid.flat().some(v=>!v)) return false;
+  for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) {
+    if(c<SIZE-1&&grid[r][c]===grid[r][c+1]) return false;
+    if(r<SIZE-1&&grid[r][c]===grid[r+1][c]) return false;
+  }
+  return true;
+}
+
+function showOver(win) {
+  const ov = document.getElementById('overlay');
+  document.getElementById('overIcon').textContent = win?'🎉':'😢';
+  document.getElementById('overTitle').textContent = win?'2048達成！':'ゲームオーバー';
+  document.getElementById('overScore').textContent = score + ' pt';
+  ov.classList.add('show');
+}
+
+function undo() { if(prev) { grid=clone(prev); prev=null; render(); } }
+
+document.addEventListener('keydown', e => {
+  const map = {ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down'};
+  if(map[e.key]) { e.preventDefault(); move(map[e.key]); }
+});
+
+let tx=0, ty=0;
+document.getElementById('board').addEventListener('touchstart', e => {
+  tx=e.touches[0].clientX; ty=e.touches[0].clientY;
+},{passive:true});
+document.getElementById('board').addEventListener('touchend', e => {
+  const dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+  if(Math.max(Math.abs(dx),Math.abs(dy))<20) return;
+  if(Math.abs(dx)>Math.abs(dy)) move(dx>0?'right':'left');
+  else move(dy>0?'down':'up');
+},{passive:true});
+
+newGame();
+</script>
+</body>
+</html>
