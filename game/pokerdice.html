@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>ポーカーダイス | ちょっとヒマ</title>
+  <meta name="description" content="5個のサイコロでポーカーの役を作ろう！2回振り直しができる無料ダイスゲーム。">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/pokerdice.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .wrap{max-width:440px;margin:0 auto;padding:0 16px 32px;text-align:center}
+    .dice-row{display:flex;gap:10px;justify-content:center;margin:20px 0;flex-wrap:wrap}
+    .die{width:64px;height:64px;border-radius:12px;background:var(--card-bg);border:3px solid var(--border);
+      display:flex;align-items:center;justify-content:center;font-size:2rem;cursor:pointer;
+      transition:all .2s;-webkit-tap-highlight-color:transparent;user-select:none}
+    .die.hold{border-color:var(--primary);background:var(--primary);box-shadow:0 0 12px rgba(124,58,237,.4)}
+    .die.rolling{animation:shake .15s infinite alternate}
+    @keyframes shake{from{transform:rotate(-8deg)}to{transform:rotate(8deg)}}
+    .hold-label{font-size:.65rem;font-weight:700;color:var(--primary);margin-top:-8px;margin-bottom:12px;
+      display:flex;gap:10px;justify-content:center}
+    .hold-label span{width:64px;display:inline-block}
+    .rank-display{font-size:1.5rem;font-weight:900;min-height:42px;margin:8px 0;color:var(--primary)}
+    .roll-info{font-size:.85rem;color:var(--text-muted);margin-bottom:12px}
+    .score-table{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:16px 0;text-align:left}
+    .score-row-item{background:var(--bg);border:1px solid var(--border);border-radius:8px;
+      padding:8px 12px;font-size:.78rem}
+    .score-row-item .s-name{font-weight:700;color:var(--text)}
+    .score-row-item .s-pts{color:var(--primary);font-weight:900}
+    .total-score{font-size:2rem;font-weight:900;color:var(--primary);margin:8px 0}
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7063985125158694" crossorigin="anonymous"></script>
+</head>
+<body>
+<header><div class="header-inner"><a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+<nav><a href="../index.html#uranai">占い</a><a href="../index.html#game">ゲーム</a></nav></div></header>
+<main>
+<div class="page-header" style="padding-bottom:8px">
+  <div class="icon">🎲</div><h1>ポーカーダイス</h1><p>5個のサイコロで役を作れ！キープしたいサイコロをタップ</p>
+</div>
+<div class="wrap">
+  <div class="stats" style="display:flex;gap:8px;justify-content:center;margin-bottom:10px">
+    <div class="sp" style="background:var(--card-bg);border:1px solid var(--border);border-radius:99px;padding:5px 14px;font-size:.82rem;font-weight:700">合計: <b id="totalScore" style="color:var(--primary)">0</b></div>
+    <div class="sp" style="background:var(--card-bg);border:1px solid var(--border);border-radius:99px;padding:5px 14px;font-size:.82rem;font-weight:700">ベスト: <b id="best" style="color:var(--primary)">0</b></div>
+    <div class="sp" style="background:var(--card-bg);border:1px solid var(--border);border-radius:99px;padding:5px 14px;font-size:.82rem;font-weight:700">ゲーム: <b id="gameNum" style="color:var(--primary)">1</b>/5</div>
+  </div>
+
+  <div class="dice-row" id="diceRow">
+    <div class="die" id="d0" onclick="toggleHold(0)">⚀</div>
+    <div class="die" id="d1" onclick="toggleHold(1)">⚀</div>
+    <div class="die" id="d2" onclick="toggleHold(2)">⚀</div>
+    <div class="die" id="d3" onclick="toggleHold(3)">⚀</div>
+    <div class="die" id="d4" onclick="toggleHold(4)">⚀</div>
+  </div>
+  <div class="hold-label" id="holdLabels">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  <div class="rank-display" id="rankDisplay">ロールしてください</div>
+  <div class="roll-info" id="rollInfo">振り直し残り: 2回</div>
+
+  <button class="btn btn-primary" id="rollBtn" onclick="doRoll()">サイコロを振る 🎲</button>
+
+  <div id="scoreHistory" style="margin-top:16px"></div>
+</div>
+</main>
+<footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p></footer>
+<script>
+const FACES=['⚀','⚁','⚂','⚃','⚄','⚅'];
+let dice=[1,1,1,1,1],holds=[false,false,false,false,false];
+let rollsLeft=2,rolling=false,phase='start',roundScore,gameNum,totalScore,best;
+best=parseInt(localStorage.getItem('pokerdBest')||'0');
+document.getElementById('best').textContent=best;
+gameNum=1;totalScore=0;
+
+function randDie(){return Math.floor(Math.random()*6)+1;}
+
+function toggleHold(i){
+  if(phase==='start'||rolling)return;
+  holds[i]=!holds[i];
+  document.getElementById('d'+i).classList.toggle('hold',holds[i]);
+  const labels=document.getElementById('holdLabels').children;
+  labels[i].textContent=holds[i]?'キープ':'';
+}
+
+async function doRoll(){
+  if(rolling)return;
+  if(phase==='done'){nextRound();return;}
+  rolling=true;
+  const btn=document.getElementById('rollBtn');btn.disabled=true;
+  for(let i=0;i<5;i++)if(!holds[i])document.getElementById('d'+i).classList.add('rolling');
+  await delay(400);
+  for(let i=0;i<5;i++){
+    document.getElementById('d'+i).classList.remove('rolling');
+    if(!holds[i])dice[i]=randDie();
+    document.getElementById('d'+i).textContent=FACES[dice[i]-1];
+  }
+  if(phase==='start')phase='first';
+  rollsLeft--;
+  rolling=false;
+  const rank=evaluate();
+  document.getElementById('rankDisplay').textContent=rank.name;
+  roundScore=rank.pts;
+  if(rollsLeft<=0||phase==='confirm'){finishRound();return;}
+  document.getElementById('rollInfo').textContent=`振り直し残り: ${rollsLeft}回 | キープしたいサイコロをタップ`;
+  btn.disabled=false;
+}
+
+function finishRound(){
+  totalScore+=roundScore;
+  document.getElementById('totalScore').textContent=totalScore;
+  document.getElementById('rollInfo').textContent=`このラウンドの得点: +${roundScore}pt`;
+  const btn=document.getElementById('rollBtn');
+  if(gameNum>=5){
+    if(totalScore>best){best=totalScore;localStorage.setItem('pokerdBest',best);document.getElementById('best').textContent=best;}
+    btn.textContent='もう一度 🎲';btn.disabled=false;phase='done';
+    document.getElementById('rollInfo').textContent=`ゲーム終了！ 合計: ${totalScore}pt`;
+  } else {
+    btn.textContent='次のラウンド ▶';btn.disabled=false;phase='done';
+  }
+}
+
+function nextRound(){
+  gameNum++;document.getElementById('gameNum').textContent=gameNum;
+  dice=[1,1,1,1,1];holds=[false,false,false,false,false];
+  for(let i=0;i<5;i++){
+    document.getElementById('d'+i).textContent=FACES[0];
+    document.getElementById('d'+i).classList.remove('hold');
+  }
+  document.getElementById('holdLabels').querySelectorAll('span').forEach(s=>s.textContent='');
+  rollsLeft=2;phase='start';
+  const btn=document.getElementById('rollBtn');btn.textContent='サイコロを振る 🎲';btn.disabled=false;
+  document.getElementById('rankDisplay').textContent='ロールしてください';
+  document.getElementById('rollInfo').textContent='振り直し残り: 2回';
+  if(gameNum>5){
+    gameNum=1;totalScore=0;document.getElementById('totalScore').textContent=0;document.getElementById('gameNum').textContent=1;
+  }
+}
+
+function evaluate(){
+  const cnt=Array(7).fill(0);dice.forEach(d=>cnt[d]++);
+  const vals=cnt.slice(1).sort((a,b)=>b-a);
+  const sorted=dice.slice().sort((a,b)=>a-b);
+  const isStr=sorted[4]-sorted[0]===4&&new Set(sorted).size===5;
+  if(vals[0]===5)return{name:'🎰 ファイブカインド！',pts:5000};
+  if(vals[0]===4)return{name:'🃏 フォーカインド！',pts:2000};
+  if(vals[0]===3&&vals[1]===2)return{name:'🏠 フルハウス！',pts:1000};
+  if(isStr)return{name:'📈 ストレート！',pts:800};
+  if(vals[0]===3)return{name:'✨ スリーカインド！',pts:400};
+  if(vals[0]===2&&vals[1]===2)return{name:'👥 ツーペア！',pts:200};
+  if(vals[0]===2)return{name:'👤 ワンペア',pts:50};
+  return{name:'😅 ノーペア',pts:10};
+}
+
+function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+</script>
+</body>
+</html>
