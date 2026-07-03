@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>ワードル風 | ちょっとヒマ</title>
+  <meta name="description" content="5文字の英単語を6回以内に当てよう！緑・黄・灰でヒントが分かる無料ワードルゲーム。">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/wordle.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .wrap{max-width:400px;margin:0 auto;padding:0 16px 32px;text-align:center}
+    .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:280px;margin:16px auto}
+    .cell{aspect-ratio:1;border:2px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;
+      font-size:1.4rem;font-weight:900;color:#fff;transition:all .2s;text-transform:uppercase}
+    .cell.has{border-color:var(--text-muted);color:var(--text)}
+    .cell.correct{background:#22c55e;border-color:#22c55e;color:#fff}
+    .cell.present{background:#f59e0b;border-color:#f59e0b;color:#fff}
+    .cell.absent{background:#4b5563;border-color:#4b5563;color:#fff}
+    .keyboard{display:flex;flex-direction:column;gap:6px;margin:14px 0}
+    .kb-row{display:flex;gap:5px;justify-content:center}
+    .kb-key{min-width:32px;height:44px;border-radius:6px;border:none;font-weight:700;font-size:.82rem;
+      cursor:pointer;font-family:inherit;background:var(--card-bg);color:var(--text);
+      padding:0 6px;-webkit-tap-highlight-color:transparent;transition:background .15s}
+    .kb-key:active{opacity:.7}
+    .kb-key.wide{min-width:52px;font-size:.72rem}
+    .kb-key.correct{background:#22c55e;color:#fff}
+    .kb-key.present{background:#f59e0b;color:#fff}
+    .kb-key.absent{background:#4b5563;color:#666}
+    .msg{font-size:1rem;font-weight:800;min-height:28px;margin:6px 0}
+    .msg.win{color:#22c55e}.msg.lose{color:#e53e3e}
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7063985125158694" crossorigin="anonymous"></script>
+</head>
+<body>
+<header><div class="header-inner"><a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+<nav><a href="../index.html#uranai">占い</a><a href="../index.html#game">ゲーム</a></nav></div></header>
+<main>
+<div class="page-header" style="padding-bottom:8px">
+  <div class="icon">🟩</div><h1>ワードル風</h1><p>5文字の英単語を6回以内に当てよう！</p>
+</div>
+<div class="wrap">
+  <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:4px">🟩正解 🟨位置違い ⬜含まない</div>
+  <div class="msg" id="msg"></div>
+  <div class="grid" id="grid"></div>
+  <div class="keyboard" id="keyboard">
+    <div class="kb-row" id="kbr0"></div>
+    <div class="kb-row" id="kbr1"></div>
+    <div class="kb-row" id="kbr2"></div>
+  </div>
+  <button class="btn btn-outline" onclick="newGame()" style="font-size:.85rem;padding:8px 20px">新しい単語 🔄</button>
+</div>
+</main>
+<footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p></footer>
+<script>
+const WORDS=['about','above','abuse','actor','acute','admit','adopt','adult','after','again','agent','agree','ahead','alarm','album','alert','alien','align','alike','alive','alley','allow','alone','along','alter','angel','angle','angry','anime','ankle','annex','antic','anvil','aorta','apart','apple','apply','aptly','arena','argue','arise','armor','array','arrow','aside','asked','asset','atlas','attic','audio','audit','avail','avian','avoid','awake','award','aware','awful','badly','baker','basic','basis','beach','began','begin','being','below','bench','billy','birth','black','blade','blame','bland','blank','blast','blaze','bleed','blend','bless','blind','block','bloom','blown','board','bonus','boost','booth','boxer','brash','brave','break','breed','brick','bride','brief','bring','brisk','broad','broke','brown','build','burnt','burst','buyer','bylaw','cabin','cable','camel','candy','carry','catch','cause','cedar','chain','chair','chalk','charm','chart','chase','check','cheek','chief','child','china','choir','chord','civic','civil','claim','class','clean','clear','clerk','click','cliff','climb','cling','clock','close','cloud','coach','cobra','coded','color','comes','comic','coral','could','count','cover','crack','crane','crash','crazy','cream','crime','crisp','cross','crowd','crown','cruel','cubic','curly','cycle','dance','datum','daunt','dealt','debut','decal','decay','depth','derby','devil','digit','dirty','disco','dizzy','dodgy','dolly','doubt','dough','drown','drugs','drunk','duchy','dunce','earns','eight','elite','email','empty','enemy','enjoy','enter','entry','equal','error','essay','event','every','exact','exert','extra','fable','facet','fairy','faith','false','fancy','fatal','fault','feast','fence','fetch','fever','fiber','field','fiend','fifth','fifty','fight','filed','filet','first','fixed','flare','flash','flask','flick','flood','floor','flora','floss','fluid','flush','focal','focus','forge','forgo','frame','frank','fraud','fresh','front','froze','fruit','fully','funny','genre','ghost','given','gland','glass','glide','gloom','gloss','glove','going','grace','grade','grain','grant','grass','grave','great','greed','green','greet','grief','grind','groan','groin','gross','group','grown','gruel','gruff','guess','guest','guide','guile','guise','gulch','gully','gusty','happy','harsh','haste','haunt','haven','hazel','heart','heavy','hedge','heist','hence','herby','hippo','hoard','hoary','holly','homer','honey','honor','hotel','house','human','hurry','idiot','image','imply','inbox','infer','inner','input','inter','irony','issue','itchy','jewel','joker','judge','juice','juicy','jumbo','jumpy','juror','kayak','knack','kneel','knife','knock','known','label','lance','large','laser','later','latin','layer','leaky','leapt','learn','legal','lemon','level','light','lilac','liner','liver','llama','lodge','loopy','lover','lucky','magic','major','maker','manor','mauve','maxim','maybe','mayor','media','merit','metal','might','minor','minus','mixed','model','money','month','moral','moron','motel','motif','motto','motor','mound','movie','mucky','mulch','mummy','music','naval','nerve','never','newly','night','ninth','noble','noise','north','noted','novel','nudge','nurse','oaken','ocean','offer','olive','onion','opera','orbit','order','organ','other','outer','oxide','ozone','paint','panic','paper','party','patch','pause','peace','penal','penny','perky','perch','petty','phase','phone','photo','piano','piece','pilot','pitch','pixel','pizza','place','plaid','plain','plane','plant','plaza','pluck','plumb','plume','plunk','plush','point','polar','posed','pouch','pound','power','press','price','pride','prime','prior','proof','prose','prove','prowl','pulse','pupil','purse','quack','query','quest','queue','quick','quiet','quilt','quite','quota','quote','rabbi','racer','radar','radio','rainy','rally','ranch','range','rapid','ratio','reach','react','rearm','rebel','recur','refer','reign','relax','repay','repel','repot','reset','resin','reuse','rider','rigid','risky','rival','rivet','robot','rocky','roman','rouge','rough','ruler','rural','safer','saint','salad','salve','sandy','sauce','scald','scalp','scaly','scant','scare','scarf','scary','scene','scoop','score','scorn','scout','scowl','scram','screw','seedy','seize','sense','sepia','serve','seven','shade','shake','shaky','shame','shape','share','shark','sharp','shear','sheen','sheer','sheep','shelf','shell','shift','shirt','shook','shoot','shore','short','shout','shove','shown','shrew','shrub','shrug','shunt','siege','skill','skimp','skirt','slack','slain','slant','slash','sleek','sleet','slept','slice','slide','slime','slimy','slosh','slump','small','smart','smash','smear','smell','smile','smite','smoke','smoky','snack','snail','snaky','snare','sneak','sneer','sniff','snort','snout','snowy','soapy','solar','solid','solve','sorry','south','spare','spark','spawn','speak','spend','spice','spicy','spike','spine','spite','splat','split','spoke','spoof','spoon','sport','spout','spray','spree','sprig','spunk','squat','squid','staff','stain','stale','stall','stand','stare','stark','start','state','stave','stead','steal','steel','steep','steer','stern','stick','stiff','still','stoic','stoke','stomp','stone','stood','stoop','store','storm','story','stout','stray','strip','strut','study','stuff','stunt','suite','sulky','super','surge','swamp','swear','sweat','sweep','sweet','swell','swept','swipe','swirl','swoop','sword','syrup','taboo','taunt','taste','tasty','taupe','teach','tears','tease','teddy','tense','tenth','tepid','terms','thick','thing','think','thorn','three','threw','throw','tiara','tiger','tight','tired','title','today','token','topic','torch','total','touch','tough','toxin','trace','track','trade','trail','train','trait','tramp','trash','trawl','tread','trend','triad','trick','tried','troop','trove','truck','truly','trump','trunk','trust','truth','tuber','tulip','tumor','tuned','tweet','twill','twine','twist','umbra','uncle','under','undue','unfit','unity','until','unwed','upper','upset','usage','usurp','utter','vague','value','valve','vapor','vault','vicar','video','vigor','visit','visor','vital','vivid','vodka','voice','vomit','voter','vouch','wacky','wader','wafer','wager','waltz','waste','watch','water','weary','wedge','weedy','weird','welly','wheat','wheel','where','which','while','whine','whiny','whirl','whisk','white','whole','whose','width','wimpy','wince','windy','witch','woozy','world','worry','worse','worst','would','wound','wrath','wring','write','wrote','yacht','yearn','yeast','yield','young','yours','youth','zesty','zilch'];
+
+let answer,guesses,current,over,keyStates;
+
+function newGame(){
+  answer=WORDS[Math.floor(Math.random()*WORDS.length)].toUpperCase();
+  guesses=[];current='';over=false;keyStates={};
+  document.getElementById('msg').textContent='';document.getElementById('msg').className='msg';
+  buildGrid();buildKeyboard();
+}
+
+function buildGrid(){
+  const g=document.getElementById('grid');g.innerHTML='';
+  for(let r=0;r<6;r++)for(let c=0;c<5;c++){
+    const d=document.createElement('div');d.className='cell';d.id=`c${r}${c}`;g.appendChild(d);
+  }
+  updateGrid();
+}
+
+function updateGrid(){
+  for(let r=0;r<6;r++){
+    const word=guesses[r]||'';
+    const isCurrent=r===guesses.length&&!over;
+    const displayWord=isCurrent?current:word;
+    const result=guesses[r]?evaluate(guesses[r]):'';
+    for(let c=0;c<5;c++){
+      const cell=document.getElementById(`c${r}${c}`);
+      cell.textContent=displayWord[c]||'';
+      cell.className='cell';
+      if(displayWord[c]&&!result)cell.classList.add('has');
+      if(result){
+        if(result[c]==='correct')cell.classList.add('correct');
+        else if(result[c]==='present')cell.classList.add('present');
+        else cell.classList.add('absent');
+      }
+    }
+  }
+}
+
+function evaluate(word){
+  const res=Array(5).fill('absent');
+  const ansArr=answer.split(''),used=Array(5).fill(false);
+  for(let i=0;i<5;i++)if(word[i]===answer[i]){res[i]='correct';used[i]=true;}
+  for(let i=0;i<5;i++){
+    if(res[i]==='correct')continue;
+    const j=ansArr.findIndex((a,k)=>!used[k]&&a===word[i]);
+    if(j!==-1){res[i]='present';used[j]=true;}
+  }
+  return res;
+}
+
+function submit(){
+  if(over||current.length<5)return;
+  guesses.push(current);
+  const res=evaluate(current);
+  for(let i=0;i<5;i++){
+    const k=current[i];
+    const rank={correct:3,present:2,absent:1};
+    if(!keyStates[k]||rank[res[i]]>rank[keyStates[k]])keyStates[k]=res[i];
+  }
+  updateKeyboard();
+  current='';
+  updateGrid();
+  if(current===''){const last=guesses[guesses.length-1];
+    if(evaluate(last).every(r=>r==='correct')){
+      over=true;
+      const msgs=['🎉 完璧！','✨ すごい！','👏 やるね！','😊 正解！','😅 ギリギリ！','😮 辛くも正解！'];
+      document.getElementById('msg').textContent=msgs[guesses.length-1]||'正解！';
+      document.getElementById('msg').className='msg win';
+    } else if(guesses.length>=6){
+      over=true;
+      document.getElementById('msg').textContent=`答えは「${answer}」でした`;
+      document.getElementById('msg').className='msg lose';
+    }
+  }
+}
+
+function pressKey(k){
+  if(over)return;
+  if(k==='ENTER'){submit();}
+  else if(k==='DEL'){current=current.slice(0,-1);}
+  else if(current.length<5&&/^[A-Z]$/.test(k)){current+=k;}
+  updateGrid();
+}
+
+const KB=[['Q','W','E','R','T','Y','U','I','O','P'],['A','S','D','F','G','H','J','K','L'],['ENTER','Z','X','C','V','B','N','M','DEL']];
+function buildKeyboard(){
+  KB.forEach((row,ri)=>{
+    const r=document.getElementById('kbr'+ri);r.innerHTML='';
+    row.forEach(k=>{
+      const b=document.createElement('button');b.className='kb-key'+(k.length>1?' wide':'');
+      b.textContent=k==='DEL'?'⌫':k;b.id='kb_'+k;
+      b.addEventListener('click',()=>pressKey(k));r.appendChild(b);
+    });
+  });
+}
+function updateKeyboard(){
+  Object.entries(keyStates).forEach(([k,s])=>{
+    const el=document.getElementById('kb_'+k);if(el){el.className='kb-key '+s;if(k.length>1)el.classList.add('wide');}
+  });
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  if(e.key==='Enter')pressKey('ENTER');
+  else if(e.key==='Backspace')pressKey('DEL');
+  else if(/^[a-zA-Z]$/.test(e.key))pressKey(e.key.toUpperCase());
+});
+
+newGame();
+</script>
+</body>
+</html>
