@@ -68,6 +68,12 @@
     </div>
     <p class="ctrl-hint">スワイプまたは矢印キーで操作</p>
   </div>
+  <section class="game-guide" style="max-width:460px;margin:20px auto 0;padding:0 16px 32px">
+    <h2 style="font-size:1rem;font-weight:800;margin-bottom:8px;color:var(--text)">📖 遊び方</h2>
+    <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">4×4のグリッド上でタイルをスワイプして動かします。同じ数字のタイル同士がぶつかると合体して2倍の数になります。2048のタイルを作ることができればクリアです。スマホではスワイプ操作、PCでは矢印キーで上下左右に動かせます。ゲームオーバーはタイルが全て埋まり、合体できる場所がなくなった時です。</p>
+    <h2 style="font-size:1rem;font-weight:800;margin:14px 0 8px;color:var(--text)">💡 コツ</h2>
+    <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">大きな数字は常に画面の角（右下など一箇所）に固定して積み上げるのが基本戦略です。右・下の2方向を中心に操作するとタイルが整理されやすく、大きな数字を作りやすくなります。上や左には動かさないよう意識すると崩れにくくなります。</p>
+  </section>
 </main>
 <footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p></footer>
 
@@ -194,5 +200,5 @@ document.getElementById('board').addEventListener('touchend', e => {
 
 newGame();
 </script>
-<script src="../js/game-guides.js"></script></body>
+</body>
 </html>

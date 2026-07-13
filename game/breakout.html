@@ -33,6 +33,12 @@
   <div id="msg" style="margin-top:12px"></div>
   <button class="btn btn-primary" id="startBtn" style="margin-top:12px" onclick="startGame()">スタート ▶</button>
 </div>
+  <section class="game-guide" style="max-width:460px;margin:20px auto 0;padding:0 16px 32px">
+    <h2 style="font-size:1rem;font-weight:800;margin-bottom:8px;color:var(--text)">📖 遊び方</h2>
+    <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">パドルを操作してボールを打ち返し、画面上部にあるブロックを全て壊すゲームです。スマホでは左右にタップ・スワイプ、PCではマウスや矢印キーでパドルを操作します。ボールが下に落ちるとミスです。</p>
+    <h2 style="font-size:1rem;font-weight:800;margin:14px 0 8px;color:var(--text)">💡 コツ</h2>
+    <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">ボールを画面上部の隅に送り込むと、壁と天井の間で連続してブロックを破壊できます。パドルの端でボールを打つと角度がつき、コントロールがしやすくなります。残りブロックが少ない後半はボールが速くなるので早めに動きましょう。</p>
+  </section>
 </main>
 <footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p></footer>
 <script>
@@ -134,5 +140,5 @@ ctx.fillStyle='#1e1b4b';ctx.fillRect(0,0,W,H);
 ctx.fillStyle='rgba(255,255,255,.15)';ctx.font='1rem sans-serif';ctx.textAlign='center';
 ctx.fillText('スタートを押してください',W/2,H/2);
 </script>
-<script src="../js/game-guides.js"></script></body>
+</body>
 </html>

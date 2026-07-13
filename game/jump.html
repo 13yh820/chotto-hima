@@ -25,6 +25,12 @@
   <canvas id="c" width="360" height="300"></canvas>
   <p>タップ / クリック / スペースでジャンプ（二段ジャンプOK）</p>
 </div>
+  <section class="game-guide" style="max-width:460px;margin:20px auto 0;padding:0 16px 32px">
+    <h2 style="font-size:1rem;font-weight:800;margin-bottom:8px;color:var(--text)">📖 遊び方</h2>
+    <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">キャラクターを操作して障害物を飛び越えるランニングゲームです。画面タップまたはスペースキーでジャンプします。地面を走り続けながら次々と現れる障害物を越えてスコアを稼ぎましょう。</p>
+    <h2 style="font-size:1rem;font-weight:800;margin:14px 0 8px;color:var(--text)">💡 コツ</h2>
+    <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">ジャンプのタイミングを体で覚えることが上達の近道です。障害物が近づいてから焦ってジャンプすると遅れるので、少し手前で踏み切るようにしましょう。</p>
+  </section>
 </main>
 <footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p></footer>
 <script>
@@ -115,5 +121,5 @@ c.addEventListener('touchstart',e=>{e.preventDefault();jump();},{passive:false})
 document.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();jump();}});
 init();loop();
 </script>
-<script src="../js/game-guides.js"></script></body>
+</body>
 </html>
