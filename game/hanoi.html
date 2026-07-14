@@ -66,6 +66,47 @@
     <h2 style="font-size:1rem;font-weight:800;margin:14px 0 8px;color:var(--text)">💡 コツ</h2>
     <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">「n枚を右へ移す」は「上のn−1枚を真ん中へ避ける→一番下の1枚を右へ→避けたn−1枚を右へ重ねる」という手順の繰り返しで解けます。ポイントは一番小さい円盤の動かし方。最小手数で解くとき、一番小さい円盤は常に一定方向（右→中→左…または左→中→右…）へ規則正しく回り続けます。そのリズムを掴めば迷わず解けるようになります。</p>
   </section>
+  <section class="game-faq" style="max-width:460px;margin:0 auto;padding:0 16px 40px">
+    <h2 style="font-size:1rem;font-weight:800;margin-bottom:6px;color:var(--text)">❓ よくある質問</h2>
+    <h3 style="font-size:.9rem;font-weight:800;color:var(--text);margin:14px 0 4px">Q. 最小手数は決まっていますか？</h3>
+    <p style="font-size:.86rem;line-height:1.75;color:var(--text-muted)">A. 円盤n枚のときの最小手数は「2のn乗 − 1」回です。3枚なら7回、4枚なら15回、5枚なら31回が最短です。</p>
+    <h3 style="font-size:.9rem;font-weight:800;color:var(--text);margin:14px 0 4px">Q. 動かし方のルールは？</h3>
+    <p style="font-size:.86rem;line-height:1.75;color:var(--text-muted)">A. 一度に動かせる円盤は1枚だけ、そして小さい円盤の上に大きい円盤は置けません。この2つのルールを守って全円盤を右の柱へ移します。</p>
+    <h3 style="font-size:.9rem;font-weight:800;color:var(--text);margin:14px 0 4px">Q. 解き方の基本を教えてください。</h3>
+    <p style="font-size:.86rem;line-height:1.75;color:var(--text-muted)">A. 「上のn−1枚を真ん中に避ける→一番下を右へ→避けた円盤を右へ重ねる」の繰り返しで必ず解けます。一番小さい円盤を一定方向に規則正しく動かすのがコツです。</p>
+  </section>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "最小手数は決まっていますか？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "円盤n枚のときの最小手数は「2のn乗 − 1」回です。3枚なら7回、4枚なら15回、5枚なら31回が最短です。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "動かし方のルールは？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "一度に動かせる円盤は1枚だけ、そして小さい円盤の上に大きい円盤は置けません。この2つのルールを守って全円盤を右の柱へ移します。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "解き方の基本を教えてください。",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "「上のn−1枚を真ん中に避ける→一番下を右へ→避けた円盤を右へ重ねる」の繰り返しで必ず解けます。一番小さい円盤を一定方向に規則正しく動かすのがコツです。"
+      }
+    }
+  ]
+}
+  </script>
 </main>
 <footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p></footer>
 <script>
