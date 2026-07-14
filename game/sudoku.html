@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>ナンプレ（数独） | ちょっとヒマ</title>
+  <meta name="description" content="無料で遊べるナンプレ（数独）。9×9のマスに1〜9の数字を重複なく埋める定番の数字パズル。3段階の難易度で自動生成。スマホ対応。">
+  <meta name="keywords" content="ナンプレ,数独,ナンバープレース,数字パズル,無料,暇つぶし">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/sudoku.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .wrap { max-width:440px; margin:0 auto; padding:0 16px 32px; text-align:center; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; margin:4px 0 12px; }
+    .diff-row { display:flex; gap:6px; }
+    .diff-btn { padding:6px 12px; border-radius:99px; border:2px solid var(--border); background:var(--card-bg);
+      font-weight:700; font-size:.8rem; cursor:pointer; color:var(--text-muted); }
+    .diff-btn.on { border-color:var(--primary); color:var(--primary); }
+    .timer { font-weight:800; color:var(--text-muted); font-size:.9rem; }
+    .sgrid { display:inline-grid; grid-template-columns:repeat(9,1fr); gap:0; background:#334155;
+      border:3px solid #334155; border-radius:8px; overflow:hidden; }
+    .scell { width:min(9.5vw,40px); height:min(9.5vw,40px); background:#fff; display:flex; align-items:center;
+      justify-content:center; font-size:1.2rem; font-weight:700; cursor:pointer; color:var(--primary);
+      border:1px solid #e2e8f0; -webkit-tap-highlight-color:transparent; }
+    .scell.fixed { color:#1f2937; background:#f1f5f9; cursor:default; }
+    .scell.sel { background:#dbeafe; }
+    .scell.same { background:#eef2ff; }
+    .scell.err { color:#e53e3e; }
+    .scell.br { border-right:2px solid #334155; }
+    .scell.bb { border-bottom:2px solid #334155; }
+    .pad { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; max-width:340px; margin:16px auto 0; }
+    .pad button { padding:12px 0; border-radius:10px; border:1px solid var(--border); background:var(--card-bg);
+      font-size:1.2rem; font-weight:800; cursor:pointer; color:var(--text); }
+    .pad button.erase { grid-column:span 1; color:var(--accent); }
+    .msg { min-height:1.4em; font-weight:800; margin:12px 0 4px; }
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7063985125158694" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+    <nav><a href="../index.html#uranai">占い</a><a href="../index.html#game">ゲーム</a></nav>
+  </div>
+</header>
+<main>
+  <div class="page-header" style="padding-bottom:8px">
+    <div class="icon">🔢</div>
+    <h1>ナンプレ（数独）</h1>
+    <p>1〜9をタテ・ヨコ・ブロックに重複なく</p>
+  </div>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="diff-row">
+        <button class="diff-btn on" data-d="easy" onclick="setDiff('easy')">やさしい</button>
+        <button class="diff-btn" data-d="normal" onclick="setDiff('normal')">ふつう</button>
+        <button class="diff-btn" data-d="hard" onclick="setDiff('hard')">むずかしい</button>
+      </div>
+      <div class="timer" id="timer">00:00</div>
+    </div>
+    <div class="sgrid" id="grid"></div>
+    <div class="msg" id="msg"></div>
+    <div class="pad" id="pad"></div>
+    <div style="margin-top:16px"><button class="btn btn-outline" onclick="newGame()">新しい問題 🔄</button></div>
+  </div>
+  <section class="game-guide" style="max-width:460px;margin:20px auto 0;padding:0 16px 32px">
+    <h2 style="font-size:1rem;font-weight:800;margin-bottom:8px;color:var(--text)">📖 遊び方</h2>
+    <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">9×9のマスに1〜9の数字を入れていくパズルです。ルールは「タテ9マス・ヨコ9マス・太線で区切られた3×3のブロックのそれぞれに、1〜9が1つずつ入る（同じ数字が重複しない）」だけ。最初から入っている数字（濃い色）はヒントで動かせません。空きマスをタップして選び、下の数字パッドから入れたい数字を選びます。間違えて重複すると赤く表示されます。すべて正しく埋めればクリアです。</p>
+    <h2 style="font-size:1rem;font-weight:800;margin:14px 0 8px;color:var(--text)">💡 コツ</h2>
+    <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">当てずっぽうで入れず、必ず「そのマスに入る数字が論理的に1つに絞れる」場所から埋めるのが鉄則です。基本テクニックは2つ。①ある数字に注目し、タテ・ヨコ・ブロックの条件から「その数字が入れる空きマスが1つしかない」場所を探す。②1つのマスに注目し、周囲の数字を消去していって「候補が1つだけ」になるマスを探す。まずは数字の多い行・列・ブロックから attacking すると芋づる式に解けていきます。</p>
+  </section>
+</main>
+<footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p></footer>
+<script>
+let solution, puzzle, given, sel=-1, diff='easy', timer=0, tint=null, done=false;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function solve(bd){
+  const p=bd.indexOf(0);
+  if(p<0) return true;
+  const r=Math.floor(p/9), c=p%9;
+  for(const n of shuffle([1,2,3,4,5,6,7,8,9])){
+    if(ok(bd,r,c,n)){ bd[p]=n; if(solve(bd)) return true; bd[p]=0; }
+  }
+  return false;
+}
+function ok(bd,r,c,n){
+  for(let i=0;i<9;i++){ if(bd[r*9+i]===n||bd[i*9+c]===n) return false; }
+  const br=Math.floor(r/3)*3, bc=Math.floor(c/3)*3;
+  for(let i=0;i<3;i++)for(let j=0;j<3;j++) if(bd[(br+i)*9+bc+j]===n) return false;
+  return true;
+}
+function countSolutions(bd,limit){
+  const p=bd.indexOf(0);
+  if(p<0) return 1;
+  const r=Math.floor(p/9), c=p%9; let cnt=0;
+  for(let n=1;n<=9;n++){
+    if(ok(bd,r,c,n)){ bd[p]=n; cnt+=countSolutions(bd,limit); bd[p]=0; if(cnt>=limit) break; }
+  }
+  return cnt;
+}
+function generate(){
+  solution=Array(81).fill(0);
+  solve(solution);
+  puzzle=solution.slice();
+  const holes={easy:40,normal:48,hard:54}[diff];
+  const cells=shuffle([...Array(81).keys()]);
+  let removed=0;
+  for(const idx of cells){
+    if(removed>=holes) break;
+    const bak=puzzle[idx];
+    if(bak===0) continue;
+    puzzle[idx]=0;
+    const test=puzzle.slice();
+    if(countSolutions(test,2)!==1){ puzzle[idx]=bak; }
+    else removed++;
+  }
+  given=puzzle.map(v=>v!==0);
+}
+function render(){
+  const el=document.getElementById('grid'); el.innerHTML='';
+  const selVal=sel>=0?puzzle[sel]:0;
+  for(let i=0;i<81;i++){
+    const r=Math.floor(i/9), c=i%9;
+    const d=document.createElement('div');
+    let cls='scell';
+    if((c+1)%3===0&&c<8) cls+=' br';
+    if((r+1)%3===0&&r<8) cls+=' bb';
+    if(given[i]) cls+=' fixed';
+    if(i===sel) cls+=' sel';
+    else if(selVal&&puzzle[i]===selVal) cls+=' same';
+    if(puzzle[i]&&!given[i]&&isDup(i)) cls+=' err';
+    d.className=cls;
+    d.textContent=puzzle[i]||'';
+    if(!given[i]) d.onclick=()=>{ sel=i; render(); };
+    el.appendChild(d);
+  }
+}
+function isDup(i){
+  const v=puzzle[i]; if(!v) return false;
+  const r=Math.floor(i/9), c=i%9;
+  for(let k=0;k<9;k++){
+    if(k!==c && puzzle[r*9+k]===v) return true;
+    if(k!==r && puzzle[k*9+c]===v) return true;
+  }
+  const br=Math.floor(r/3)*3, bc=Math.floor(c/3)*3;
+  for(let a=0;a<3;a++)for(let b=0;b<3;b++){const j=(br+a)*9+bc+b; if(j!==i&&puzzle[j]===v) return true;}
+  return false;
+}
+function input(n){
+  if(done||sel<0||given[sel]) return;
+  puzzle[sel]=n; render(); check();
+}
+function check(){
+  if(puzzle.every((v,i)=>v===solution[i])){
+    done=true; clearInterval(tint);
+    document.getElementById('msg').textContent='🎉 クリア！ タイム '+document.getElementById('timer').textContent;
+  }
+}
+function buildPad(){
+  const p=document.getElementById('pad'); p.innerHTML='';
+  for(let n=1;n<=9;n++){const b=document.createElement('button');b.textContent=n;b.onclick=()=>input(n);p.appendChild(b);}
+  const e=document.createElement('button');e.className='erase';e.textContent='⌫';e.onclick=()=>input(0);p.appendChild(e);
+}
+function startTimer(){
+  clearInterval(tint); timer=0;
+  tint=setInterval(()=>{ timer++;
+    const m=String(Math.floor(timer/60)).padStart(2,'0'), s=String(timer%60).padStart(2,'0');
+    document.getElementById('timer').textContent=m+':'+s;
+  },1000);
+}
+function newGame(){
+  document.getElementById('msg').textContent='生成中…';
+  sel=-1; done=false;
+  setTimeout(()=>{ generate(); render(); startTimer(); document.getElementById('msg').textContent=''; },30);
+}
+function setDiff(d){
+  diff=d;
+  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.toggle('on',b.dataset.d===d));
+  newGame();
+}
+document.addEventListener('keydown',e=>{ if(e.key>='1'&&e.key<='9') input(+e.key); if(e.key==='Backspace'||e.key==='0') input(0); });
+buildPad(); newGame();
+</script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>ライツアウト | ちょっとヒマ</title>
+  <meta name="description" content="無料の定番パズル「ライツアウト」。ライトを全部消せばクリア！タップすると周りのライトも切り替わる頭脳パズル。スマホ対応。">
+  <meta name="keywords" content="ライツアウト,ライトパズル,頭脳パズル,無料,暇つぶし,ゲーム">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/lightsout.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .wrap { max-width:400px; margin:0 auto; padding:0 16px 32px; text-align:center; }
+    .hud { display:flex; gap:12px; justify-content:center; margin:6px 0 14px; }
+    .hud-box { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:8px 18px; min-width:80px; }
+    .hud-box .lbl { font-size:.7rem; font-weight:700; color:var(--text-muted); }
+    .hud-box .val { font-size:1.3rem; font-weight:900; color:var(--primary); }
+    .lo-board { display:inline-grid; grid-template-columns:repeat(5,1fr); gap:8px;
+      background:#111827; padding:12px; border-radius:16px; box-shadow:0 8px 28px rgba(0,0,0,.35); }
+    .lo-cell { width:min(15vw,52px); height:min(15vw,52px); border-radius:10px; cursor:pointer;
+      background:#1f2937; transition:all .12s; -webkit-tap-highlight-color:transparent; }
+    .lo-cell.on { background:radial-gradient(circle at 35% 30%,#fef9c3,#facc15); box-shadow:0 0 14px rgba(250,204,21,.7); }
+    .lo-cell:active { transform:scale(.9); }
+    .clear-msg { display:none; margin:16px 0; font-size:1.3rem; font-weight:900; color:var(--primary); }
+    .clear-msg.show { display:block; }
+    .diff-row { display:flex; gap:8px; justify-content:center; margin:4px 0 14px; }
+    .diff-btn { padding:6px 16px; border-radius:99px; border:2px solid var(--border); background:var(--card-bg);
+      font-weight:700; font-size:.85rem; cursor:pointer; color:var(--text-muted); }
+    .diff-btn.on { border-color:var(--primary); color:var(--primary); }
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7063985125158694" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+    <nav><a href="../index.html#uranai">占い</a><a href="../index.html#game">ゲーム</a></nav>
+  </div>
+</header>
+<main>
+  <div class="page-header" style="padding-bottom:8px">
+    <div class="icon">💡</div>
+    <h1>ライツアウト</h1>
+    <p>すべてのライトを消せばクリア！</p>
+  </div>
+  <div class="wrap">
+    <div class="diff-row">
+      <button class="diff-btn on" data-d="3" onclick="setDiff(3)">かんたん</button>
+      <button class="diff-btn" data-d="6" onclick="setDiff(6)">ふつう</button>
+      <button class="diff-btn" data-d="10" onclick="setDiff(10)">むずかしい</button>
+    </div>
+    <div class="hud">
+      <div class="hud-box"><div class="lbl">手数</div><div class="val" id="moves">0</div></div>
+      <div class="hud-box"><div class="lbl">点灯数</div><div class="val" id="lit">0</div></div>
+    </div>
+    <div class="lo-board" id="board"></div>
+    <div class="clear-msg" id="clearMsg">🎉 クリア！</div>
+    <div style="margin-top:16px"><button class="btn btn-outline" onclick="newGame()">新しい問題 🔄</button></div>
+  </div>
+  <section class="game-guide" style="max-width:460px;margin:20px auto 0;padding:0 16px 32px">
+    <h2 style="font-size:1rem;font-weight:800;margin-bottom:8px;color:var(--text)">📖 遊び方</h2>
+    <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">5×5に並んだライトを、すべて消灯させればクリアです。マスをタップすると、そのマスと上下左右の隣接するマスの点灯・消灯が反転します（斜めは変わりません）。最初はいくつかのライトが点いた状態からスタートし、少ない手数で全消灯を目指します。難易度はスタート時に点けるライトの数で変わります。</p>
+    <h2 style="font-size:1rem;font-weight:800;margin:14px 0 8px;color:var(--text)">💡 コツ</h2>
+    <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">同じマスを2回押すと元に戻るので、各マスは「押す・押さない」の2択だと考えましょう。定番の解法は「上から順に消していく」方法です。まず一番上の行を無視して、2行目以降で「真上のライトが点いているマスを押す」を繰り返すと、最終的に一番下の行だけにライトが残ります。その残り方のパターンから、最上段のどこを押すべきかを逆算するのが上級テクニックです。</p>
+  </section>
+</main>
+<footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p></footer>
+<script>
+const N=5;
+let g, moves, cleared, startLights=3;
+function idx(r,c){return r*N+c;}
+function toggle(r,c){ if(r<0||r>=N||c<0||c>=N)return; g[idx(r,c)]^=1; }
+function press(r,c){
+  if(cleared) return;
+  toggle(r,c);toggle(r-1,c);toggle(r+1,c);toggle(r,c-1);toggle(r,c+1);
+  moves++; render(); checkClear();
+}
+function render(){
+  const el=document.getElementById('board'); el.innerHTML='';
+  let lit=0;
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    const d=document.createElement('div');
+    const on=g[idx(r,c)];
+    if(on)lit++;
+    d.className='lo-cell'+(on?' on':'');
+    d.onclick=()=>press(r,c);
+    el.appendChild(d);
+  }
+  document.getElementById('moves').textContent=moves;
+  document.getElementById('lit').textContent=lit;
+}
+function checkClear(){
+  if(g.every(v=>v===0)){
+    cleared=true;
+    document.getElementById('clearMsg').classList.add('show');
+  }
+}
+function newGame(){
+  g=Array(N*N).fill(0);
+  moves=0; cleared=false;
+  document.getElementById('clearMsg').classList.remove('show');
+  // 解ける盤面をランダムなプレスで生成
+  const seen=new Set();
+  let count=0;
+  while(count<startLights){
+    const r=Math.floor(Math.random()*N),c=Math.floor(Math.random()*N),k=r+'_'+c;
+    if(seen.has(k))continue; seen.add(k);
+    toggle(r,c);toggle(r-1,c);toggle(r+1,c);toggle(r,c-1);toggle(r,c+1);
+    count++;
+  }
+  if(g.every(v=>v===0)){ toggle(2,2);toggle(1,2);toggle(3,2);toggle(2,1);toggle(2,3); }
+  render();
+}
+function setDiff(n){
+  startLights=n;
+  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.toggle('on',+b.dataset.d===n));
+  newGame();
+}
+newGame();
+</script>
+</body>
+</html>

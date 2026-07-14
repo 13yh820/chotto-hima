@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>サイモン（色記憶ゲーム） | ちょっとヒマ</title>
+  <meta name="description" content="光る順番を覚えて同じ順にタップ！定番の記憶ゲーム「サイモン」を無料で。どこまで長い順番を覚えられる？脳トレにも。スマホ対応。">
+  <meta name="keywords" content="サイモン,記憶ゲーム,順番,脳トレ,無料,暇つぶし">
+  <link rel="canonical" href="https://13yh820.github.io/chotto-hima/game/simon.html">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .wrap { max-width:400px; margin:0 auto; padding:0 16px 32px; text-align:center; }
+    .hud { display:flex; gap:12px; justify-content:center; margin:6px 0 16px; }
+    .hud-box { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:8px 20px; min-width:88px; }
+    .hud-box .lbl { font-size:.7rem; font-weight:700; color:var(--text-muted); }
+    .hud-box .val { font-size:1.5rem; font-weight:900; color:var(--primary); }
+    .simon { position:relative; width:min(80vw,300px); height:min(80vw,300px); margin:0 auto;
+      border-radius:50%; background:#111827; padding:14px; box-shadow:0 10px 30px rgba(0,0,0,.3); }
+    .simon-grid { width:100%; height:100%; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:12px; }
+    .pad { cursor:pointer; opacity:.55; transition:opacity .1s, transform .1s; -webkit-tap-highlight-color:transparent; }
+    .pad.lit { opacity:1; transform:scale(1.03); }
+    .pad0 { background:#22c55e; border-radius:100% 0 0 0; }
+    .pad1 { background:#e53e3e; border-radius:0 100% 0 0; }
+    .pad2 { background:#facc15; border-radius:0 0 0 100%; }
+    .pad3 { background:#3b82f6; border-radius:0 0 100% 0; }
+    .center { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+      width:34%; height:34%; border-radius:50%; background:#1f2937; display:flex; align-items:center; justify-content:center;
+      color:#fff; font-weight:900; font-size:1.1rem; }
+    .msg { min-height:1.5em; font-weight:800; margin:14px 0; }
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7063985125158694" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
+    <nav><a href="../index.html#uranai">占い</a><a href="../index.html#game">ゲーム</a></nav>
+  </div>
+</header>
+<main>
+  <div class="page-header" style="padding-bottom:8px">
+    <div class="icon">🎵</div>
+    <h1>サイモン</h1>
+    <p>光る順番を覚えて同じ順にタップ！</p>
+  </div>
+  <div class="wrap">
+    <div class="hud">
+      <div class="hud-box"><div class="lbl">レベル</div><div class="val" id="level">0</div></div>
+      <div class="hud-box"><div class="lbl">最高</div><div class="val" id="best">0</div></div>
+    </div>
+    <div class="simon">
+      <div class="simon-grid">
+        <div class="pad pad0" data-i="0"></div>
+        <div class="pad pad1" data-i="1"></div>
+        <div class="pad pad2" data-i="2"></div>
+        <div class="pad pad3" data-i="3"></div>
+      </div>
+      <div class="center" id="center">▶</div>
+    </div>
+    <div class="msg" id="msg">スタートを押してね</div>
+    <button class="btn btn-primary" id="startBtn" onclick="start()">スタート ▶</button>
+  </div>
+  <section class="game-guide" style="max-width:460px;margin:20px auto 0;padding:0 16px 32px">
+    <h2 style="font-size:1rem;font-weight:800;margin-bottom:8px;color:var(--text)">📖 遊び方</h2>
+    <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">4色のパッドが1つずつ光ります。その光った順番をよく覚えて、消えた後に同じ順番でパッドをタップしてください。正しく再現できると順番が1つ増えて次のレベルへ進みます。1つでも順番を間違えるとゲームオーバー。どこまで長い順番を覚えられるかに挑戦する、シンプルながら奥深い記憶ゲームです。レベル（＝覚えた長さ）がスコアになります。</p>
+    <h2 style="font-size:1rem;font-weight:800;margin:14px 0 8px;color:var(--text)">💡 コツ</h2>
+    <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">色をバラバラに覚えるより、「緑・赤・青…」のように音やリズムに乗せて覚えると記憶に残りやすくなります。パッドの位置を「左上・右上・左下・右下」と方向で唱えるのも効果的。長くなってきたら、3〜4個ずつのまとまり（チャンク）に区切って覚えましょう。焦って先読みせず、光を最後までしっかり見てから入力するのが確実です。</p>
+  </section>
+</main>
+<footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a></p></footer>
+<script>
+let seq, step, playing, accepting, best;
+const pads=[...document.querySelectorAll('.pad')];
+best=parseInt(localStorage.getItem('simonBest')||'0');
+document.getElementById('best').textContent=best;
+let actx;
+function beep(i){
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    const o=actx.createOscillator(),g=actx.createGain();
+    o.frequency.value=[330,392,494,587][i];
+    o.connect(g);g.connect(actx.destination);
+    g.gain.setValueAtTime(.15,actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+.3);
+    o.start();o.stop(actx.currentTime+.3);
+  }catch(e){}
+}
+function flash(i){
+  return new Promise(res=>{
+    pads[i].classList.add('lit'); beep(i);
+    setTimeout(()=>{pads[i].classList.remove('lit'); setTimeout(res,140);},380);
+  });
+}
+async function playSeq(){
+  accepting=false;
+  document.getElementById('center').textContent='👀';
+  document.getElementById('msg').textContent='順番を覚えて…';
+  await new Promise(r=>setTimeout(r,500));
+  for(const i of seq){ await flash(i); }
+  accepting=true; step=0;
+  document.getElementById('center').textContent='👆';
+  document.getElementById('msg').textContent='あなたの番！同じ順にタップ';
+}
+function start(){
+  seq=[]; playing=true;
+  document.getElementById('startBtn').style.display='none';
+  nextLevel();
+}
+function nextLevel(){
+  seq.push(Math.floor(Math.random()*4));
+  document.getElementById('level').textContent=seq.length;
+  playSeq();
+}
+pads.forEach(p=>p.addEventListener('click',async()=>{
+  if(!accepting) return;
+  const i=+p.dataset.i;
+  p.classList.add('lit'); beep(i);
+  setTimeout(()=>p.classList.remove('lit'),180);
+  if(i===seq[step]){
+    step++;
+    if(step===seq.length){
+      accepting=false;
+      setTimeout(nextLevel,650);
+    }
+  } else {
+    accepting=false; playing=false;
+    const scoreNow=seq.length-1;
+    if(scoreNow>best){best=scoreNow;localStorage.setItem('simonBest',best);document.getElementById('best').textContent=best;}
+    document.getElementById('center').textContent='✕';
+    document.getElementById('msg').textContent=`❌ ゲームオーバー！ レベル${scoreNow}`;
+    document.getElementById('startBtn').style.display='';
+    document.getElementById('startBtn').textContent='もう一度 🔄';
+  }
+}));
+</script>
+</body>
+</html>
