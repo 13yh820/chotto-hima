@@ -9,22 +9,12 @@
 
   <!-- 占い -->
   <url>
-    <loc>https://13yh820.github.io/chotto-hima/uranai/horoscope.html</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://13yh820.github.io/chotto-hima/uranai/tarot.html</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://13yh820.github.io/chotto-hima/uranai/blood.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://13yh820.github.io/chotto-hima/uranai/omikuji.html</loc>
+    <loc>https://13yh820.github.io/chotto-hima/uranai/horoscope.html</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -34,19 +24,49 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://13yh820.github.io/chotto-hima/uranai/omikuji.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://13yh820.github.io/chotto-hima/uranai/psych.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/uranai/tarot.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- ゲーム -->
   <url>
-    <loc>https://13yh820.github.io/chotto-hima/game/reflex.html</loc>
+    <loc>https://13yh820.github.io/chotto-hima/game/2048.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://13yh820.github.io/chotto-hima/game/memory.html</loc>
+    <loc>https://13yh820.github.io/chotto-hima/game/blackjack.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/breakout.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/car.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/cardmatch.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/chinchiro.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -56,17 +76,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://13yh820.github.io/chotto-hima/game/math.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://13yh820.github.io/chotto-hima/game/number-memory.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://13yh820.github.io/chotto-hima/game/typing.html</loc>
+    <loc>https://13yh820.github.io/chotto-hima/game/connect4.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -76,37 +86,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://13yh820.github.io/chotto-hima/game/puzzle.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://13yh820.github.io/chotto-hima/game/mole.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://13yh820.github.io/chotto-hima/game/reversi.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://13yh820.github.io/chotto-hima/game/tictactoe.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://13yh820.github.io/chotto-hima/game/connect4.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://13yh820.github.io/chotto-hima/game/sudoku.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://13yh820.github.io/chotto-hima/game/lightsout.html</loc>
+    <loc>https://13yh820.github.io/chotto-hima/game/flappy.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -116,12 +96,77 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://13yh820.github.io/chotto-hima/game/sokoban.html</loc>
+    <loc>https://13yh820.github.io/chotto-hima/game/highlow.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://13yh820.github.io/chotto-hima/game/simon.html</loc>
+    <loc>https://13yh820.github.io/chotto-hima/game/janken.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/jump.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/lightsout.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/math.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/memory.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/minesweeper.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/mole.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/number-memory.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/numguess.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/parking.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/pokerdice.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/pong.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/puzzle.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/puzzle15.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -131,17 +176,67 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/reflex.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/reversi.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/roulette.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/simon.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://13yh820.github.io/chotto-hima/game/slot.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://13yh820.github.io/chotto-hima/game/highlow.html</loc>
+    <loc>https://13yh820.github.io/chotto-hima/game/snake.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/sokoban.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://13yh820.github.io/chotto-hima/game/stack.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/sudoku.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/target.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/tictactoe.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/typing.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://13yh820.github.io/chotto-hima/game/wordle.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
