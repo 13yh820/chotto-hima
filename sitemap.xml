@@ -243,6 +243,11 @@
 
   <!-- その他 -->
   <url>
+    <loc>https://13yh820.github.io/chotto-hima/about.html</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://13yh820.github.io/chotto-hima/privacy.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
