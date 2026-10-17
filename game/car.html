@@ -155,7 +155,7 @@ function isOnRoad(x, y) {
 
 // ===== 車 =====
 const CAR_W = 18, CAR_H = 30;
-let car, state, lapCount, totalTime, lapStartTime, lapTimes, contacts, lastOnRoad, contactCooldown;
+let car, state = 'idle', lapCount, totalTime, lapStartTime, lapTimes, contacts, lastOnRoad, contactCooldown;
 let prevY = 75;
 let lapCooldown = 0;
 
@@ -163,6 +163,7 @@ function initCar() {
   car = { x:185, y:100, angle:-Math.PI/2, speed:0 }; // 上向き（トップ直線に置いて右向き）
   car.x = 185; car.y = 100; car.angle = 0; car.speed = 0;
 }
+initCar();
 
 // ===== 入力 =====
 const keys = {};

@@ -361,7 +361,7 @@ function render() {
 
   // 駐車スポット（ターゲット）
   const sp = m.spot;
-  const inSpot = isInSpot();
+  const inSpot = !!car && isInSpot();
   const acc = inSpot ? calcAccuracy() : 0;
   const spotColor = inSpot
     ? (acc >= 70 ? '#00e676' : acc >= 40 ? '#ffd740' : '#ff5252')
@@ -383,7 +383,7 @@ function render() {
   ctx.restore();
 
   // プレイヤーカー
-  drawPlayerCar();
+  if (car) drawPlayerCar();
 
   // オーバーレイ
   if (state==='idle') {
