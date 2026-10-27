@@ -7,7 +7,7 @@
   --bg: #f8f9fe;
   --card-bg: #ffffff;
   --text: #2d2d3a;
-  --text-muted: #888899;
+  --text-muted: #626273;
   --border: #e8e8f0;
   --shadow: 0 4px 20px rgba(108,99,255,0.10);
   --radius: 16px;
@@ -247,4 +247,39 @@ footer a:hover { color: var(--primary); }
 }
 @media (max-width: 360px) {
   .card-grid { grid-template-columns: 1fr; }
+}
+
+/* 遊び方と、目的から選べる一覧 */
+:focus-visible { outline:3px solid var(--primary); outline-offset:4px; }
+.skip-link { position:absolute; left:-10000px; top:8px; z-index:200; background:white; padding:10px 16px; }
+.skip-link:focus { position:fixed; left:12px; }
+.category-nav { display:flex; flex-wrap:wrap; gap:10px; margin:0 0 24px; }
+.category-nav a { margin:0; padding:8px 12px; border:1px solid var(--border); border-radius:99px; background:white; color:var(--primary-dark); }
+.catalog-group { margin:0 0 32px; scroll-margin-top:84px; }
+.catalog-group h3 { font-size:1.1rem; margin-bottom:8px; }
+.catalog-group>p { color:var(--text-muted); margin:0 0 16px; line-height:1.85; }
+.intro-copy { max-width:720px; margin:auto; line-height:1.9; }
+.intro-copy p+p { margin-top:12px; }
+.play-guide { max-width:680px; margin:24px auto; padding:0 20px; line-height:1.9; }
+.play-guide h2 { font-size:1.2rem; margin:0 0 12px; }
+.play-guide h3 { font-size:1rem; margin:20px 0 8px; }
+.play-guide p,.play-guide li { font-size:.95rem; color:var(--text-muted); }
+.play-guide ul,.play-guide ol { padding-left:1.4em; }
+.play-guide li+li { margin-top:8px; }
+.play-guide p+p { margin-top:10px; }
+.play-guide a,.intro-copy a { color:var(--primary-dark); text-underline-offset:3px; }
+.guide-note,.record-note { font-size:.85rem; color:var(--text-muted); line-height:1.8; }
+.record-note { margin-top:10px; max-width:360px; }
+.merge-example { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; border:1px solid var(--border); border-radius:10px; background:white; padding:14px; margin:12px 0; }
+.tbtn { touch-action:none; }
+.choice-table { width:100%; border-collapse:collapse; margin:16px 0; }
+.choice-table th,.choice-table td { text-align:left; vertical-align:top; padding:12px 10px; border-bottom:1px solid var(--border); }
+.choice-table th { font-size:.88rem; }
+.choice-table td { color:var(--text-muted); font-size:.9rem; }
+#howto,#updates { scroll-margin-top:84px; }
+
+@media(max-width:500px) {
+  .header-inner { gap:8px; }
+  .logo { font-size:1.1rem; white-space:nowrap; }
+  nav a { margin-left:10px; font-size:.8rem; }
 }

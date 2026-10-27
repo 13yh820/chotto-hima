@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>サーキット走行 | ちょっとヒマ</title>
   <meta name="description" content="サーキットを3ラップ走るタイムレース！スピード・ラップタイム・壁接触回数で運転を評価。自分でハンドルを操作して走ろう。">
   <meta name="keywords" content="カーレース,サーキット,タイムレース,ゲーム,無料">
@@ -27,13 +27,14 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7063985125158694" crossorigin="anonymous"></script>
 </head>
 <body>
+<a class="skip-link" href="#main-content">本文へ移動</a>
 <header>
   <div class="header-inner">
     <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
     <nav><a href="../index.html#uranai">占い</a><a href="../index.html#game">ゲーム</a></nav>
   </div>
 </header>
-<main>
+<main id="main-content">
   <div class="page-header" style="padding-bottom:8px">
     <div class="icon">🏎️</div>
     <h1>サーキット走行</h1>
@@ -46,30 +47,29 @@
       <div class="hud-chip">💨 <span class="val" id="hudSpeed">0</span>km/h</div>
       <div class="hud-chip">💥 接触 <span class="val" id="hudHit">0</span></div>
     </div>
-    <canvas id="gameCanvas"></canvas>
+    <canvas id="gameCanvas" tabindex="0" aria-label="サーキット走行の操作領域" aria-describedby="game-controls">ゲームの操作方法は下の説明をご覧ください。</canvas>
+    <p id="result-summary" class="record-note" role="status"></p>
     <div class="touch-row">
-      <button class="tbtn" id="tbL">◀</button>
-      <button class="tbtn" id="tbUp">▲</button>
-      <button class="tbtn" id="tbDown">▼</button>
-      <button class="tbtn" id="tbR">▶</button>
+      <button class="tbtn" id="tbL" aria-label="左へハンドル">◀</button>
+      <button class="tbtn" id="tbUp" aria-label="前進・加速">▲</button>
+      <button class="tbtn" id="tbDown" aria-label="減速・後退">▼</button>
+      <button class="tbtn" id="tbR" aria-label="右へハンドル">▶</button>
     </div>
-    <p class="ctrl-hint">↑ アクセル &nbsp;|&nbsp; ↓ ブレーキ &nbsp;|&nbsp; ← → ハンドル &nbsp;|&nbsp; タップでスタート</p>
+    <p class="ctrl-hint" id="game-controls">↑ アクセル &nbsp;|&nbsp; ↓ 減速・後退 &nbsp;|&nbsp; ← → ハンドル &nbsp;|&nbsp; タップでスタート</p>
   </div>
-  <section class="game-guide" style="max-width:460px;margin:20px auto 0;padding:0 16px 32px">
-    <h2 style="font-size:1rem;font-weight:800;margin-bottom:8px;color:var(--text)">📖 遊び方</h2>
-    <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">車を操作して道路を走り続けるゲームです。スマホでは画面の左右をタップ、PCではキー操作で車を動かします。対向車や障害物に当たらないように避けながら、できるだけ長く走り続けることが目標です。</p>
-    <h2 style="font-size:1rem;font-weight:800;margin:14px 0 8px;color:var(--text)">💡 コツ</h2>
-    <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">対向車のパターンを素早く把握して早めに回避するのがポイントです。道路の端に寄りすぎず、中央付近をキープすると左右どちらにも避けやすくなります。スコアが上がるほどスピードが増すので集中力を維持しましょう。</p>
-  </section>
-  <section class="game-faq" style="max-width:460px;margin:0 auto;padding:0 16px 40px">
-    <h2 style="font-size:1rem;font-weight:800;margin-bottom:6px;color:var(--text)">❓ よくある質問</h2>
-    <h3 style="font-size:.9rem;font-weight:800;color:var(--text);margin:14px 0 4px">Q. スマホとPCで操作は違いますか？</h3>
-    <p style="font-size:.86rem;line-height:1.75;color:var(--text-muted)">A. スマホは画面の左右タップ、PCは矢印キーで車を左右に動かします。どちらも直感的に操作できます。</p>
-    <h3 style="font-size:.9rem;font-weight:800;color:var(--text);margin:14px 0 4px">Q. スコアはどうやって伸びますか？</h3>
-    <p style="font-size:.86rem;line-height:1.75;color:var(--text-muted)">A. 走り続けて距離を伸ばすほどスコアが上がります。長く生き残るほど高得点です。</p>
-    <h3 style="font-size:.9rem;font-weight:800;color:var(--text);margin:14px 0 4px">Q. だんだん難しくなりますか？</h3>
-    <p style="font-size:.86rem;line-height:1.75;color:var(--text-muted)">A. スコアが上がるにつれて車のスピードが増し、対向車の密度も上がるので、後半ほど高い集中力が必要になります。</p>
-  </section>
+  <section class="game-guide play-guide" id="howto" aria-labelledby="howto-title">
+<h2 id="howto-title">サーキットを3周するタイムレース</h2>
+<p>車を自分で加減速・操舵し、紫色の車を道路に沿って走らせます。対向車を避けるゲームではありません。目標は3ラップの完走です。</p>
+<h3>はじめの操作</h3>
+<ol><li>キャンバスをクリック・タップして3秒のカウントダウンを待ちます。キーボードではTabでキャンバスを選び、Enterでも開始できます。</li><li>↑で加速、↓で減速し、押し続けると後退します。←・→は動いている時のハンドルです。止まったままでは曲がりません。</li><li>スマホは画面下の▲・▼・◀・▶を押している間だけ操作できます。加速とハンドルは同時に押せます。</li></ol>
+<h3>ラップが数えられる場所</h3>
+<p>コースの目印1（右）→2（下）→3（左）を順に通り、上側のチェッカー線を左から右へ横切ると1ラップです。HUDの「通過0/3」で目印の進み具合を確認できます。線の往復や逆走だけでは増えません。3ラップで完走です。</p>
+<h3>得点の見方と練習順</h3>
+<p>得点は「1000 − 完走秒数×4の四捨五入 − 壁接触回数×35」（最低0点）。例えば60秒・接触2回なら690点でAです。長く走るほど得点が増える方式ではありません。まずは接触せず1周し、次にコーナー手前で↓を使って速度を落とす練習をします。</p>
+<p>壁に触れても即終了にはならず、減速して接触回数が増えます。続けて壁に触れたままの時は短い判定待ちがあります。3周したらタイム・接触・S〜D評価を見て、キャンバスを選ぶと再挑戦できます。</p>
+<p class="guide-note">速度表示はゲーム内の目安です。実車の運転能力を判定するものではありません。タブやゲームの操作領域から離れると押しっぱなしを解除します。</p>
+</section>
+  <section class="game-faq play-guide" id="faq"><h2>よくある質問</h2><h3>スマホは画面の左右をタップするだけですか？</h3><p>画面下の4つの矢印ボタンで加速・減速・ハンドルを操作します。キャンバスのタップは開始・再挑戦に使います。</p><h3>対向車や自動的なスピード上昇はありますか？</h3><p>この版は固定コースのタイムレースです。対向車はなく、速度は自分の入力で変わります。</p><h3>どうすれば高得点になりますか？</h3><p>3周の合計時間と壁接触を減らします。1000から完走秒数×4を四捨五入した値と接触1回あたり35点を引きます。800点以上がS、650点以上がAです。</p></section>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -77,31 +77,31 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "スマホとPCで操作は違いますか？",
+      "name": "スマホは画面の左右をタップするだけですか？",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "スマホは画面の左右タップ、PCは矢印キーで車を左右に動かします。どちらも直感的に操作できます。"
+        "text": "画面下の4つの矢印ボタンで加速・減速・ハンドルを操作します。キャンバスのタップは開始・再挑戦に使います。"
       }
     },
     {
       "@type": "Question",
-      "name": "スコアはどうやって伸びますか？",
+      "name": "対向車や自動的なスピード上昇はありますか？",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "走り続けて距離を伸ばすほどスコアが上がります。長く生き残るほど高得点です。"
+        "text": "この版は固定コースのタイムレースです。対向車はなく、速度は自分の入力で変わります。"
       }
     },
     {
       "@type": "Question",
-      "name": "だんだん難しくなりますか？",
+      "name": "どうすれば高得点になりますか？",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "スコアが上がるにつれて車のスピードが増し、対向車の密度も上がるので、後半ほど高い集中力が必要になります。"
+        "text": "3周の合計時間と壁接触を減らします。1000から完走秒数×4を四捨五入した値と接触1回あたり35点を引きます。800点以上がS、650点以上がAです。"
       }
     }
   ]
 }
-  </script>
+</script>
 </main>
 <footer>
   <p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a> &nbsp;|&nbsp; <a href="../about.html">運営者情報</a></p>
@@ -124,6 +124,7 @@ const TRACK_PTS = [
   [52,220],[52,118],[105,75],[205,75]
 ];
 const ROAD_W = 68;
+const CHECKPOINTS=[{x:368,y:220},{x:205,y:490},{x:52,y:220}];
 
 // オフスクリーンキャンバスで衝突判定用トラックを描画
 const offC = document.createElement('canvas');
@@ -156,46 +157,59 @@ function isOnRoad(x, y) {
 // ===== 車 =====
 const CAR_W = 18, CAR_H = 30;
 let car, state = 'idle', lapCount, totalTime, lapStartTime, lapTimes, contacts, lastOnRoad, contactCooldown;
-let prevY = 75;
-let lapCooldown = 0;
+let checkpoint = 0;
 
 function initCar() {
-  car = { x:185, y:100, angle:-Math.PI/2, speed:0 }; // 上向き（トップ直線に置いて右向き）
+  car = { x:185, y:75, angle:-Math.PI/2, speed:0 }; // 上向き（トップ直線に置いて右向き）
   car.x = 185; car.y = 100; car.angle = 0; car.speed = 0;
 }
 initCar();
 
 // ===== 入力 =====
 const keys = {};
-document.addEventListener('keydown', e => { keys[e.key]=true; if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault(); });
+canvas.addEventListener('keydown', e => {
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) { keys[e.key]=true; e.preventDefault(); }
+  if((e.key==='Enter'||e.key===' ')&&(state==='idle'||state==='finished'||state==='result')) { e.preventDefault(); startGame(); }
+});
 document.addEventListener('keyup',   e => { keys[e.key]=false; });
-canvas.addEventListener('click', () => { if(state!=='racing') startGame(); });
-canvas.addEventListener('touchstart', e => { e.preventDefault(); if(state!=='racing') startGame(); }, {passive:false});
+canvas.addEventListener('click', () => { canvas.focus(); if(state==='idle'||state==='finished'||state==='result') startGame(); });
+canvas.addEventListener('touchstart', e => { e.preventDefault(); canvas.focus(); if(state==='idle'||state==='finished'||state==='result') startGame(); }, {passive:false});
 
 // タッチボタン
 const tKeys = {};
-function tbBind(id, key) {
-  const el = document.getElementById(id);
-  el.addEventListener('touchstart', e => { e.preventDefault(); tKeys[key]=true; }, {passive:false});
-  el.addEventListener('touchend',   e => { e.preventDefault(); tKeys[key]=false; }, {passive:false});
-  el.addEventListener('mousedown',  () => tKeys[key]=true);
-  el.addEventListener('mouseup',    () => tKeys[key]=false);
+function tbBind(id,key) {
+  const el=document.getElementById(id); let pointer=null;
+  const release=()=>{ tKeys[key]=false; pointer=null; };
+  el.addEventListener('pointerdown',e=>{ e.preventDefault(); pointer=e.pointerId; tKeys[key]=true; try { el.setPointerCapture(e.pointerId); } catch {} });
+  for(const type of ['pointerup','pointercancel','lostpointercapture']) el.addEventListener(type,release);
+  window.addEventListener('pointerup',e=>{ if(e.pointerId===pointer) release(); });
 }
+function releaseInputs() {
+  for(const key of Object.keys(keys)) keys[key]=false;
+  for(const key of Object.keys(tKeys)) tKeys[key]=false;
+  if(car) car.speed=0;
+}
+window.addEventListener('blur',releaseInputs);
+canvas.addEventListener('blur',releaseInputs);
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') releaseInputs(); });
 tbBind('tbL','ArrowLeft'); tbBind('tbR','ArrowRight');
 tbBind('tbUp','ArrowUp'); tbBind('tbDown','ArrowDown');
 function isKey(k) { return keys[k] || tKeys[k]; }
 
 // ===== ゲーム開始 =====
 function startGame() {
+  if(state==='countdown'||state==='racing') return;
+  releaseInputs();
+  document.getElementById('result-summary').textContent='';
   state = 'countdown';
   lapCount = 0; totalTime = 0; contacts = 0;
   lapTimes = []; contactCooldown = 0;
   initCar();
-  prevY = car.y;
+  checkpoint = 0;
   lapStartTime = null;
-  lapCooldown = 180; // 最初は3秒間ライン検出しない
+
   let cd = 3;
-  document.getElementById('hudLap').textContent = '0/3';
+  document.getElementById('hudLap').textContent = '0/3（通過0/3）';
   document.getElementById('hudTime').textContent = '0.00';
   document.getElementById('hudHit').textContent = '0';
   document.getElementById('hudSpeed').textContent = '0';
@@ -209,7 +223,8 @@ function startGame() {
 // ===== 更新 =====
 function update(now) {
   if (state !== 'racing') return;
-  const dt = 1;
+  const previousX = car.x;
+
 
   // 操作
   const maxSpd = 5.5, accel = 0.14, brake = 0.22, friction = 0.967;
@@ -247,18 +262,8 @@ function update(now) {
   }
   if (contactCooldown > 0) contactCooldown--;
 
-  // ラップ検出：スタートライン x:130〜260, y≈75〜85 を下から上（y減少）に通過
-  if (lapCooldown > 0) { lapCooldown--; }
-  else if (prevY > 80 && car.y <= 80 && car.x > 130 && car.x < 260 && Math.sin(car.angle) < -0.3) {
-    const lapTime = (now - lapStartTime) / 1000;
-    lapTimes.push(lapTime);
-    lapCount++;
-    document.getElementById('hudLap').textContent = `${lapCount}/3`;
-    lapStartTime = now;
-    lapCooldown = 120;
-    if (lapCount >= 3) { state = 'finished'; totalTime = lapTimes.reduce((a,b)=>a+b,0); showResult(); return; }
-  }
-  prevY = car.y;
+  updateLapProgress(previousX,now);
+  if(state==='finished') return;
 
   // タイム
   if (lapStartTime) {
@@ -269,6 +274,19 @@ function update(now) {
 
   // スピードメーター（px/frame → km/h換算っぽい表示）
   document.getElementById('hudSpeed').textContent = Math.round(Math.abs(car.speed) * 32);
+}
+
+function updateLapProgress(previousX,now) {
+  const next=CHECKPOINTS[checkpoint];
+  if(next&&Math.hypot(car.x-next.x,car.y-next.y)<ROAD_W/2+12) {
+    checkpoint++;
+    document.getElementById('hudLap').textContent=`${lapCount}/3（通過${checkpoint}/3）`;
+  }
+  if(checkpoint===3&&previousX<205&&car.x>=205&&Math.abs(car.y-75)<ROAD_W/2&&Math.cos(car.angle)>.3) {
+    lapTimes.push((now-lapStartTime)/1000);lapCount++;checkpoint=0;lapStartTime=now;
+    document.getElementById('hudLap').textContent=`${lapCount}/3（通過0/3）`;
+    if(lapCount>=3) { state='finished';totalTime=lapTimes.reduce((a,b)=>a+b,0);showResult(); }
+  }
 }
 
 // ===== 描画 =====
@@ -336,13 +354,19 @@ function drawTrack() {
   ctx.save();
   ctx.strokeStyle = '#ffffff';
   ctx.lineWidth = 4;
-  ctx.beginPath(); ctx.moveTo(130,75); ctx.lineTo(260,75); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(205,41); ctx.lineTo(205,109); ctx.stroke();
   // チェッカー柄
   for (let i=0; i<13; i++) {
     ctx.fillStyle = i%2===0 ? '#fff' : '#000';
-    ctx.fillRect(130+i*10, 70, 10, 5);
+    ctx.fillRect(200,42+i*5,5,5);
+    ctx.fillStyle = i%2===0 ? '#000' : '#fff';
+    ctx.fillRect(205,42+i*5,5,5);
   }
   ctx.restore();
+  CHECKPOINTS.forEach((point,i)=>{
+    ctx.beginPath();ctx.arc(point.x,point.y,11,0,Math.PI*2);ctx.fillStyle='#f4f4ff';ctx.fill();
+    ctx.fillStyle='#35275c';ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.fillText(String(i+1),point.x,point.y+5);
+  });
 }
 
 function drawCar() {
@@ -412,8 +436,6 @@ function drawOverlay(now) {
 }
 
 function showResult() {
-  // 100ms後に描画
-  setTimeout(() => {
     ctx.fillStyle='rgba(0,0,0,.78)'; ctx.fillRect(0,0,W,H);
     const bestLap = Math.min(...lapTimes);
 
@@ -460,7 +482,9 @@ function showResult() {
 
     ctx.fillStyle='rgba(255,255,255,.45)'; ctx.textAlign='center'; ctx.font='15px sans-serif';
     ctx.fillText('タップして再挑戦',W/2,H-28);
-  }, 200);
+  const summary=`3周完走：${totalTime.toFixed(2)}秒、接触${contacts}回、${pts}点（${grade}）。キャンバスで再挑戦できます。`;
+  const output=document.getElementById('result-summary');
+  if(output.textContent!==summary) output.textContent=summary;
 }
 
 // ===== メインループ =====
@@ -471,6 +495,7 @@ function loop(now) {
   drawTrack();
   drawCar();
   drawOverlay(now);
+  if(state==='finished') showResult();
 }
 
 requestAnimationFrame(loop);

@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>駐車テクニック | ちょっとヒマ</title>
   <meta name="description" content="駐車枠にぴったり止めよう！精度・タイム・接触回数で運転テクニックを評価。縦列駐車・車庫入れに挑戦！">
   <meta name="keywords" content="駐車,テクニック,ゲーム,無料,縦列駐車,車庫入れ">
@@ -32,13 +32,14 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7063985125158694" crossorigin="anonymous"></script>
 </head>
 <body>
+<a class="skip-link" href="#main-content">本文へ移動</a>
 <header>
   <div class="header-inner">
     <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
     <nav><a href="../index.html#uranai">占い</a><a href="../index.html#game">ゲーム</a></nav>
   </div>
 </header>
-<main>
+<main id="main-content">
   <div class="page-header" style="padding-bottom:8px">
     <div class="icon">🅿️</div>
     <h1>駐車テクニック</h1>
@@ -46,7 +47,7 @@
   </div>
   <div class="park-wrap">
     <div class="mode-btns" id="modeBtns">
-      <button class="mbtn active" data-mode="0" onclick="setMode(this)">🟢 かんたん<br><small>斜め駐車</small></button>
+      <button class="mbtn active" data-mode="0" onclick="setMode(this)">🟢 かんたん<br><small>まっすぐ駐車</small></button>
       <button class="mbtn" data-mode="1" onclick="setMode(this)">🟡 ふつう<br><small>車庫入れ</small></button>
       <button class="mbtn" data-mode="2" onclick="setMode(this)">🔴 むずかしい<br><small>縦列駐車</small></button>
     </div>
@@ -55,30 +56,29 @@
       <div class="hud-chip">💥 接触 <span class="val" id="hudHit">0</span></div>
       <div class="hud-chip">🎯 精度 <span class="val" id="hudAcc">-</span></div>
     </div>
-    <canvas id="gameCanvas"></canvas>
+    <canvas id="gameCanvas" tabindex="0" aria-label="駐車テクニックの操作領域" aria-describedby="game-controls">ゲームの操作方法は下の説明をご覧ください。</canvas>
+    <p id="result-summary" class="record-note" role="status"></p>
     <div class="touch-row">
-      <button class="tbtn" id="tbL">◀</button>
-      <button class="tbtn" id="tbUp">▲</button>
-      <button class="tbtn" id="tbDown">▼</button>
-      <button class="tbtn" id="tbR">▶</button>
+      <button class="tbtn" id="tbL" aria-label="左へハンドル">◀</button>
+      <button class="tbtn" id="tbUp" aria-label="前進・加速">▲</button>
+      <button class="tbtn" id="tbDown" aria-label="減速・後退">▼</button>
+      <button class="tbtn" id="tbR" aria-label="右へハンドル">▶</button>
     </div>
-    <p class="ctrl-hint">↑ 前進 &nbsp;|&nbsp; ↓ バック &nbsp;|&nbsp; ← → ハンドル &nbsp;|&nbsp; タップしてスタート</p>
+    <p class="ctrl-hint" id="game-controls">↑ 前進 &nbsp;|&nbsp; ↓ バック &nbsp;|&nbsp; ← → ハンドル &nbsp;|&nbsp; タップしてスタート</p>
   </div>
-  <section class="game-guide" style="max-width:460px;margin:20px auto 0;padding:0 16px 32px">
-    <h2 style="font-size:1rem;font-weight:800;margin-bottom:8px;color:var(--text)">📖 遊び方</h2>
-    <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">車を操作して指定の駐車スペースに停めるゲームです。前進・後退・ハンドル操作で他の車や壁に当たらないよう注意しながら、車を枠内に収めましょう。</p>
-    <h2 style="font-size:1rem;font-weight:800;margin:14px 0 8px;color:var(--text)">💡 コツ</h2>
-    <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">実際の駐車と同じく、バックしながら少しずつ角度を調整することが重要です。一度でうまく入らなくても、前後に切り返して少しずつ位置を調整しましょう。</p>
-  </section>
-  <section class="game-faq" style="max-width:460px;margin:0 auto;padding:0 16px 40px">
-    <h2 style="font-size:1rem;font-weight:800;margin-bottom:6px;color:var(--text)">❓ よくある質問</h2>
-    <h3 style="font-size:.9rem;font-weight:800;color:var(--text);margin:14px 0 4px">Q. 操作が難しいときのコツは？</h3>
-    <p style="font-size:.86rem;line-height:1.75;color:var(--text-muted)">A. 実際の駐車と同じく、一度で入れようとせず前後に切り返して少しずつ角度を調整するのが確実です。</p>
-    <h3 style="font-size:.9rem;font-weight:800;color:var(--text);margin:14px 0 4px">Q. 車をぶつけるとどうなりますか？</h3>
-    <p style="font-size:.86rem;line-height:1.75;color:var(--text-muted)">A. 他の車や壁に接触するとやり直しになります。ゆっくり慎重に動かしましょう。</p>
-    <h3 style="font-size:.9rem;font-weight:800;color:var(--text);margin:14px 0 4px">Q. クリア条件は何ですか？</h3>
-    <p style="font-size:.86rem;line-height:1.75;color:var(--text-muted)">A. 指定された駐車スペースの枠内に車をきちんと収めればクリアです。</p>
-  </section>
+  <section class="game-guide play-guide" id="howto" aria-labelledby="howto-title">
+<h2 id="howto-title">位置・向き・停止を確かめる駐車ゲーム</h2>
+<p>紫色の車をPの枠へ運び、中心が判定内に入った状態で約1秒停止すると駐車完了です。接触しても即やり直しにはなりません。車が押し戻され、接触回数が増えます。</p>
+<h3>最初の1回</h3>
+<ol><li>最初は「かんたん」を選びます。キャンバスのクリック・タップ、またはキャンバスをTabで選んでEnterで開始します。</li><li>↑で前進、↓で減速・後退。←・→は動いている時だけハンドルが効きます。スマホは下の矢印ボタンを押し、必要なら2つを同時に使います。</li><li>最初はハンドルを切らずに↑を短く押し、枠の中心へ近づいたら離して停止を待ちます。長押しで通り過ぎたら↓で戻してください。</li></ol>
+<h3>モードで違うこと</h3>
+<ul><li>かんたん：中央の枠へ入り、まず停止の感覚をつかむ配置です。</li><li>ふつう：右側の車庫の壁を避け、切り返しながら入れます。</li><li>むずかしい：前後の車を避けて縦列の枠へ寄せます。バック時は前進時とハンドルの向きが逆になります。</li></ul>
+<h3>精度と得点は別に見よう</h3>
+<p>精度は中心からの位置ずれと枠に対する向きで0〜100%です。前向き・後向きのどちらでも、枠と平行なら向きの減点はありません。中心にいても横向きなら精度が下がります。完了条件は中心位置と停止なので、低精度でも終了する場合があります。</p>
+<p>総合点は「精度×50% ＋ 時間点×30% ＋ 接触点×20%」。時間点は100から秒数×1.5を四捨五入して引き、接触点は100から1回あたり15点を引きます（各項目は最低0点、総合点は四捨五入）。精度100%・10秒・接触0回なら96点でSです。最初は速さより位置と向きを合わせましょう。</p>
+<p class="guide-note">矩形を使う簡易的な当たり判定です。実際の駐車や免許試験の練習・評価には使えません。モード変更はそのプレイを終えて初期画面へ戻します。</p>
+</section>
+  <section class="game-faq play-guide" id="faq"><h2>よくある質問</h2><h3>壁や他の車に当たると最初からですか？</h3><p>即終了はしません。車が押し戻され、接触回数が増えて得点に影響します。接触したままの連続加算には短い待ち時間があります。</p><h3>バックで入れると精度が下がりますか？</h3><p>枠と平行なら前向き・後向きで精度は変わりません。位置ずれと枠に対する角度が精度に影響します。</p><h3>止まったのに終わらない時は？</h3><p>車の中心をPの枠の判定内へ入れ、ほぼ止まったまま約1秒待ちます。ハンドルだけでは動かないため、位置調整には前進・後退も使ってください。</p></section>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -86,31 +86,31 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "操作が難しいときのコツは？",
+      "name": "壁や他の車に当たると最初からですか？",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "実際の駐車と同じく、一度で入れようとせず前後に切り返して少しずつ角度を調整するのが確実です。"
+        "text": "即終了はしません。車が押し戻され、接触回数が増えて得点に影響します。接触したままの連続加算には短い待ち時間があります。"
       }
     },
     {
       "@type": "Question",
-      "name": "車をぶつけるとどうなりますか？",
+      "name": "バックで入れると精度が下がりますか？",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "他の車や壁に接触するとやり直しになります。ゆっくり慎重に動かしましょう。"
+        "text": "枠と平行なら前向き・後向きで精度は変わりません。位置ずれと枠に対する角度が精度に影響します。"
       }
     },
     {
       "@type": "Question",
-      "name": "クリア条件は何ですか？",
+      "name": "止まったのに終わらない時は？",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "指定された駐車スペースの枠内に車をきちんと収めればクリアです。"
+        "text": "車の中心をPの枠の判定内へ入れ、ほぼ止まったまま約1秒待ちます。ハンドルだけでは動かないため、位置調整には前進・後退も使ってください。"
       }
     }
   ]
 }
-  </script>
+</script>
 </main>
 <footer>
   <p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a> &nbsp;|&nbsp; <a href="../about.html">運営者情報</a></p>
@@ -139,7 +139,7 @@ const MODES = [
       {x:110,y:160,w:54,h:90,angle:0,color:'#e53e3e'},
       {x:310,y:160,w:54,h:90,angle:0,color:'#3b82f6'},
     ],
-    label:'斜め駐車（かんたん）',
+    label:'まっすぐ駐車（かんたん）',
     hint:'スポットに前向きで入れよう'
   },
   // 1: ふつう（車庫入れ）
@@ -193,6 +193,11 @@ function setMode(btn) {
   btn.classList.add('active');
   mode = parseInt(btn.dataset.mode);
   state = 'idle';
+  releaseInputs(); car=null; parkedSince=null;
+  document.getElementById('result-summary').textContent='';
+  document.getElementById('hudHit').textContent='0';
+  document.getElementById('hudTime').textContent='0.0';
+  document.getElementById('hudAcc').textContent='-';
 }
 
 // ===== 衝突判定（矩形×矩形、角度考慮なし） =====
@@ -224,7 +229,7 @@ function calcAccuracy() {
   const dx = Math.abs(car.x - sp.x);
   const dy = Math.abs(car.y - sp.y);
   // 角度差（ラジアン→0〜180度）
-  let da = Math.abs(car.angle % Math.PI);
+  let da = Math.abs((car.angle - (sp.angle - Math.PI/2)) % Math.PI);
   if (da > Math.PI/2) da = Math.PI - da;
   const da_deg = da * 180 / Math.PI;
 
@@ -246,19 +251,38 @@ function isInSpot() {
 
 // ===== 入力 =====
 const keys = {};
-document.addEventListener('keydown', e => { keys[e.key]=true; if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault(); });
+canvas.addEventListener('keydown', e => {
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) { keys[e.key]=true; e.preventDefault(); }
+  if((e.key==='Enter'||e.key===' ')&&(state==='idle'||state==='finished'||state==='result')) { e.preventDefault(); startGame(); }
+});
 document.addEventListener('keyup',   e => { keys[e.key]=false; });
-canvas.addEventListener('click', () => { if(state==='idle'||state==='result') startGame(); });
-canvas.addEventListener('touchstart', e => { e.preventDefault(); if(state==='idle'||state==='result') startGame(); }, {passive:false});
+canvas.addEventListener('click', () => { canvas.focus(); if(state==='idle'||state==='finished'||state==='result') startGame(); });
+canvas.addEventListener('touchstart', e => { e.preventDefault(); canvas.focus(); if(state==='idle'||state==='finished'||state==='result') startGame(); }, {passive:false});
 
 const tKeys = {};
-function tbBind(id,key){ const el=document.getElementById(id); el.addEventListener('touchstart',e=>{e.preventDefault();tKeys[key]=true;},{passive:false}); el.addEventListener('touchend',e=>{e.preventDefault();tKeys[key]=false;},{passive:false}); el.addEventListener('mousedown',()=>tKeys[key]=true); el.addEventListener('mouseup',()=>tKeys[key]=false); }
+function tbBind(id,key) {
+  const el=document.getElementById(id); let pointer=null;
+  const release=()=>{ tKeys[key]=false; pointer=null; };
+  el.addEventListener('pointerdown',e=>{ e.preventDefault(); pointer=e.pointerId; tKeys[key]=true; try { el.setPointerCapture(e.pointerId); } catch {} });
+  for(const type of ['pointerup','pointercancel','lostpointercapture']) el.addEventListener(type,release);
+  window.addEventListener('pointerup',e=>{ if(e.pointerId===pointer) release(); });
+}
+function releaseInputs() {
+  for(const key of Object.keys(keys)) keys[key]=false;
+  for(const key of Object.keys(tKeys)) tKeys[key]=false;
+  if(car) car.speed=0;
+}
+window.addEventListener('blur',releaseInputs);
+canvas.addEventListener('blur',releaseInputs);
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') releaseInputs(); });
 tbBind('tbL','ArrowLeft'); tbBind('tbR','ArrowRight');
 tbBind('tbUp','ArrowUp'); tbBind('tbDown','ArrowDown');
 function isKey(k){ return keys[k]||tKeys[k]; }
 
 // ===== ゲーム開始 =====
 function startGame() {
+  releaseInputs(); parkedSince=null;
+  document.getElementById('result-summary').textContent='';
   const m = MODES[mode];
   car = { x:m.carStart.x, y:m.carStart.y, angle:m.carStart.angle, speed:0 };
   state = 'playing';
@@ -271,7 +295,7 @@ function startGame() {
 }
 
 // ===== 更新 =====
-let checkTimer = 0;
+let parkedSince = null;
 function update(now) {
   if (state !== 'playing') return;
   elapsed = (now - startTime) / 1000;
@@ -309,13 +333,13 @@ function update(now) {
 
   // スポット内かつ速度ほぼゼロ → 停車判定
   if (isInSpot() && Math.abs(car.speed) < 0.1) {
-    checkTimer++;
-    if (checkTimer > 60) { // 1秒停車で完了
+    if(parkedSince===null) parkedSince=now;
+    if (now-parkedSince >= 1000) { // 描画回数によらず1秒停車で完了
       state = 'result';
       showResult();
     }
   } else {
-    checkTimer = 0;
+    parkedSince = null;
   }
 
   const acc = isInSpot() ? calcAccuracy() : '-';
@@ -441,17 +465,20 @@ function roundRectFill(c,x,y,w,h,r){
   c.lineTo(x,y+r); c.arcTo(x,y,x+r,y,r); c.closePath(); c.fill();
 }
 
+function parkingScore(accuracy,seconds,hits) {
+  const timeScore=Math.max(0,100-Math.round(seconds*1.5));
+  const hitScore=Math.max(0,100-hits*15);
+  return Math.round(accuracy*0.5+timeScore*0.3+hitScore*0.2);
+}
+
 function showResult() {
   const acc = calcAccuracy();
-  const timeScore = Math.max(0, 100 - Math.round(elapsed * 1.5));
-  const hitScore  = Math.max(0, 50 - contacts * 15);
-  const total = Math.round(acc * 0.5 + timeScore * 0.3 + hitScore * 0.2);
+  const total = parkingScore(acc,elapsed,contacts);
 
   const grade = total>=90?'S':total>=75?'A':total>=55?'B':total>=35?'C':'D';
   const gColor = {S:'#fbbf24',A:'#22c55e',B:'#3b82f6',C:'#f97316',D:'#e53e3e'}[grade];
   const gMsg   = {S:'完璧な駐車！',A:'上手い！',B:'まあまあ！',C:'もう少し練習！',D:'練習あるのみ！'}[grade];
 
-  setTimeout(()=>{
     ctx.fillStyle='rgba(0,0,0,.78)'; ctx.fillRect(0,0,W,H);
     ctx.textAlign='center';
     ctx.fillStyle='#fff'; ctx.font='bold 24px sans-serif'; ctx.shadowBlur=0;
@@ -481,7 +508,9 @@ function showResult() {
 
     ctx.fillStyle='rgba(255,255,255,.45)'; ctx.textAlign='center'; ctx.font='15px sans-serif';
     ctx.fillText('タップして再挑戦',W/2,H-24);
-  },300);
+  const summary=`駐車完了：精度${acc}%、${elapsed.toFixed(1)}秒、接触${contacts}回、総合${total}点（${grade}）。`;
+  const output=document.getElementById('result-summary');
+  if(output.textContent!==summary) output.textContent=summary;
 }
 
 // ===== メインループ =====
@@ -489,6 +518,7 @@ function loop(now){
   requestAnimationFrame(loop);
   update(now);
   render();
+  if(state==='result') showResult();
 }
 requestAnimationFrame(loop);
 </script>

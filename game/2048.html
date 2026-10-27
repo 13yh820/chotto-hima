@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>2048 | ちょっとヒマ</title>
   <meta name="description" content="スワイプでタイルを動かして2048を作ろう！無料で遊べる人気パズルゲーム。スマホでも快適プレイ。">
   <meta name="keywords" content="2048,パズル,ゲーム,無料,暇つぶし">
@@ -44,13 +44,14 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7063985125158694" crossorigin="anonymous"></script>
 </head>
 <body>
+<a class="skip-link" href="#main-content">本文へ移動</a>
 <header>
   <div class="header-inner">
     <a class="logo" href="../index.html">ちょっと<span>ヒマ</span></a>
     <nav><a href="../index.html#uranai">占い</a><a href="../index.html#game">ゲーム</a></nav>
   </div>
 </header>
-<main>
+<main id="main-content">
   <div class="page-header" style="padding-bottom:8px">
     <div class="icon">🔢</div>
     <h1>2048</h1>
@@ -61,28 +62,28 @@
       <div class="hud-box"><div class="lbl">SCORE</div><div class="val" id="score">0</div></div>
       <div class="hud-box"><div class="lbl">BEST</div><div class="val" id="best">0</div></div>
     </div>
-    <div id="board"></div>
+    <div id="board" tabindex="0" role="group" aria-label="2048の盤面。矢印キーで操作できます。"></div>
     <div style="display:flex;gap:10px;margin-top:14px">
       <button class="btn btn-outline" onclick="newGame()">新しいゲーム 🔄</button>
       <button class="btn btn-outline" onclick="undo()">↩ 戻す</button>
     </div>
-    <p class="ctrl-hint">スワイプまたは矢印キーで操作</p>
+    <p class="ctrl-hint">盤面を選んで矢印キー、またはスワイプで操作</p><p class="record-note" id="record-note" role="status">BESTはこのブラウザに保存されます。</p>
   </div>
-  <section class="game-guide" style="max-width:460px;margin:20px auto 0;padding:0 16px 32px">
-    <h2 style="font-size:1rem;font-weight:800;margin-bottom:8px;color:var(--text)">📖 遊び方</h2>
-    <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">4×4のグリッド上でタイルをスワイプして動かします。同じ数字のタイル同士がぶつかると合体して2倍の数になります。2048のタイルを作ることができればクリアです。スマホではスワイプ操作、PCでは矢印キーで上下左右に動かせます。ゲームオーバーはタイルが全て埋まり、合体できる場所がなくなった時です。</p>
-    <h2 style="font-size:1rem;font-weight:800;margin:14px 0 8px;color:var(--text)">💡 コツ</h2>
-    <p style="font-size:.88rem;line-height:1.8;color:var(--text-muted)">大きな数字は常に画面の角（右下など一箇所）に固定して積み上げるのが基本戦略です。右・下の2方向を中心に操作するとタイルが整理されやすく、大きな数字を作りやすくなります。上や左には動かさないよう意識すると崩れにくくなります。</p>
-  </section>
-  <section class="game-faq" style="max-width:460px;margin:0 auto;padding:0 16px 40px">
-    <h2 style="font-size:1rem;font-weight:800;margin-bottom:6px;color:var(--text)">❓ よくある質問</h2>
-    <h3 style="font-size:.9rem;font-weight:800;color:var(--text);margin:14px 0 4px">Q. 2048はどうやったらクリアになりますか？</h3>
-    <p style="font-size:.86rem;line-height:1.75;color:var(--text-muted)">A. 盤面のどこかに「2048」のタイルを1つ作ればクリアです。その後もタイルを合体させ続けて、4096や8192などさらに大きな数字に挑戦することもできます。</p>
-    <h3 style="font-size:.9rem;font-weight:800;color:var(--text);margin:14px 0 4px">Q. ゲームオーバーになる条件は？</h3>
-    <p style="font-size:.86rem;line-height:1.75;color:var(--text-muted)">A. 盤面が16マスすべて埋まり、かつ上下左右どの方向にも同じ数字が隣り合っていない（=合体できるタイルが1つも無い）状態になると、それ以上動かせずゲームオーバーです。</p>
-    <h3 style="font-size:.9rem;font-weight:800;color:var(--text);margin:14px 0 4px">Q. 「戻す」ボタンは何回使えますか？</h3>
-    <p style="font-size:.86rem;line-height:1.75;color:var(--text-muted)">A. 直前の1手だけ取り消せます。連続では戻せないので、大きく崩してしまう前の重要な局面で使うのがおすすめです。</p>
-  </section>
+  <section class="game-guide play-guide" id="howto" aria-labelledby="howto-title">
+<h2 id="howto-title">2048のルールと、この版の遊び方</h2>
+<p>4×4の盤面を上下左右に動かし、同じ数字を合体させて2048を1枚作ります。動く手を選ぶたび、空きマスに2または4が1枚増えます。数字が動かない操作では増えません。</p>
+<h3>1手の合体を見てみよう</h3>
+<p>左へ動かす例です。1枚のタイルは同じ手の中で2回は合体しません。</p>
+<div class="merge-example"><span>2・2・2・2</span><span aria-hidden="true">→</span><strong>4・4・空・空</strong></div>
+<p>この手の加点は4＋4＝8点。ここからさらに左へ動かすと8ができ、次の手で8点が加わります。上の図には、新しく出るランダムなタイルを含めていません。</p>
+<h3>操作と戻すボタン</h3>
+<ul><li>PC：盤面をクリックするかTabで選び、矢印キーで動かします。盤面の外では矢印キーを読書や移動に使えます。</li><li>スマホ：盤面を上下左右にスワイプします。短いタップだけでは動きません。</li><li>「戻す」は直前の動いた1手だけ、盤面とSCOREを戻します。動かなかった操作を挟んでも戻せます。2手以上前へは戻せません。</li></ul>
+<h3>最初に試すこと</h3>
+<p>最大の数字を置く角を一つ決め、まずはその角に寄せる2方向を使ってみましょう。置き場所だけでなく、次の手で空きマスを残せるかを確認します。角を守るだけで必ず勝てるわけではありません。</p>
+<p>2048達成か、空きも合体もなくなった時点で結果を表示します。この版の結果画面は「もう一度」で新しい盤面に進みます。BESTはこのブラウザで出した最高点で、戻す操作では下がりません。保存できない環境でも、その画面を開いている間は遊べます。</p>
+<p class="guide-note">定番ルールを使った本サイト版です。参考：<a href="https://github.com/gabrielecirulli/2048">Gabriele Cirulliの2048公開ソース</a>。本サイトの戻す・終了・記録の仕様は上記の説明に従います。</p>
+</section>
+  <section class="game-faq play-guide" id="faq"><h2>よくある質問</h2><h3>4枚の「2」は一度に「8」になりますか？</h3><p>左へ1回動かすと「4・4・空・空」です。同じ手の中でできた4同士はまだ合体しません。この手の加点は8点です。</p><h3>戻すとBESTも下がりますか？</h3><p>盤面とSCOREは1手前に戻りますが、BESTは到達済みの最高点を保持します。連続で2手以上戻すことはできません。</p><h3>2048を作った後も続けられますか？</h3><p>この版は2048達成時に結果を表示します。「もう一度」で新しいゲームを始めてください。結果画面を閉じて4096へ進む機能はありません。</p></section>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -90,31 +91,31 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "2048はどうやったらクリアになりますか？",
+      "name": "4枚の「2」は一度に「8」になりますか？",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "盤面のどこかに「2048」のタイルを1つ作ればクリアです。その後もタイルを合体させ続けて、4096や8192などさらに大きな数字に挑戦することもできます。"
+        "text": "左へ1回動かすと「4・4・空・空」です。同じ手の中でできた4同士はまだ合体しません。この手の加点は8点です。"
       }
     },
     {
       "@type": "Question",
-      "name": "ゲームオーバーになる条件は？",
+      "name": "戻すとBESTも下がりますか？",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "盤面が16マスすべて埋まり、かつ上下左右どの方向にも同じ数字が隣り合っていない（=合体できるタイルが1つも無い）状態になると、それ以上動かせずゲームオーバーです。"
+        "text": "盤面とSCOREは1手前に戻りますが、BESTは到達済みの最高点を保持します。連続で2手以上戻すことはできません。"
       }
     },
     {
       "@type": "Question",
-      "name": "「戻す」ボタンは何回使えますか？",
+      "name": "2048を作った後も続けられますか？",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "直前の1手だけ取り消せます。連続では戻せないので、大きく崩してしまう前の重要な局面で使うのがおすすめです。"
+        "text": "この版は2048達成時に結果を表示します。「もう一度」で新しいゲームを始めてください。結果画面を閉じて4096へ進む機能はありません。"
       }
     }
   ]
 }
-  </script>
+</script>
 </main>
 <footer><p>&copy; 2024 ちょっとヒマ &nbsp;|&nbsp; <a href="../privacy.html">プライバシーポリシー</a> &nbsp;|&nbsp; <a href="../about.html">運営者情報</a></p></footer>
 
@@ -129,13 +130,21 @@
 
 <script>
 const SIZE = 4;
-let grid, score, bestScore, prev;
+let grid, score, bestScore=0, prev;
+function loadBest() {
+  try {
+    const value=Number(localStorage.getItem('best2048')||0);
+    return Number.isSafeInteger(value)&&value>=0?Math.max(bestScore,value):bestScore;
+  } catch { storageNotice(); return bestScore; }
+}
+function storageNotice() { document.getElementById('record-note').textContent='記録を保存できません。この画面を開いている間は遊べます。'; }
 
 function newGame() {
   grid = Array.from({length:SIZE}, () => Array(SIZE).fill(0));
   score = 0;
   prev = null;
-  bestScore = parseInt(localStorage.getItem('best2048')||'0');
+  bestScore = loadBest();
+  document.getElementById('overlay').classList.remove('show');
   addRandom(); addRandom();
   render();
 }
@@ -159,7 +168,7 @@ function render() {
     board.appendChild(cell);
   }
   document.getElementById('score').textContent = score;
-  if(score > bestScore) { bestScore = score; localStorage.setItem('best2048', bestScore); }
+  if(score > bestScore) { bestScore = score; try { localStorage.setItem('best2048', bestScore); } catch { storageNotice(); } }
   document.getElementById('best').textContent = bestScore;
 }
 
@@ -176,6 +185,7 @@ function slide(row) {
 }
 
 function move(dir) {
+  if(document.getElementById('overlay').classList.contains('show')) return;
   const before = { grid: clone(grid), score };
   let moved=false, gained=0;
   if(dir==='left'||dir==='right') {
@@ -231,7 +241,8 @@ function undo() {
   render();
 }
 
-document.addEventListener('keydown', e => {
+document.getElementById('board').addEventListener('click',()=>document.getElementById('board').focus());
+document.getElementById('board').addEventListener('keydown', e => {
   const map = {ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down'};
   if(map[e.key]) { e.preventDefault(); move(map[e.key]); }
 });
