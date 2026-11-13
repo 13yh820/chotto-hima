@@ -128,6 +128,10 @@ const LEVELS=[
 ];
 document.getElementById('lvTotal').textContent=LEVELS.length;
 let level=0, grid, px, py, targets, moves, history, W, H, won;
+let nextLevelTimer=null;
+function cancelNextLevel(){
+  if(nextLevelTimer!==null){ clearTimeout(nextLevelTimer); nextLevelTimer=null; }
+}
 function parse(rows){
   H=rows.length; W=Math.max(...rows.map(r=>r.length));
   grid=[]; targets=new Set();
@@ -147,6 +151,7 @@ function parse(rows){
   }
 }
 function load(){
+  cancelNextLevel();
   parse(LEVELS[level]);
   moves=0; history=[]; won=false;
   document.getElementById('lvNum').textContent=level+1;
@@ -193,14 +198,17 @@ function checkWin(){
   if(level<LEVELS.length-1){
     msg.textContent='🎉 ステージ'+(level+1)+'クリア！ 3秒後に次へ…';
     msg.classList.add('show');
-    setTimeout(()=>{ level++; load(); },1600);
+    nextLevelTimer=setTimeout(()=>{ nextLevelTimer=null; level++; load(); },3000);
   } else {
     msg.textContent='🏆 全ステージクリア！おめでとう！';
     msg.classList.add('show');
   }
 }
 function undo(){
-  if(won||!history.length) return;
+  if(!history.length) return;
+  cancelNextLevel();
+  won=false;
+  document.getElementById('clearMsg').classList.remove('show');
   const h=history.pop();
   px=h.px; py=h.py; grid=h.grid; moves=Math.max(0,moves-1);
   document.getElementById('moves').textContent=moves; render();
