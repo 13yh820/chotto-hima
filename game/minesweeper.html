@@ -11,9 +11,11 @@
     .wrap{max-width:480px;margin:0 auto;padding:0 8px 32px}
     .hud{display:flex;justify-content:space-between;align-items:center;padding:8px 4px 12px;font-size:.9rem;font-weight:700}
     .hud span{color:var(--primary)}
-    .board{display:grid;gap:3px;margin:0 auto;width:fit-content;user-select:none}
-    .cell{width:36px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;
-      font-size:.95rem;font-weight:900;cursor:pointer;-webkit-tap-highlight-color:transparent;
+    .board{--cols:8;display:grid;gap:3px;margin:0 auto;width:100%;
+      max-width:calc(36px * var(--cols) + 3px * (var(--cols) - 1));
+      grid-template-columns:repeat(var(--cols),minmax(0,1fr));user-select:none}
+    .cell{min-width:0;aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;
+      font-size:clamp(.76rem,3.5vw,.95rem);font-weight:900;cursor:pointer;-webkit-tap-highlight-color:transparent;
       background:var(--card-bg);border:1px solid var(--border);transition:background .1s}
     .cell.open{background:var(--bg);cursor:default}
     .cell.mine{background:#e53e3e}
@@ -105,6 +107,24 @@
 let ROWS=8,COLS=8,MINES=10;
 let cells,flagCount,opened,started,timerInt,elapsed,over;
 const NUMCOL=['','n1','n2','n3','n4','n5','n6','n7','n8'];
+const bestTimes=new Map();
+
+function bestKey(){return `msB_${ROWS}_${COLS}`;}
+
+function loadBest(){
+  const key=bestKey();
+  try{
+    const stored=localStorage.getItem(key);
+    const time=stored!==null&&/^\d+$/.test(stored)?Number(stored):NaN;
+    if(Number.isSafeInteger(time)&&time<(bestTimes.get(key)??Infinity))bestTimes.set(key,time);
+  }catch{/* Storage is optional; keep the best time for this tab. */}
+  showBest();
+}
+
+function showBest(){
+  const best=bestTimes.get(bestKey());
+  document.getElementById('bestEl').textContent=best===undefined?'—':best+'秒';
+}
 
 function setDiff(btn,r,c,m){
   document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
@@ -121,6 +141,7 @@ function newGame(){
   cells=[];
   for(let i=0;i<ROWS*COLS;i++)cells.push({mine:false,open:false,flag:false,adj:0});
   render();
+  loadBest();
 }
 
 function plant(skipIdx){
@@ -172,15 +193,19 @@ function boom(idx){
 
 function win(){
   over=true;clearInterval(timerInt);
-  const key=`msB_${ROWS}_${COLS}`;
-  const prev=parseInt(localStorage.getItem(key)||'9999');
-  if(elapsed<prev){localStorage.setItem(key,elapsed);document.getElementById('bestEl').textContent=elapsed+'秒';}
-  document.getElementById('msg').innerHTML=`🎉 クリア！ ${elapsed}秒`;
+  document.getElementById('msg').textContent=`🎉 クリア！ ${elapsed}秒`;
+  const key=bestKey();
+  if(elapsed<(bestTimes.get(key)??Infinity)){
+    bestTimes.set(key,elapsed);
+    showBest();
+    try{localStorage.setItem(key,String(elapsed));}
+    catch{/* The session best still works if saving is blocked or full. */}
+  }
 }
 
 function render(){
   const bd=document.getElementById('board');
-  bd.style.gridTemplateColumns=`repeat(${COLS},36px)`;
+  bd.style.setProperty('--cols',COLS);
   bd.innerHTML='';
   cells.forEach((cell,i)=>{
     const d=document.createElement('div');
@@ -197,9 +222,6 @@ function render(){
     d.addEventListener('contextmenu',e=>{e.preventDefault();toggleFlag(i);});
     bd.appendChild(d);
   });
-  const key=`msB_${ROWS}_${COLS}`;
-  const b=localStorage.getItem(key);
-  document.getElementById('bestEl').textContent=b?b+'秒':'—';
 }
 
 newGame();
