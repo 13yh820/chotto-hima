@@ -109,11 +109,23 @@
 <script>
 const SUITS=['♠','♥','♦','♣'];
 const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-let hits=0,misses=0,streak=0,best=parseInt(localStorage.getItem('cardmatchBest')||'0');
-let current=null,locked=false;
+const BEST_KEY='cardmatchBest';
+function loadBest(){
+  try{
+    const value=Number(localStorage.getItem(BEST_KEY));
+    if(Number.isSafeInteger(value)&&value>=0)return value;
+  }catch(e){} // 保存領域を使えなくてもプレイを続ける
+  return 0;
+}
+let hits=0,misses=0,streak=0,best=loadBest();
+let current=null,locked=false,roundTimer=null;
 document.getElementById('best').textContent=best;
 
 function pick(){ return {suit:SUITS[Math.floor(Math.random()*4)],rank:RANKS[Math.floor(Math.random()*13)]}; }
+
+function clearChoices(){
+  document.querySelectorAll('.suit-btn').forEach(b=>b.classList.remove('correct','wrong'));
+}
 
 function guess(suit){
   if(locked)return;
@@ -121,7 +133,8 @@ function guess(suit){
   locked=true;
   const c=document.getElementById('card');
   c.classList.add('flip');
-  setTimeout(()=>{
+  roundTimer=setTimeout(()=>{
+    roundTimer=null;
     const isRed=['♥','♦'].includes(current.suit);
     c.textContent=current.rank+' '+current.suit;
     c.style.color=isRed?'#e53e3e':'#111';
@@ -131,7 +144,11 @@ function guess(suit){
     const ans=document.getElementById('btn'+current.suit);
     if(correct){
       btn.classList.add('correct');hits++;streak++;
-      if(streak>best){best=streak;localStorage.setItem('cardmatchBest',best);document.getElementById('best').textContent=best;}
+      if(streak>best){
+        best=streak;
+        document.getElementById('best').textContent=best;
+        try{localStorage.setItem(BEST_KEY,best);}catch(e){} // このタブでは最高記録を保持
+      }
       document.getElementById('msg').textContent='🎉 正解！';document.getElementById('msg').style.color='#22c55e';
     } else {
       btn.classList.add('wrong');ans.classList.add('correct');misses++;streak=0;
@@ -141,8 +158,9 @@ function guess(suit){
     document.getElementById('misses').textContent=misses;
     document.getElementById('streak').textContent=streak;
     document.getElementById('streakBig').textContent=streak>=3?`🔥 ${streak}連続！`:'';
-    setTimeout(()=>{
-      document.querySelectorAll('.suit-btn').forEach(b=>b.classList.remove('correct','wrong'));
+    roundTimer=setTimeout(()=>{
+      roundTimer=null;
+      clearChoices();
       current=pick();
       c.textContent='🂠';c.style.color='';locked=false;
     },900);
@@ -150,13 +168,15 @@ function guess(suit){
 }
 
 function resetGame(){
+  clearTimeout(roundTimer); roundTimer=null;
+  clearChoices();
   hits=0;misses=0;streak=0;
   ['hits','misses','streak'].forEach(id=>document.getElementById(id).textContent=0);
   document.getElementById('streakBig').textContent='';
   document.getElementById('msg').textContent='マークを選んでカードを当てよう！';
   document.getElementById('msg').style.color='';
-  document.getElementById('card').textContent='🂠';
-  document.getElementById('card').style.color='';
+  const c=document.getElementById('card');
+  c.textContent='🂠';c.style.color='';c.classList.remove('flip');
   current=pick();locked=false;
 }
 
